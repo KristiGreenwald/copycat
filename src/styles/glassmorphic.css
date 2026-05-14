@@ -1,0 +1,129 @@
+:root {
+  --glass-bg: rgba(30, 30, 30, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-blur: 20px;
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --accent: #6c8cff;
+  --accent-hover: #8aa4ff;
+  --danger: #ff6b6b;
+  --danger-hover: #ff8585;
+  --slot-bg: rgba(255, 255, 255, 0.06);
+  --slot-hover: rgba(255, 255, 255, 0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
+}
+
+.slot-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin: 4px 0;
+  background: var(--slot-bg);
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease;
+}
+
+.slot-item:hover {
+  background: var(--slot-hover);
+}
+
+.slot-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.slot-preview {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-left: 8px;
+  transition: all 0.15s ease;
+}
+
+.slot-close:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.processing-indicator {
+  animation: pulse 1.5s ease-in-out infinite;
+  color: var(--accent);
+  font-size: 11px;
+  margin-left: 6px;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+}
+
+.hud-enter {
+  animation: slideIn 0.25s ease-out forwards;
+}
+
+.hud-exit {
+  animation: slideOut 0.2s ease-in forwards;
+}
