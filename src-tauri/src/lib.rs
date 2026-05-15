@@ -248,7 +248,7 @@ async fn ai_process_slot(
             persistence::save_slots(mgr.slots_for_persistence()).ok();
             drop(mgr);
             let _ = app.get_webview_window("main").map(|w| w.emit("slots-updated", ()));
-            eprintln!("[ClipX AI] Slot {} processed successfully", slot_index);
+            eprintln!("[CopyCat AI] Slot {} processed successfully", slot_index);
         }
         Err(e) => {
             let mut mgr = clipboard_state.lock().unwrap();
@@ -257,7 +257,7 @@ async fn ai_process_slot(
             }
             drop(mgr);
             let _ = app.get_webview_window("main").map(|w| w.emit("slots-updated", ()));
-            eprintln!("[ClipX AI] Slot {} processing failed: {}", slot_index, e);
+            eprintln!("[CopyCat AI] Slot {} processing failed: {}", slot_index, e);
         }
     }
 
@@ -313,12 +313,12 @@ pub fn run() {
             {
                 let trusted = macos_accessibility_check();
                 if !trusted {
-                    eprintln!("[ClipX] ⚠️  Accessibility permissions NOT granted!");
-                    eprintln!("[ClipX] ⚠️  Global shortcuts will NOT work without Accessibility access.");
-                    eprintln!("[ClipX] ⚠️  Go to: System Settings → Privacy & Security → Accessibility");
-                    eprintln!("[ClipX] ⚠️  Enable access for this app, then restart ClipX.");
+                    eprintln!("[CopyCat] ⚠️  Accessibility permissions NOT granted!");
+                    eprintln!("[CopyCat] ⚠️  Global shortcuts will NOT work without Accessibility access.");
+                    eprintln!("[CopyCat] ⚠️  Go to: System Settings → Privacy & Security → Accessibility");
+                    eprintln!("[CopyCat] ⚠️  Enable access for this app, then restart CopyCat.");
                 } else {
-                    eprintln!("[ClipX] ✓ Accessibility permissions granted");
+                    eprintln!("[CopyCat] ✓ Accessibility permissions granted");
                 }
             }
 
@@ -327,8 +327,8 @@ pub fn run() {
 
             // Register global shortcuts
             match hotkeys::manager::register_shortcuts(app.handle()) {
-                Ok(()) => eprintln!("[ClipX] App setup complete"),
-                Err(e) => eprintln!("[ClipX] WARNING: Failed to register shortcuts: {}", e),
+                Ok(()) => eprintln!("[CopyCat] App setup complete"),
+                Err(e) => eprintln!("[CopyCat] WARNING: Failed to register shortcuts: {}", e),
             }
 
             Ok(())

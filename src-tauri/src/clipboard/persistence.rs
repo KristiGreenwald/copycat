@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 fn data_dir() -> PathBuf {
     let base = dirs::data_dir().unwrap_or_else(|| PathBuf::from("."));
-    let dir = base.join("com.krisgreenwald.clipx");
+    let dir = base.join("com.krisgreenwald.copycat");
     fs::create_dir_all(&dir).ok();
     dir
 }

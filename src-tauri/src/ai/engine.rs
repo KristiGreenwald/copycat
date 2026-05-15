@@ -91,7 +91,7 @@ impl AiEngine {
     }
 
     pub async fn pull_model(&self) -> Result<(), String> {
-        eprintln!("[ClipX AI] Pulling model: {}", self.model_name);
+        eprintln!("[CopyCat AI] Pulling model: {}", self.model_name);
 
         let req = OllamaPullRequest {
             name: self.model_name.clone(),
@@ -107,7 +107,7 @@ impl AiEngine {
             .map_err(|e| format!("Failed to pull model: {}", e))?;
 
         if resp.status().is_success() {
-            eprintln!("[ClipX AI] Model pulled successfully");
+            eprintln!("[CopyCat AI] Model pulled successfully");
             Ok(())
         } else {
             let text = resp.text().await.unwrap_or_default();
@@ -117,7 +117,7 @@ impl AiEngine {
 
     pub async fn generate(&self, prompt: &str) -> Result<String, String> {
         eprintln!(
-            "[ClipX AI] Generating with model '{}', prompt length: {}",
+            "[CopyCat AI] Generating with model '{}', prompt length: {}",
             self.model_name,
             prompt.len()
         );
@@ -148,7 +148,7 @@ impl AiEngine {
             .map_err(|e| format!("Failed to parse response: {}", e))?;
 
         eprintln!(
-            "[ClipX AI] Generated {} chars",
+            "[CopyCat AI] Generated {} chars",
             gen_resp.response.len()
         );
         Ok(gen_resp.response.trim().to_string())

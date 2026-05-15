@@ -1,12 +1,12 @@
 [package]
-name = "clipx"
+name = "copycat"
 version = "0.1.0"
-description = "ClipX — Multi-Slot Clipboard Manager with Local AI"
+description = "CopyCat — Multi-Slot Clipboard Manager with Local AI"
 authors = ["you"]
 edition = "2021"
 
 [lib]
-name = "clipx_lib"
+name = "copycat_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

@@ -125,7 +125,7 @@
 
 <div class="settings-container">
   <header class="settings-header">
-    <h1>ClipX Settings</h1>
+    <h1>CopyCat Settings</h1>
     {#if saveStatus}
       <span class="save-indicator">{saveStatus}</span>
     {/if}
@@ -247,7 +247,7 @@
     {:else if activeTab === "model" && config}
       <div class="section">
         <h3>AI Model (Ollama)</h3>
-        <p class="section-desc">ClipX uses Ollama for local AI processing. All data stays on your machine.</p>
+        <p class="section-desc">CopyCat uses Ollama for local AI processing. All data stays on your machine.</p>
 
         <div class="field">
           <label>Ollama Status</label>

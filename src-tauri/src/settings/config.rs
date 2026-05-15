@@ -91,7 +91,7 @@ impl Default for AppConfig {
 
 fn config_dir() -> PathBuf {
     let base = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
-    let dir = base.join("com.krisgreenwald.clipx");
+    let dir = base.join("com.krisgreenwald.copycat");
     fs::create_dir_all(&dir).ok();
     dir
 }

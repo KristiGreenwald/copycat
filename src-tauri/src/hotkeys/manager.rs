@@ -16,7 +16,7 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
     for (i, key) in keys.iter().enumerate() {
         // Register copy shortcut
         let copy_shortcut_str = format!("{}+{}", shortcuts_config.copy_modifier, key);
-        eprintln!("[ClipX] Registering copy shortcut: {}", copy_shortcut_str);
+        eprintln!("[CopyCat] Registering copy shortcut: {}", copy_shortcut_str);
         let copy_shortcut: Shortcut = copy_shortcut_str.parse().map_err(|e| {
             format!("Failed to parse copy shortcut '{}': {:?}", copy_shortcut_str, e)
         })?;
@@ -24,28 +24,28 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
         let app_copy = app.clone();
         app.global_shortcut().on_shortcut(copy_shortcut, move |_app, _shortcut: &Shortcut, event: ShortcutEvent| {
             if event.state == ShortcutState::Pressed {
-                eprintln!("[ClipX] Copy shortcut pressed for slot {}", slot_index);
+                eprintln!("[CopyCat] Copy shortcut pressed for slot {}", slot_index);
                 handle_copy(&app_copy, slot_index);
             }
         })?;
 
         // Register paste shortcut
         let paste_shortcut_str = format!("{}+{}", shortcuts_config.paste_modifier, key);
-        eprintln!("[ClipX] Registering paste shortcut: {}", paste_shortcut_str);
+        eprintln!("[CopyCat] Registering paste shortcut: {}", paste_shortcut_str);
         let paste_shortcut: Shortcut = paste_shortcut_str.parse().map_err(|e| {
             format!("Failed to parse paste shortcut '{}': {:?}", paste_shortcut_str, e)
         })?;
         let app_paste = app.clone();
         app.global_shortcut().on_shortcut(paste_shortcut, move |_app, _shortcut: &Shortcut, event: ShortcutEvent| {
             if event.state == ShortcutState::Pressed {
-                eprintln!("[ClipX] Paste shortcut pressed for slot {}", slot_index);
+                eprintln!("[CopyCat] Paste shortcut pressed for slot {}", slot_index);
                 handle_paste(&app_paste, slot_index);
             }
         })?;
     }
 
     // Register HUD toggle shortcut
-    eprintln!("[ClipX] Registering HUD toggle: {}", shortcuts_config.toggle_hud);
+    eprintln!("[CopyCat] Registering HUD toggle: {}", shortcuts_config.toggle_hud);
     let toggle_hud: Shortcut = shortcuts_config
         .toggle_hud
         .parse()
@@ -53,7 +53,7 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
     let app_hud = app.clone();
     app.global_shortcut().on_shortcut(toggle_hud, move |_app, _shortcut: &Shortcut, event: ShortcutEvent| {
         if event.state == ShortcutState::Pressed {
-            eprintln!("[ClipX] HUD toggle pressed");
+            eprintln!("[CopyCat] HUD toggle pressed");
             let state = app_hud.state::<SharedClipboardManager>();
             let mgr = state.lock().unwrap();
             let occupied = mgr.get_occupied_slots().len();
@@ -64,7 +64,7 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
     })?;
 
     // Register clear-all shortcut
-    eprintln!("[ClipX] Registering clear-all: {}", shortcuts_config.clear_all);
+    eprintln!("[CopyCat] Registering clear-all: {}", shortcuts_config.clear_all);
     let clear_all: Shortcut = shortcuts_config
         .clear_all
         .parse()
@@ -72,7 +72,7 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
     let app_clear = app.clone();
     app.global_shortcut().on_shortcut(clear_all, move |_app, _shortcut: &Shortcut, event: ShortcutEvent| {
         if event.state == ShortcutState::Pressed {
-            eprintln!("[ClipX] Clear-all pressed");
+            eprintln!("[CopyCat] Clear-all pressed");
             let state = app_clear.state::<SharedClipboardManager>();
             let mut mgr = state.lock().unwrap();
             mgr.clear_all();
@@ -84,7 +84,7 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
         }
     })?;
 
-    eprintln!("[ClipX] All shortcuts registered successfully");
+    eprintln!("[CopyCat] All shortcuts registered successfully");
     Ok(())
 }
 
@@ -109,9 +109,9 @@ pub fn show_hud_window(app: &AppHandle, slot_count: usize) {
         }
         window.show().ok();
         window.set_focus().ok();
-        eprintln!("[ClipX] HUD window shown ({} slots)", slot_count);
+        eprintln!("[CopyCat] HUD window shown ({} slots)", slot_count);
     } else {
-        eprintln!("[ClipX] WARNING: main window not found");
+        eprintln!("[CopyCat] WARNING: main window not found");
     }
 }
 
@@ -135,7 +135,7 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
 
     match mgr.copy_to_slot(slot_index) {
         Ok(slot_info) => {
-            eprintln!("[ClipX] Copied to slot {}: '{}'", slot_index, slot_info.preview);
+            eprintln!("[CopyCat] Copied to slot {}: '{}'", slot_index, slot_info.preview);
             let has_prompt = slot_info.has_prompt;
             persistence::save_slots(mgr.slots_for_persistence()).ok();
             let occupied = mgr.get_occupied_slots().len();
@@ -150,7 +150,7 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
             if has_prompt {
                 let app_clone = app.clone();
                 tauri::async_runtime::spawn(async move {
-                    eprintln!("[ClipX AI] Auto-processing slot {} with assigned prompt", slot_index);
+                    eprintln!("[CopyCat AI] Auto-processing slot {} with assigned prompt", slot_index);
                     let engine = app_clone.state::<crate::ai::engine::SharedAiEngine>();
                     let clipboard = app_clone.state::<SharedClipboardManager>();
                     let config = app_clone.state::<crate::settings::config::SharedConfig>();
@@ -193,7 +193,7 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
                                     if let Some(window) = app_clone.get_webview_window("main") {
                                         let _ = window.emit("slots-updated", ());
                                     }
-                                    eprintln!("[ClipX AI] Slot {} auto-processed successfully", slot_index);
+                                    eprintln!("[CopyCat AI] Slot {} auto-processed successfully", slot_index);
                                 }
                                 Err(e) => {
                                     let mut mgr = clipboard.lock().unwrap();
@@ -204,7 +204,7 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
                                     if let Some(window) = app_clone.get_webview_window("main") {
                                         let _ = window.emit("slots-updated", ());
                                     }
-                                    eprintln!("[ClipX AI] Slot {} auto-processing failed: {}", slot_index, e);
+                                    eprintln!("[CopyCat AI] Slot {} auto-processing failed: {}", slot_index, e);
                                 }
                             }
                         }
@@ -213,7 +213,7 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
             }
         }
         Err(e) => {
-            eprintln!("[ClipX] Failed to copy to slot {}: {}", slot_index, e);
+            eprintln!("[CopyCat] Failed to copy to slot {}: {}", slot_index, e);
         }
     }
 }
@@ -224,7 +224,7 @@ fn handle_paste(app: &AppHandle, slot_index: usize) {
 
     match mgr.paste_from_slot(slot_index) {
         Ok(()) => {
-            eprintln!("[ClipX] Pasted from slot {}", slot_index);
+            eprintln!("[CopyCat] Pasted from slot {}", slot_index);
             let occupied = mgr.get_occupied_slots().len();
             drop(mgr);
             show_hud_window(app, occupied);
@@ -233,7 +233,7 @@ fn handle_paste(app: &AppHandle, slot_index: usize) {
             }
         }
         Err(e) => {
-            eprintln!("[ClipX] Failed to paste from slot {}: {}", slot_index, e);
+            eprintln!("[CopyCat] Failed to paste from slot {}: {}", slot_index, e);
         }
     }
 }

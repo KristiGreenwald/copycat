@@ -92,7 +92,7 @@
 {#if visible}
   <div class="hud-container {animClass}">
     <div class="hud-header">
-      <span class="hud-title">ClipX</span>
+      <span class="hud-title">CopyCat</span>
       {#if occupiedSlots.length > 0}
         <span class="hud-count">{occupiedSlots.length} slot{occupiedSlots.length !== 1 ? 's' : ''}</span>
       {/if}
