@@ -13,6 +13,28 @@
   let pulling = $state(false);
   let pullModelName = $state("tinyllama");
   let saveStatus = $state("");
+  let copiedCommand = $state(false);
+
+  // Shortcut builder state
+  const modifierPresets = [
+    { label: "⌘ Cmd + ⌥ Option", value: "CmdOrCtrl+Alt" },
+    { label: "⌃ Ctrl + ⌥ Option", value: "Control+Alt" },
+    { label: "⌘ Cmd + ⇧ Shift", value: "CmdOrCtrl+Shift" },
+    { label: "⌃ Ctrl + ⇧ Shift", value: "Control+Shift" },
+  ];
+
+  const hudKeyPresets = [
+    { label: "⌃⌥⌘ Space", value: "Control+Alt+Super+Space" },
+    { label: "⌘⌥ V", value: "CmdOrCtrl+Alt+V" },
+    { label: "⌘⌥ H", value: "CmdOrCtrl+Alt+H" },
+    { label: "⌃⌥⌘ H", value: "Control+Alt+Super+H" },
+  ];
+
+  const clearKeyPresets = [
+    { label: "⌘⌥ Backspace", value: "CmdOrCtrl+Alt+Backspace" },
+    { label: "⌃⌥⌘ Backspace", value: "Control+Alt+Super+Backspace" },
+    { label: "⌘⌥ Delete", value: "CmdOrCtrl+Alt+Delete" },
+  ];
 
   onMount(async () => {
     config = await getConfig();
@@ -85,6 +107,20 @@
   function slotLabel(i: number): string {
     return i === 9 ? "0" : String(i + 1);
   }
+
+  function slotShortcut(i: number): string {
+    return `⌘⌥${slotLabel(i)}`;
+  }
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+    copiedCommand = true;
+    setTimeout(() => (copiedCommand = false), 2000);
+  }
+
+  function promptForSlot(slotIndex: number): PromptTemplate | undefined {
+    return prompts.find(p => p.assigned_slot === slotIndex);
+  }
 </script>
 
 <div class="settings-container">
@@ -120,47 +156,92 @@
           onCancel={() => (editingPrompt = null)}
         />
       {:else}
+        <p class="section-desc">Assign AI prompts to slots. When you copy to a slot with a prompt, the AI will automatically transform the content.</p>
         <div class="prompt-list">
           {#each prompts as prompt}
-            <div class="prompt-row" onclick={() => (editingPrompt = { ...prompt })} role="button" tabindex="0">
+            <button class="prompt-row" onclick={() => (editingPrompt = { ...prompt })}>
               <div class="prompt-info">
-                <span class="prompt-name">{prompt.name}</span>
                 {#if prompt.assigned_slot !== null}
-                  <span class="prompt-slot">Slot {slotLabel(prompt.assigned_slot)}</span>
+                  <span class="slot-badge">{slotLabel(prompt.assigned_slot)}</span>
+                {:else}
+                  <span class="slot-badge unassigned">—</span>
                 {/if}
+                <div class="prompt-details">
+                  <span class="prompt-name">{prompt.name}</span>
+                  {#if prompt.assigned_slot !== null}
+                    <span class="prompt-shortcut">{slotShortcut(prompt.assigned_slot)} to copy</span>
+                  {:else}
+                    <span class="prompt-shortcut unassigned-text">Not assigned to a slot</span>
+                  {/if}
+                </div>
               </div>
-              <span class="prompt-arrow">→</span>
-            </div>
+              <span class="prompt-arrow">›</span>
+            </button>
           {/each}
         </div>
+
+        <div class="slot-overview">
+          <h4>Slot Overview</h4>
+          <div class="slot-grid">
+            {#each Array(10) as _, i}
+              {@const p = promptForSlot(i)}
+              <div class="slot-grid-item" class:has-prompt={!!p}>
+                <span class="slot-grid-num">{slotLabel(i)}</span>
+                <span class="slot-grid-label">{p ? p.name : 'No prompt'}</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+
         <button class="btn btn-primary" onclick={newPrompt}>+ New Prompt</button>
       {/if}
 
     {:else if activeTab === "shortcuts" && config}
       <div class="section">
         <h3>Keyboard Shortcuts</h3>
-        <p class="section-desc">Shortcuts use modifier keys + number (1-0) for each slot.</p>
+        <p class="section-desc">Choose modifier keys for copy/paste. The slot number (1–0) is added automatically.</p>
 
         <div class="field">
-          <label for="copy-mod">Copy to slot</label>
-          <input id="copy-mod" type="text" bind:value={config.shortcuts.copy_modifier} />
-          <span class="hint">+ [1-0] for each slot</span>
+          <label for="copy-mod">Copy to slot — modifier keys + [1-0]</label>
+          <select id="copy-mod" bind:value={config.shortcuts.copy_modifier}>
+            {#each modifierPresets as preset}
+              <option value={preset.value}>{preset.label}</option>
+            {/each}
+          </select>
+          <span class="shortcut-preview">Example: {config.shortcuts.copy_modifier.replace('CmdOrCtrl', '⌘').replace('Control', '⌃').replace('Alt', '⌥').replace('Shift', '⇧').replace(/\+/g, ' ')} 1</span>
         </div>
+
         <div class="field">
-          <label for="paste-mod">Paste from slot</label>
-          <input id="paste-mod" type="text" bind:value={config.shortcuts.paste_modifier} />
-          <span class="hint">+ [1-0] for each slot</span>
+          <label for="paste-mod">Paste from slot — modifier keys + [1-0]</label>
+          <select id="paste-mod" bind:value={config.shortcuts.paste_modifier}>
+            <option value="CmdOrCtrl+Alt+Shift">⌘ Cmd + ⌥ Option + ⇧ Shift</option>
+            <option value="Control+Alt+Shift">⌃ Ctrl + ⌥ Option + ⇧ Shift</option>
+            <option value="CmdOrCtrl+Shift">⌘ Cmd + ⇧ Shift</option>
+            <option value="Control+Shift">⌃ Ctrl + ⇧ Shift</option>
+          </select>
+          <span class="shortcut-preview">Example: {config.shortcuts.paste_modifier.replace('CmdOrCtrl', '⌘').replace('Control', '⌃').replace('Alt', '⌥').replace('Shift', '⇧').replace(/\+/g, ' ')} 1</span>
         </div>
+
         <div class="field">
           <label for="toggle-hud">Toggle HUD</label>
-          <input id="toggle-hud" type="text" bind:value={config.shortcuts.toggle_hud} />
+          <select id="toggle-hud" bind:value={config.shortcuts.toggle_hud}>
+            {#each hudKeyPresets as preset}
+              <option value={preset.value}>{preset.label}</option>
+            {/each}
+          </select>
         </div>
+
         <div class="field">
           <label for="clear-all">Clear all slots</label>
-          <input id="clear-all" type="text" bind:value={config.shortcuts.clear_all} />
+          <select id="clear-all" bind:value={config.shortcuts.clear_all}>
+            {#each clearKeyPresets as preset}
+              <option value={preset.value}>{preset.label}</option>
+            {/each}
+          </select>
         </div>
 
         <button class="btn btn-primary" onclick={handleSaveConfig}>Save Shortcuts</button>
+        <p class="hint" style="margin-top: 8px;">Changes require an app restart to take effect.</p>
       </div>
 
     {:else if activeTab === "model" && config}
@@ -176,7 +257,16 @@
             <span class="status-ok">Running ✓</span>
           {:else}
             <span class="status-pending">Not running ✗</span>
-            <p class="hint">Install Ollama: <code>brew install ollama</code> then run <code>ollama serve</code></p>
+            <div class="install-guide">
+              <p class="install-label">Run this in your terminal to install and start Ollama:</p>
+              <div class="code-block">
+                <code>brew install ollama && ollama serve</code>
+                <button class="copy-btn" onclick={() => copyToClipboard('brew install ollama && ollama serve')}>
+                  {copiedCommand ? '✓ Copied' : 'Copy'}
+                </button>
+              </div>
+              <p class="hint">After Ollama is running, click Refresh Status below.</p>
+            </div>
           {/if}
         </div>
 
@@ -195,7 +285,7 @@
             <div class="field">
               <label>Installed Models</label>
               {#each availableModels as model}
-                <div class="model-row">{model.name} <span class="hint">({(model.size / 1e9).toFixed(1)} GB)</span></div>
+                <div class="model-row">{model.name} <span class="hint" style="display: inline;">({(model.size / 1e9).toFixed(1)} GB)</span></div>
               {/each}
             </div>
           {/if}
@@ -203,12 +293,18 @@
           <div class="field">
             <label for="pull-model">Pull a Model</label>
             <div style="display: flex; gap: 8px;">
-              <input id="pull-model" type="text" bind:value={pullModelName} placeholder="e.g., tinyllama, phi3, llama3.2:1b" />
-              <button class="btn btn-primary" onclick={handlePullModel} disabled={pulling || !pullModelName.trim()}>
+              <select id="pull-model" bind:value={pullModelName} style="flex: 1;">
+                <option value="tinyllama">tinyllama (1.1B — fast, ~640MB)</option>
+                <option value="phi3">phi3 (3.8B — balanced, ~2.2GB)</option>
+                <option value="llama3.2:1b">llama3.2:1b (1B — compact, ~1.3GB)</option>
+                <option value="llama3.2:3b">llama3.2:3b (3B — capable, ~2GB)</option>
+                <option value="mistral">mistral (7B — powerful, ~4.1GB)</option>
+              </select>
+              <button class="btn btn-primary" onclick={handlePullModel} disabled={pulling}>
                 {pulling ? "Pulling..." : "Pull"}
               </button>
             </div>
-            <span class="hint">Recommended small models: tinyllama, phi3, llama3.2:1b</span>
+            <span class="hint">Smaller models are faster. Larger models produce better results.</span>
           </div>
         {/if}
 
@@ -252,24 +348,11 @@
     margin-bottom: 24px;
   }
 
-  h1 {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 0;
-  }
+  h1 { font-size: 20px; font-weight: 700; margin: 0; }
+  h3 { font-size: 15px; font-weight: 600; margin: 0 0 12px 0; color: #ddd; }
+  h4 { font-size: 13px; font-weight: 600; margin: 16px 0 8px 0; color: #aaa; }
 
-  h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 0 0 12px 0;
-    color: #ddd;
-  }
-
-  .save-indicator {
-    font-size: 12px;
-    color: #6c8cff;
-    font-weight: 600;
-  }
+  .save-indicator { font-size: 12px; color: #6c8cff; font-weight: 600; }
 
   .tabs {
     display: flex;
@@ -289,29 +372,13 @@
     border-bottom: 2px solid transparent;
     transition: all 0.15s;
   }
+  .tab:hover { color: #ccc; }
+  .tab.active { color: #6c8cff; border-bottom-color: #6c8cff; }
 
-  .tab:hover {
-    color: #ccc;
-  }
+  .section { padding: 4px 0; }
+  .section-desc { font-size: 12px; color: #888; margin: 0 0 16px 0; }
 
-  .tab.active {
-    color: #6c8cff;
-    border-bottom-color: #6c8cff;
-  }
-
-  .section {
-    padding: 4px 0;
-  }
-
-  .section-desc {
-    font-size: 12px;
-    color: #888;
-    margin: 0 0 16px 0;
-  }
-
-  .field {
-    margin-bottom: 14px;
-  }
+  .field { margin-bottom: 14px; }
 
   label {
     display: block;
@@ -322,7 +389,8 @@
   }
 
   input[type="text"],
-  input[type="number"] {
+  input[type="number"],
+  select {
     width: 100%;
     padding: 8px 12px;
     font-size: 13px;
@@ -333,16 +401,16 @@
     outline: none;
     box-sizing: border-box;
   }
+  input:focus, select:focus { border-color: #6c8cff; }
 
-  input:focus {
-    border-color: #6c8cff;
-  }
+  .hint { font-size: 11px; color: #666; margin-top: 4px; display: block; }
 
-  .hint {
-    font-size: 11px;
-    color: #666;
-    margin-top: 4px;
+  .shortcut-preview {
     display: block;
+    font-size: 12px;
+    color: #6c8cff;
+    margin-top: 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
   }
 
   .checkbox-field label {
@@ -354,72 +422,122 @@
     color: #ddd;
   }
 
-  .prompt-list {
-    margin-bottom: 16px;
-  }
+  /* Prompts */
+  .prompt-list { margin-bottom: 16px; }
 
   .prompt-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
     padding: 10px 12px;
     border: 1px solid #333;
     border-radius: 8px;
     margin-bottom: 6px;
     cursor: pointer;
     transition: background 0.15s;
+    background: none;
+    color: inherit;
+    text-align: left;
+    font: inherit;
   }
+  .prompt-row:hover { background: #2a2a2a; }
 
-  .prompt-row:hover {
-    background: #2a2a2a;
+  .prompt-info { display: flex; align-items: center; gap: 10px; }
+
+  .slot-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background: #6c8cff;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
   }
+  .slot-badge.unassigned { background: #444; color: #888; }
 
-  .prompt-info {
+  .prompt-details { display: flex; flex-direction: column; gap: 2px; }
+  .prompt-name { font-size: 13px; font-weight: 600; color: #ddd; }
+  .prompt-shortcut { font-size: 11px; color: #6c8cff; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .prompt-shortcut.unassigned-text { color: #666; font-family: inherit; }
+  .prompt-arrow { color: #555; font-size: 18px; }
+
+  /* Slot overview grid */
+  .slot-overview { margin-top: 16px; margin-bottom: 16px; }
+  .slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .slot-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 4px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    gap: 4px;
+  }
+  .slot-grid-item.has-prompt { border-color: #6c8cff; background: rgba(108, 140, 255, 0.06); }
+  .slot-grid-num { font-size: 14px; font-weight: 700; color: #888; }
+  .slot-grid-item.has-prompt .slot-grid-num { color: #6c8cff; }
+  .slot-grid-label {
+    font-size: 9px;
+    color: #555;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .slot-grid-item.has-prompt .slot-grid-label { color: #aaa; }
+
+  /* Model */
+  .model-name { font-size: 14px; color: #ddd; font-weight: 500; }
+  .model-row { font-size: 13px; color: #ccc; padding: 4px 0; }
+  .status-ok { color: #4caf50; font-size: 13px; }
+  .status-pending { color: #ff9800; font-size: 13px; }
+
+  .install-guide {
+    margin-top: 12px;
+    padding: 12px;
+    background: #252525;
+    border-radius: 8px;
+    border: 1px solid #333;
+  }
+  .install-label { font-size: 12px; color: #aaa; margin: 0 0 8px 0; }
+
+  .code-block {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px 12px;
+    gap: 8px;
   }
-
-  .prompt-name {
+  .code-block code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
     font-size: 13px;
-    font-weight: 600;
-    color: #ddd;
+    color: #e0e0e0;
+    user-select: all;
   }
-
-  .prompt-slot {
-    font-size: 11px;
-    color: #6c8cff;
-    background: rgba(108, 140, 255, 0.12);
-    padding: 2px 8px;
+  .copy-btn {
+    padding: 4px 10px;
+    border: 1px solid #555;
     border-radius: 4px;
-  }
-
-  .prompt-arrow {
-    color: #555;
-  }
-
-  .model-name {
-    font-size: 14px;
-    color: #ddd;
-    font-weight: 500;
-  }
-
-  .model-row {
-    font-size: 13px;
+    background: #333;
     color: #ccc;
-    padding: 4px 0;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
   }
+  .copy-btn:hover { background: #444; border-color: #6c8cff; color: #fff; }
 
-  .status-ok {
-    color: #4caf50;
-    font-size: 13px;
-  }
-
-  .status-pending {
-    color: #ff9800;
-    font-size: 13px;
-  }
-
+  /* Buttons */
   .btn {
     padding: 8px 16px;
     border: none;
@@ -429,13 +547,9 @@
     cursor: pointer;
     transition: background 0.15s;
   }
-
-  .btn-primary {
-    background: #6c8cff;
-    color: #fff;
-  }
-
-  .btn-primary:hover {
-    background: #8aa4ff;
-  }
+  .btn-primary { background: #6c8cff; color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #8aa4ff; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: #444; color: #ccc; }
+  .btn-secondary:hover { background: #555; }
 </style>
