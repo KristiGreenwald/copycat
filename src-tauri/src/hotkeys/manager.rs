@@ -95,13 +95,15 @@ pub fn show_hud_window(app: &AppHandle, slot_count: usize) {
             let screen_pos = monitor.position();
             let scale = monitor.scale_factor();
             let win_w = (280.0 * scale) as i32;
-            // Dynamic height: header(40) + slots(36 each) + padding(16)
+            // Dynamic height: header(44) + slots(48 each) + padding(20)
             let count = if slot_count == 0 { 1 } else { slot_count };
-            let content_h = 40.0 + (count as f64 * 36.0) + 16.0;
+            let content_h = 44.0 + (count as f64 * 48.0) + 20.0;
             let win_h = (content_h * scale) as i32;
-            let margin = (12.0 * scale) as i32;
-            let x = screen_pos.x + screen_size.width as i32 - win_w - margin;
-            let y = screen_pos.y + screen_size.height as i32 - win_h - margin;
+            // Use 80px bottom margin to clear the macOS Dock
+            let margin_x = (12.0 * scale) as i32;
+            let margin_y = (80.0 * scale) as i32;
+            let x = screen_pos.x + screen_size.width as i32 - win_w - margin_x;
+            let y = screen_pos.y + screen_size.height as i32 - win_h - margin_y;
             let _ = window.set_size(tauri::PhysicalSize::new(win_w as u32, win_h as u32));
             let _ = window.set_position(tauri::PhysicalPosition::new(x, y));
         }
