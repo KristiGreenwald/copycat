@@ -10,18 +10,12 @@
 
   let { prompt, onSave, onDelete, onCancel }: Props = $props();
 
-  let name = $state("");
-  let template = $state("");
-  let assignedSlot = $state<number | null>(null);
-  let isNew = $state(true);
-
-  // Sync local state when prompt prop changes
-  $effect(() => {
-    name = prompt.name;
-    template = prompt.template;
-    assignedSlot = prompt.assigned_slot;
-    isNew = !prompt.name;
-  });
+  // These initialize once on mount. The {#key} wrapper in the parent
+  // ensures this component is recreated when switching prompts.
+  let name = $state(prompt.name);
+  let template = $state(prompt.template);
+  let assignedSlot: number | null = $state(prompt.assigned_slot ?? null);
+  let isNew = !prompt.name;
 
   function handleSave() {
     onSave({
@@ -33,7 +27,11 @@
   }
 
   function selectSlot(i: number) {
-    assignedSlot = assignedSlot === i ? null : i;
+    if (assignedSlot === i) {
+      assignedSlot = null;
+    } else {
+      assignedSlot = i;
+    }
   }
 
   function slotDisplay(i: number): string {

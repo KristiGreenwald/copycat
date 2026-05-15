@@ -149,12 +149,14 @@
   <div class="tab-content">
     {#if activeTab === "prompts"}
       {#if editingPrompt}
-        <PromptEditor
-          prompt={editingPrompt}
-          onSave={handleSavePrompt}
-          onDelete={handleDeletePrompt}
-          onCancel={() => (editingPrompt = null)}
-        />
+        {#key editingPrompt.id}
+          <PromptEditor
+            prompt={editingPrompt}
+            onSave={handleSavePrompt}
+            onDelete={handleDeletePrompt}
+            onCancel={() => (editingPrompt = null)}
+          />
+        {/key}
       {:else}
         <p class="section-desc">Assign AI prompts to slots. When you copy to a slot with a prompt, the AI will automatically transform the content.</p>
         <div class="prompt-list">
