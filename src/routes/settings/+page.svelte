@@ -2,34 +2,44 @@
   import { onMount } from "svelte";
   import { getConfig, saveConfig, getPrompts, savePrompt, deletePrompt, aiCheckStatus, aiListModels, aiPullModel } from "$lib/api";
   import type { AppConfig, PromptTemplate, AiStatus } from "$lib/api";
-  import PromptEditor from "../../components/PromptEditor.svelte";
 
-  let config = $state<AppConfig | null>(null);
-  let prompts = $state<PromptTemplate[]>([]);
-  let editingPrompt = $state<PromptTemplate | null>(null);
-  let activeTab = $state<"prompts" | "shortcuts" | "model" | "general">("prompts");
-  let aiStatus = $state<AiStatus | null>(null);
-  let availableModels = $state<{ name: string; size: number }[]>([]);
+  let config: AppConfig | null = $state(null);
+  let prompts: PromptTemplate[] = $state([]);
+  let activeTab: string = $state("prompts");
+  let aiStatus: AiStatus | null = $state(null);
+  let availableModels: { name: string; size: number }[] = $state([]);
   let pulling = $state(false);
   let pullModelName = $state("tinyllama");
   let saveStatus = $state("");
   let copiedCommand = $state(false);
+  let loadError = $state("");
 
-  // Shortcut builder state
+  // Prompt editor state (inline, no separate component)
+  let editMode = $state(false);
+  let editId = $state("");
+  let editName = $state("");
+  let editTemplate = $state("");
+  let editSlot: number | null = $state(null);
+  let editIsNew = $state(true);
+
   const modifierPresets = [
     { label: "⌘ Cmd + ⌥ Option", value: "CmdOrCtrl+Alt" },
     { label: "⌃ Ctrl + ⌥ Option", value: "Control+Alt" },
     { label: "⌘ Cmd + ⇧ Shift", value: "CmdOrCtrl+Shift" },
     { label: "⌃ Ctrl + ⇧ Shift", value: "Control+Shift" },
   ];
-
+  const pastePresets = [
+    { label: "⌘ Cmd + ⌥ Option + ⇧ Shift", value: "CmdOrCtrl+Alt+Shift" },
+    { label: "⌃ Ctrl + ⌥ Option + ⇧ Shift", value: "Control+Alt+Shift" },
+    { label: "⌘ Cmd + ⇧ Shift", value: "CmdOrCtrl+Shift" },
+    { label: "⌃ Ctrl + ⇧ Shift", value: "Control+Shift" },
+  ];
   const hudKeyPresets = [
     { label: "⌃⌥⌘ Space", value: "Control+Alt+Super+Space" },
     { label: "⌘⌥ V", value: "CmdOrCtrl+Alt+V" },
     { label: "⌘⌥ H", value: "CmdOrCtrl+Alt+H" },
     { label: "⌃⌥⌘ H", value: "Control+Alt+Super+H" },
   ];
-
   const clearKeyPresets = [
     { label: "⌘⌥ Backspace", value: "CmdOrCtrl+Alt+Backspace" },
     { label: "⌃⌥⌘ Backspace", value: "Control+Alt+Super+Backspace" },
@@ -37,8 +47,12 @@
   ];
 
   onMount(async () => {
-    config = await getConfig();
-    prompts = await getPrompts();
+    try {
+      config = await getConfig();
+      prompts = await getPrompts();
+    } catch (e) {
+      loadError = String(e);
+    }
     refreshAiStatus();
   });
 
@@ -58,9 +72,7 @@
     try {
       await aiPullModel(pullModelName);
       await refreshAiStatus();
-      if (config) {
-        config = await getConfig();
-      }
+      config = await getConfig();
       showSaved();
     } catch (e) {
       saveStatus = `Error: ${e}`;
@@ -69,39 +81,9 @@
     pulling = false;
   }
 
-  async function handleSavePrompt(prompt: PromptTemplate) {
-    await savePrompt(prompt);
-    prompts = await getPrompts();
-    editingPrompt = null;
-    showSaved();
-  }
-
-  async function handleDeletePrompt(promptId: string) {
-    await deletePrompt(promptId);
-    prompts = await getPrompts();
-    editingPrompt = null;
-    showSaved();
-  }
-
-  async function handleSaveConfig() {
-    if (config) {
-      await saveConfig(config);
-      showSaved();
-    }
-  }
-
   function showSaved() {
     saveStatus = "Saved!";
     setTimeout(() => (saveStatus = ""), 2000);
-  }
-
-  function newPrompt() {
-    editingPrompt = {
-      id: crypto.randomUUID(),
-      name: "",
-      template: "",
-      assigned_slot: null,
-    };
   }
 
   function slotLabel(i: number): string {
@@ -118,6 +100,70 @@
     setTimeout(() => (copiedCommand = false), 2000);
   }
 
+  // ── Prompt Editor Functions ──
+
+  function openNewPrompt() {
+    editMode = true;
+    editId = crypto.randomUUID();
+    editName = "";
+    editTemplate = "";
+    editSlot = null;
+    editIsNew = true;
+  }
+
+  function openEditPrompt(p: PromptTemplate) {
+    editMode = true;
+    editId = p.id;
+    editName = p.name;
+    editTemplate = p.template;
+    editSlot = p.assigned_slot;
+    editIsNew = false;
+  }
+
+  function cancelEdit() {
+    editMode = false;
+  }
+
+  function toggleSlot(i: number) {
+    editSlot = editSlot === i ? null : i;
+  }
+
+  async function doSavePrompt() {
+    try {
+      await savePrompt({
+        id: editId,
+        name: editName,
+        template: editTemplate,
+        assigned_slot: editSlot,
+      });
+      prompts = await getPrompts();
+      editMode = false;
+      showSaved();
+    } catch (e) {
+      saveStatus = `Error: ${e}`;
+      setTimeout(() => (saveStatus = ""), 4000);
+    }
+  }
+
+  async function doDeletePrompt() {
+    try {
+      await deletePrompt(editId);
+      prompts = await getPrompts();
+      editMode = false;
+      showSaved();
+    } catch (e) {
+      saveStatus = `Error: ${e}`;
+      setTimeout(() => (saveStatus = ""), 4000);
+    }
+  }
+
+  async function handleSaveConfig() {
+    if (config) {
+      await saveConfig(config);
+      showSaved();
+    }
+  }
+
   function promptForSlot(slotIndex: number): PromptTemplate | undefined {
     return prompts.find(p => p.assigned_slot === slotIndex);
   }
@@ -131,47 +177,80 @@
     {/if}
   </header>
 
+  {#if loadError}
+    <div class="error-banner">Failed to load: {loadError}</div>
+  {/if}
+
   <nav class="tabs">
-    <button class="tab" class:active={activeTab === "prompts"} onclick={() => { editingPrompt = null; activeTab = "prompts"; }}>
+    <button class="tab" class:active={activeTab === "prompts"} on:click={() => { editMode = false; activeTab = "prompts"; }}>
       Prompts
     </button>
-    <button class="tab" class:active={activeTab === "shortcuts"} onclick={() => { editingPrompt = null; activeTab = "shortcuts"; }}>
+    <button class="tab" class:active={activeTab === "shortcuts"} on:click={() => { editMode = false; activeTab = "shortcuts"; }}>
       Shortcuts
     </button>
-    <button class="tab" class:active={activeTab === "model"} onclick={() => { editingPrompt = null; activeTab = "model"; }}>
+    <button class="tab" class:active={activeTab === "model"} on:click={() => { editMode = false; activeTab = "model"; }}>
       AI Model
     </button>
-    <button class="tab" class:active={activeTab === "general"} onclick={() => { editingPrompt = null; activeTab = "general"; }}>
+    <button class="tab" class:active={activeTab === "general"} on:click={() => { editMode = false; activeTab = "general"; }}>
       General
     </button>
   </nav>
 
   <div class="tab-content">
+
+    <!-- ═══ PROMPTS TAB ═══ -->
     {#if activeTab === "prompts"}
-      {#if editingPrompt}
-        {#key editingPrompt.id}
-          <PromptEditor
-            prompt={editingPrompt}
-            onSave={handleSavePrompt}
-            onDelete={handleDeletePrompt}
-            onCancel={() => (editingPrompt = null)}
-          />
-        {/key}
+      {#if editMode}
+        <div class="prompt-editor">
+          <div class="field">
+            <label for="ed-name">Name</label>
+            <input id="ed-name" type="text" bind:value={editName} placeholder="e.g., Summarize" />
+          </div>
+          <div class="field">
+            <label for="ed-template">Prompt Template</label>
+            <textarea id="ed-template" bind:value={editTemplate} placeholder="Use {{content}} where the clipboard content should be inserted" rows="5"></textarea>
+            <span class="hint">Use <code>{"{{content}}"}</code> as a placeholder for the copied text</span>
+          </div>
+          <div class="field">
+            <label>Assign to Slot</label>
+            <div class="slot-picker">
+              {#each Array(10) as _, i}
+                <button class="slot-pick-btn" class:selected={editSlot === i} on:click={() => toggleSlot(i)} type="button">
+                  {slotLabel(i)}
+                </button>
+              {/each}
+            </div>
+            <span class="hint">
+              {#if editSlot !== null}
+                Assigned to slot {slotLabel(editSlot)} — copy with ⌘⌥{slotLabel(editSlot)}
+              {:else}
+                Click a number to assign this prompt to a slot
+              {/if}
+            </span>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" on:click={doSavePrompt} disabled={!editName.trim() || !editTemplate.trim()}>Save</button>
+            {#if !editIsNew}
+              <button class="btn btn-danger" on:click={doDeletePrompt}>Delete</button>
+            {/if}
+            <button class="btn btn-secondary" on:click={cancelEdit}>Cancel</button>
+          </div>
+        </div>
       {:else}
         <p class="section-desc">Assign AI prompts to slots. When you copy to a slot with a prompt, the AI will automatically transform the content.</p>
         <div class="prompt-list">
-          {#each prompts as prompt}
-            <button class="prompt-row" onclick={() => (editingPrompt = { ...prompt })}>
+          {#each prompts as p}
+            <button class="prompt-row" on:click={() => openEditPrompt(p)}>
               <div class="prompt-info">
-                {#if prompt.assigned_slot !== null}
-                  <span class="slot-badge">{slotLabel(prompt.assigned_slot)}</span>
+                {#if p.assigned_slot !== null}
+                  <span class="slot-badge">{slotLabel(p.assigned_slot)}</span>
                 {:else}
                   <span class="slot-badge unassigned">—</span>
                 {/if}
                 <div class="prompt-details">
-                  <span class="prompt-name">{prompt.name}</span>
-                  {#if prompt.assigned_slot !== null}
-                    <span class="prompt-shortcut">{slotShortcut(prompt.assigned_slot)} to copy</span>
+                  <span class="prompt-name">{p.name}</span>
+                  {#if p.assigned_slot !== null}
+                    <span class="prompt-shortcut">{slotShortcut(p.assigned_slot)} to copy</span>
                   {:else}
                     <span class="prompt-shortcut unassigned-text">Not assigned to a slot</span>
                   {/if}
@@ -186,18 +265,19 @@
           <h4>Slot Overview</h4>
           <div class="slot-grid">
             {#each Array(10) as _, i}
-              {@const p = promptForSlot(i)}
-              <div class="slot-grid-item" class:has-prompt={!!p}>
+              {@const sp = promptForSlot(i)}
+              <div class="slot-grid-item" class:has-prompt={!!sp}>
                 <span class="slot-grid-num">{slotLabel(i)}</span>
-                <span class="slot-grid-label">{p ? p.name : 'No prompt'}</span>
+                <span class="slot-grid-label">{sp ? sp.name : 'No prompt'}</span>
               </div>
             {/each}
           </div>
         </div>
 
-        <button class="btn btn-primary" onclick={newPrompt}>+ New Prompt</button>
+        <button class="btn btn-primary" on:click={openNewPrompt}>+ New Prompt</button>
       {/if}
 
+    <!-- ═══ SHORTCUTS TAB ═══ -->
     {:else if activeTab === "shortcuts" && config}
       <div class="section">
         <h3>Keyboard Shortcuts</h3>
@@ -216,10 +296,9 @@
         <div class="field">
           <label for="paste-mod">Paste from slot — modifier keys + [1-0]</label>
           <select id="paste-mod" bind:value={config.shortcuts.paste_modifier}>
-            <option value="CmdOrCtrl+Alt+Shift">⌘ Cmd + ⌥ Option + ⇧ Shift</option>
-            <option value="Control+Alt+Shift">⌃ Ctrl + ⌥ Option + ⇧ Shift</option>
-            <option value="CmdOrCtrl+Shift">⌘ Cmd + ⇧ Shift</option>
-            <option value="Control+Shift">⌃ Ctrl + ⇧ Shift</option>
+            {#each pastePresets as preset}
+              <option value={preset.value}>{preset.label}</option>
+            {/each}
           </select>
           <span class="shortcut-preview">Example: {config.shortcuts.paste_modifier.replace('CmdOrCtrl', '⌘').replace('Control', '⌃').replace('Alt', '⌥').replace('Shift', '⇧').replace(/\+/g, ' ')} 1</span>
         </div>
@@ -242,10 +321,11 @@
           </select>
         </div>
 
-        <button class="btn btn-primary" onclick={handleSaveConfig}>Save Shortcuts</button>
+        <button class="btn btn-primary" on:click={handleSaveConfig}>Save Shortcuts</button>
         <p class="hint" style="margin-top: 8px;">Changes require an app restart to take effect.</p>
       </div>
 
+    <!-- ═══ AI MODEL TAB ═══ -->
     {:else if activeTab === "model" && config}
       <div class="section">
         <h3>AI Model (Ollama)</h3>
@@ -263,7 +343,7 @@
               <p class="install-label">Run this in your terminal to install and start Ollama:</p>
               <div class="code-block">
                 <code>brew install ollama && ollama serve</code>
-                <button class="copy-btn" onclick={() => copyToClipboard('brew install ollama && ollama serve')}>
+                <button class="copy-btn" on:click={() => copyToClipboard('brew install ollama && ollama serve')}>
                   {copiedCommand ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
@@ -302,7 +382,7 @@
                 <option value="llama3.2:3b">llama3.2:3b (3B — capable, ~2GB)</option>
                 <option value="mistral">mistral (7B — powerful, ~4.1GB)</option>
               </select>
-              <button class="btn btn-primary" onclick={handlePullModel} disabled={pulling}>
+              <button class="btn btn-primary" on:click={handlePullModel} disabled={pulling}>
                 {pulling ? "Pulling..." : "Pull"}
               </button>
             </div>
@@ -310,9 +390,10 @@
           </div>
         {/if}
 
-        <button class="btn btn-secondary" style="margin-top: 8px;" onclick={refreshAiStatus}>Refresh Status</button>
+        <button class="btn btn-secondary" style="margin-top: 8px;" on:click={refreshAiStatus}>Refresh Status</button>
       </div>
 
+    <!-- ═══ GENERAL TAB ═══ -->
     {:else if activeTab === "general" && config}
       <div class="section">
         <h3>General</h3>
@@ -326,7 +407,7 @@
             Launch at startup
           </label>
         </div>
-        <button class="btn btn-primary" onclick={handleSaveConfig}>Save</button>
+        <button class="btn btn-primary" on:click={handleSaveConfig}>Save</button>
       </div>
     {/if}
   </div>
@@ -342,228 +423,159 @@
     background: #1e1e1e;
     min-height: 100vh;
   }
-
   .settings-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 24px;
   }
-
   h1 { font-size: 20px; font-weight: 700; margin: 0; }
   h3 { font-size: 15px; font-weight: 600; margin: 0 0 12px 0; color: #ddd; }
   h4 { font-size: 13px; font-weight: 600; margin: 16px 0 8px 0; color: #aaa; }
-
   .save-indicator { font-size: 12px; color: #6c8cff; font-weight: 600; }
+  .error-banner { background: #4a1c1c; color: #ff8888; padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px; }
 
-  .tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid #333;
-    margin-bottom: 20px;
-  }
-
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid #333; margin-bottom: 20px; }
   .tab {
-    padding: 8px 16px;
-    border: none;
-    background: none;
-    color: #888;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.15s;
+    padding: 8px 16px; border: none; background: none; color: #888;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.15s;
   }
   .tab:hover { color: #ccc; }
   .tab.active { color: #6c8cff; border-bottom-color: #6c8cff; }
 
   .section { padding: 4px 0; }
   .section-desc { font-size: 12px; color: #888; margin: 0 0 16px 0; }
-
   .field { margin-bottom: 14px; }
 
   label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: #aaa;
-    margin-bottom: 4px;
+    display: block; font-size: 12px; font-weight: 600;
+    color: #aaa; margin-bottom: 4px;
   }
 
-  input[type="text"],
-  input[type="number"],
-  select {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 13px;
-    border: 1px solid #3a3a3a;
-    border-radius: 8px;
-    background: #252525;
-    color: #f0f0f0;
-    outline: none;
-    box-sizing: border-box;
-    transition: border-color 0.15s;
+  input[type="number"], select {
+    width: 100%; padding: 10px 12px; font-size: 13px;
+    border: 1px solid #3a3a3a; border-radius: 8px;
+    background: #252525; color: #f0f0f0;
+    outline: none; box-sizing: border-box; transition: border-color 0.15s;
   }
   input:focus, select:focus { border-color: #6c8cff; }
-
   select {
-    appearance: none;
-    -webkit-appearance: none;
+    appearance: none; -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    padding-right: 32px;
-    cursor: pointer;
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px; cursor: pointer;
   }
   select:hover { border-color: #555; }
 
-  .hint { font-size: 11px; color: #666; margin-top: 4px; display: block; }
-
   .shortcut-preview {
-    display: block;
-    font-size: 12px;
-    color: #6c8cff;
-    margin-top: 4px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    display: block; font-size: 12px; color: #6c8cff;
+    margin-top: 4px; font-family: 'SF Mono', 'Fira Code', monospace;
   }
+
+  .hint { font-size: 11px; color: #666; margin-top: 4px; display: block; }
+  code { background: #333; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
 
   .checkbox-field label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    font-size: 13px;
-    color: #ddd;
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; font-size: 13px; color: #ddd;
   }
 
-  /* Prompts */
-  .prompt-list { margin-bottom: 16px; }
+  /* ── Prompt Editor (inline) ── */
+  .prompt-editor { padding: 8px 0; }
+  .prompt-editor .field { margin-bottom: 16px; }
+  .prompt-editor label { font-size: 13px; color: #ccc; margin-bottom: 6px; }
+  .prompt-editor input[type="text"],
+  .prompt-editor textarea {
+    width: 100%; padding: 10px 12px; font-size: 13px;
+    border: 1px solid #3a3a3a; border-radius: 8px;
+    background: #252525; color: #f0f0f0;
+    outline: none; box-sizing: border-box; transition: border-color 0.15s;
+  }
+  .prompt-editor input[type="text"]:focus,
+  .prompt-editor textarea:focus { border-color: #6c8cff; }
+  .prompt-editor textarea { font-family: 'SF Mono', 'Fira Code', monospace; resize: vertical; }
 
+  .slot-picker { display: flex; gap: 6px; }
+  .slot-pick-btn {
+    width: 36px; height: 36px; border: 1px solid #3a3a3a; border-radius: 8px;
+    background: #252525; color: #888; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .slot-pick-btn:hover { border-color: #6c8cff; color: #ddd; }
+  .slot-pick-btn.selected { background: #6c8cff; border-color: #6c8cff; color: #fff; }
+  .actions { display: flex; gap: 8px; margin-top: 20px; }
+
+  /* ── Prompt List ── */
+  .prompt-list { margin-bottom: 16px; }
   .prompt-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid #3a3a3a;
-    border-radius: 10px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: #252525;
-    color: inherit;
-    text-align: left;
-    font: inherit;
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; padding: 10px 14px;
+    border: 1px solid #3a3a3a; border-radius: 10px; margin-bottom: 6px;
+    cursor: pointer; transition: all 0.15s; background: #252525;
+    color: inherit; text-align: left; font: inherit;
   }
   .prompt-row:hover { background: #2e2e2e; border-color: #555; }
-
   .prompt-info { display: flex; align-items: center; gap: 10px; }
-
   .slot-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 7px;
-    background: #6c8cff;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 7px;
+    background: #6c8cff; color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0;
   }
   .slot-badge.unassigned { background: #444; color: #888; }
-
   .prompt-details { display: flex; flex-direction: column; gap: 2px; }
   .prompt-name { font-size: 13px; font-weight: 600; color: #ddd; }
   .prompt-shortcut { font-size: 11px; color: #6c8cff; font-family: 'SF Mono', 'Fira Code', monospace; }
   .prompt-shortcut.unassigned-text { color: #666; font-family: inherit; }
   .prompt-arrow { color: #555; font-size: 18px; }
 
-  /* Slot overview grid */
+  /* ── Slot Overview Grid ── */
   .slot-overview { margin-top: 16px; margin-bottom: 16px; }
   .slot-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
   .slot-grid-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 8px 4px;
-    border: 1px solid #333;
-    border-radius: 6px;
-    gap: 4px;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 8px 4px; border: 1px solid #333; border-radius: 6px; gap: 4px;
   }
   .slot-grid-item.has-prompt { border-color: #6c8cff; background: rgba(108, 140, 255, 0.06); }
   .slot-grid-num { font-size: 14px; font-weight: 700; color: #888; }
   .slot-grid-item.has-prompt .slot-grid-num { color: #6c8cff; }
   .slot-grid-label {
-    font-size: 9px;
-    color: #555;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 100%;
+    font-size: 9px; color: #555; text-align: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
   }
   .slot-grid-item.has-prompt .slot-grid-label { color: #aaa; }
 
-  /* Model */
+  /* ── Model Tab ── */
   .model-name { font-size: 14px; color: #ddd; font-weight: 500; }
   .model-row { font-size: 13px; color: #ccc; padding: 4px 0; }
   .status-ok { color: #4caf50; font-size: 13px; }
   .status-pending { color: #ff9800; font-size: 13px; }
-
-  .install-guide {
-    margin-top: 12px;
-    padding: 12px;
-    background: #252525;
-    border-radius: 8px;
-    border: 1px solid #333;
-  }
+  .install-guide { margin-top: 12px; padding: 12px; background: #252525; border-radius: 8px; border: 1px solid #333; }
   .install-label { font-size: 12px; color: #aaa; margin: 0 0 8px 0; }
-
   .code-block {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #1a1a1a;
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 10px 12px;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a1a1a; border: 1px solid #444; border-radius: 6px;
+    padding: 10px 12px; gap: 8px;
   }
-  .code-block code {
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 13px;
-    color: #e0e0e0;
-    user-select: all;
-  }
+  .code-block code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: #e0e0e0; user-select: all; }
   .copy-btn {
-    padding: 4px 10px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    background: #333;
-    color: #ccc;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s;
+    padding: 4px 10px; border: 1px solid #555; border-radius: 4px;
+    background: #333; color: #ccc; font-size: 11px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s;
   }
   .copy-btn:hover { background: #444; border-color: #6c8cff; color: #fff; }
 
-  /* Buttons */
+  /* ── Buttons ── */
   .btn {
-    padding: 9px 18px;
-    border: none;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
+    padding: 9px 18px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
   }
   .btn-primary { background: #6c8cff; color: #fff; }
   .btn-primary:hover:not(:disabled) { background: #8aa4ff; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-danger { background: #ff6b6b; color: #fff; }
+  .btn-danger:hover { background: #ff8585; }
   .btn-secondary { background: #333; color: #aaa; }
   .btn-secondary:hover { background: #444; color: #ddd; }
 </style>
