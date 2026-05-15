@@ -17,6 +17,12 @@
     hudDuration = (await getHudDuration()) * 1000;
     alwaysVisible = await getHudAlwaysVisible();
 
+    // If always-visible is on, show HUD immediately
+    if (alwaysVisible) {
+      await refreshSlots();
+      showHud();
+    }
+
     const unlisten1 = await listen<SlotInfo>("slot-copied", async () => {
       await refreshSlots();
       showHud();
@@ -29,7 +35,7 @@
     unlisteners.push(unlisten2);
 
     const unlisten3 = await listen("toggle-hud", async () => {
-      if (visible) {
+      if (visible && !alwaysVisible) {
         await hideHud();
       } else {
         await refreshSlots();
@@ -39,6 +45,8 @@
     unlisteners.push(unlisten3);
 
     const unlisten4 = await listen("show-hud", async () => {
+      // Reload settings in case always-visible changed
+      alwaysVisible = await getHudAlwaysVisible();
       await refreshSlots();
       showHud();
     });
@@ -46,7 +54,7 @@
 
     const unlisten5 = await listen("slots-updated", async () => {
       await refreshSlots();
-      if (occupiedSlots.length === 0) {
+      if (occupiedSlots.length === 0 && !alwaysVisible) {
         await hideHud();
       }
     });

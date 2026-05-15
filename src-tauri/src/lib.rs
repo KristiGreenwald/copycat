@@ -153,6 +153,10 @@ fn show_hud_window(
     let occupied = mgr.get_occupied_slots().len();
     drop(mgr);
     hotkeys::manager::show_hud_window(&app, occupied);
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.emit("show-hud", ());
+    }
+}
 }
 
 // ── AI Commands ──

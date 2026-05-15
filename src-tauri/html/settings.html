@@ -197,12 +197,10 @@ select {
 <div class="panel" id="panel-general">
   <h3>General</h3>
   <label>HUD display duration (seconds)</label>
-  <div style="width: 100px;">
-    <input type="number" id="hud-duration" min="1" max="60" value="10" style="width: 100px; font-size: 16px; text-align: center; -webkit-appearance: none; -moz-appearance: textfield;"/>
-  </div>
-  <div style="display: flex; gap: 8px; margin: 8px 0 16px;">
-    <button class="btn btn-s" style="padding: 4px 12px; font-size: 16px;" id="btn-dur-down">−</button>
-    <button class="btn btn-s" style="padding: 4px 12px; font-size: 16px;" id="btn-dur-up">+</button>
+  <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 16px;">
+    <button class="btn btn-s" style="padding: 6px 14px; font-size: 18px; line-height: 1;" id="btn-dur-down">−</button>
+    <input type="text" id="hud-duration" value="10" style="width: 50px; font-size: 16px; text-align: center; padding: 8px 4px;"/>
+    <button class="btn btn-s" style="padding: 6px 14px; font-size: 18px; line-height: 1;" id="btn-dur-up">+</button>
   </div>
   <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #ddd; margin-bottom: 16px;">
     <input type="checkbox" id="hud-always-visible" style="width: 18px; height: 18px; accent-color: #6c8cff; cursor: pointer;"/>
@@ -407,8 +405,14 @@ document.getElementById('btn-save-general').addEventListener('click', async () =
   if (!config) config = {};
   config.hud_duration_secs = parseInt(document.getElementById('hud-duration').value) || 10;
   config.hud_always_visible = document.getElementById('hud-always-visible').checked;
-  try { await invoke('save_config', { config }); } catch {}
-  flash('Saved!');
+  try {
+    await invoke('save_config', { config });
+    // Notify the HUD window about the change
+    if (config.hud_always_visible) {
+      await invoke('show_hud_window');
+    }
+  } catch {}
+  flash('Saved! Restart app for changes to take full effect.');
 });
 
 // ── Init ──
