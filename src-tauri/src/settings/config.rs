@@ -41,7 +41,7 @@ pub struct AiModelConfig {
 impl Default for AiModelConfig {
     fn default() -> Self {
         Self {
-            model_name: "tinyllama".to_string(),
+            model_name: "llama3.2:1b".to_string(),
             model_path: None,
             download_url: None,
             downloaded: false,

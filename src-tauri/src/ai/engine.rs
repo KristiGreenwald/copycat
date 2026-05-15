@@ -122,15 +122,25 @@ impl AiEngine {
             prompt.len()
         );
 
-        let req = OllamaGenerateRequest {
-            model: self.model_name.clone(),
-            prompt: prompt.to_string(),
-            stream: false,
-        };
+        // Use the chat API with system + user messages for better instruction following
+        let req = serde_json::json!({
+            "model": self.model_name,
+            "stream": false,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant. Follow the user's instruction precisely. Only output the requested result — no explanations, preambles, or commentary."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
+        });
 
         let resp = self
             .client
-            .post(format!("{}/api/generate", OLLAMA_BASE_URL))
+            .post(format!("{}/api/chat", OLLAMA_BASE_URL))
             .json(&req)
             .timeout(std::time::Duration::from_secs(120))
             .send()
@@ -142,16 +152,22 @@ impl AiEngine {
             return Err(format!("Ollama error: {}", text));
         }
 
-        let gen_resp: OllamaGenerateResponse = resp
+        let chat_resp: serde_json::Value = resp
             .json()
             .await
             .map_err(|e| format!("Failed to parse response: {}", e))?;
 
+        let output = chat_resp["message"]["content"]
+            .as_str()
+            .unwrap_or("")
+            .trim()
+            .to_string();
+
         eprintln!(
             "[CopyCat AI] Generated {} chars",
-            gen_resp.response.len()
+            output.len()
         );
-        Ok(gen_resp.response.trim().to_string())
+        Ok(output)
     }
 }
 

@@ -9,5 +9,10 @@ pub struct PromptTemplate {
 }
 
 pub fn render_prompt(template: &str, content: &str) -> String {
-    template.replace("{{content}}", content)
+    if template.contains("{{content}}") {
+        template.replace("{{content}}", content)
+    } else {
+        // If the user didn't include {{content}}, append the text after the instruction
+        format!("{}\n\nText:\n{}\n\nOutput:", template.trim(), content)
+    }
 }
