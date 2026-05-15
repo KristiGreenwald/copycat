@@ -25,15 +25,23 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                         window.show().ok();
                         window.set_focus().ok();
                     } else {
-                        // Create settings window dynamically
-                        match WebviewWindowBuilder::new(app, "settings", tauri::WebviewUrl::App("/settings".into()))
-                            .title("CopyCat Settings")
-                            .inner_size(700.0, 550.0)
-                            .resizable(true)
-                            .build()
+                        let html = include_str!("../../html/settings.html");
+                        let data_url = format!(
+                            "data:text/html;charset=utf-8,{}",
+                            urlencoding::encode(html)
+                        );
+                        match WebviewWindowBuilder::new(
+                            app,
+                            "settings",
+                            tauri::WebviewUrl::External(data_url.parse().unwrap()),
+                        )
+                        .title("CopyCat Settings")
+                        .inner_size(700.0, 600.0)
+                        .resizable(true)
+                        .build()
                         {
                             Ok(_) => eprintln!("[CopyCat] Settings window created"),
-                            Err(e) => eprintln!("[CopyCat] Failed to create settings window: {}", e),
+                            Err(e) => eprintln!("[CopyCat] Failed to create settings: {}", e),
                         }
                     }
                 }

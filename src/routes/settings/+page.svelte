@@ -212,6 +212,11 @@
         editMode={editMode} | prompts={prompts.length} | editSlot={editSlot}
       </div>
 
+      <!-- Raw DOM test button -->
+      <button style="background: #ff0; color: #000; padding: 8px 16px; border: none; border-radius: 4px; margin-bottom: 12px; cursor: pointer;" onclick={() => { editMode = true; editIsNew = true; editId = crypto.randomUUID(); editName = ''; editTemplate = ''; editSlot = null; }}>
+        🧪 TEST: Click me to open editor
+      </button>
+
       {#if editMode}
         <div class="prompt-editor">
           <div class="field">

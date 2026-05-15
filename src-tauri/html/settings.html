@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CopyCat Settings</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #1e1e1e; color: #f0f0f0; padding: 24px;
+  max-width: 650px; margin: 0 auto;
+}
+h1 { font-size: 20px; font-weight: 700; margin-bottom: 24px; }
+h3 { font-size: 15px; font-weight: 600; color: #ddd; margin-bottom: 12px; }
+h4 { font-size: 13px; font-weight: 600; color: #aaa; margin: 16px 0 8px; }
+.save-msg { font-size: 12px; color: #6c8cff; font-weight: 600; float: right; }
+.tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 20px; }
+.tab {
+  padding: 8px 16px; border: none; background: none; color: #888;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.tab:hover { color: #ccc; }
+.tab.active { color: #6c8cff; border-bottom-color: #6c8cff; }
+.panel { display: none; }
+.panel.active { display: block; }
+.desc { font-size: 12px; color: #888; margin-bottom: 16px; }
+label { display: block; font-size: 12px; font-weight: 600; color: #aaa; margin-bottom: 4px; }
+input[type="text"], input[type="number"], textarea, select {
+  width: 100%; padding: 10px 12px; font-size: 13px;
+  border: 1px solid #3a3a3a; border-radius: 8px;
+  background: #252525; color: #f0f0f0; outline: none; margin-bottom: 14px;
+}
+input:focus, textarea:focus, select:focus { border-color: #6c8cff; }
+textarea { font-family: 'SF Mono', 'Fira Code', monospace; resize: vertical; height: 100px; }
+select {
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer;
+}
+.hint { font-size: 11px; color: #666; margin: -10px 0 14px; }
+.btn {
+  padding: 9px 18px; border: none; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.btn-p { background: #6c8cff; color: #fff; }
+.btn-p:hover { background: #8aa4ff; }
+.btn-d { background: #ff6b6b; color: #fff; margin-left: 8px; }
+.btn-s { background: #333; color: #aaa; margin-left: 8px; }
+.btn-s:hover { background: #444; }
+
+/* Prompt list */
+.prompt-row {
+  display: flex; align-items: center; padding: 10px 14px;
+  border: 1px solid #3a3a3a; border-radius: 10px; margin-bottom: 6px;
+  cursor: pointer; background: #252525;
+}
+.prompt-row:hover { background: #2e2e2e; border-color: #555; }
+.slot-badge {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: #6c8cff; color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 10px;
+}
+.slot-badge.none { background: #444; color: #888; }
+.prompt-name { font-size: 13px; font-weight: 600; color: #ddd; }
+.prompt-sub { font-size: 11px; color: #666; }
+.prompt-sub.assigned { color: #6c8cff; font-family: 'SF Mono', monospace; }
+
+/* Slot picker */
+.slot-picker { display: flex; gap: 6px; margin-bottom: 6px; }
+.sp-btn {
+  width: 36px; height: 36px; border: 1px solid #3a3a3a; border-radius: 8px;
+  background: #252525; color: #888; font-size: 14px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.sp-btn:hover { border-color: #6c8cff; color: #ddd; }
+.sp-btn.sel { background: #6c8cff; border-color: #6c8cff; color: #fff; }
+
+/* Slot grid */
+.slot-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 16px; }
+.sg-item { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border: 1px solid #333; border-radius: 6px; }
+.sg-item.has { border-color: #6c8cff; background: rgba(108,140,255,0.06); }
+.sg-num { font-size: 14px; font-weight: 700; color: #888; }
+.sg-item.has .sg-num { color: #6c8cff; }
+.sg-lbl { font-size: 9px; color: #555; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.sg-item.has .sg-lbl { color: #aaa; }
+
+/* Install guide */
+.code-block {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px 12px; gap: 8px; margin: 8px 0 12px;
+}
+.code-block code { font-family: 'SF Mono', monospace; font-size: 13px; color: #e0e0e0; }
+.copy-btn { padding: 4px 10px; border: 1px solid #555; border-radius: 4px; background: #333; color: #ccc; font-size: 11px; font-weight: 600; cursor: pointer; }
+.copy-btn:hover { background: #444; border-color: #6c8cff; }
+.status-ok { color: #4caf50; }
+.status-warn { color: #ff9800; }
+.actions { margin-top: 16px; }
+</style>
+</head>
+<body>
+<h1>CopyCat Settings <span class="save-msg" id="saveMsg"></span></h1>
+
+<div class="tabs">
+  <button class="tab active" data-tab="prompts">Prompts</button>
+  <button class="tab" data-tab="shortcuts">Shortcuts</button>
+  <button class="tab" data-tab="model">AI Model</button>
+  <button class="tab" data-tab="general">General</button>
+</div>
+
+<!-- ═══ PROMPTS ═══ -->
+<div class="panel active" id="panel-prompts">
+  <div id="prompt-list-view">
+    <p class="desc">Assign AI prompts to slots. When you copy to a slot with a prompt, the AI will automatically transform the content.</p>
+    <div id="prompt-list"></div>
+    <h4>Slot Overview</h4>
+    <div class="slot-grid" id="slot-grid"></div>
+    <button class="btn btn-p" id="btn-new-prompt">+ New Prompt</button>
+  </div>
+  <div id="prompt-edit-view" style="display:none;">
+    <label>Name</label>
+    <input type="text" id="ed-name" placeholder="e.g., Summarize"/>
+    <label>Prompt Template</label>
+    <textarea id="ed-template" placeholder="Use {{content}} where the clipboard content should be inserted"></textarea>
+    <p class="hint">Use {{content}} as a placeholder for the copied text</p>
+    <label>Assign to Slot</label>
+    <div class="slot-picker" id="slot-picker"></div>
+    <p class="hint" id="slot-hint">Click a number to assign this prompt to a slot</p>
+    <div class="actions">
+      <button class="btn btn-p" id="btn-save-prompt">Save</button>
+      <button class="btn btn-d" id="btn-delete-prompt" style="display:none;">Delete</button>
+      <button class="btn btn-s" id="btn-cancel-prompt">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SHORTCUTS ═══ -->
+<div class="panel" id="panel-shortcuts">
+  <h3>Keyboard Shortcuts</h3>
+  <p class="desc">Choose modifier keys for copy/paste. The slot number (1–0) is added automatically.</p>
+  <label>Copy to slot — modifier keys + [1-0]</label>
+  <select id="sc-copy">
+    <option value="CmdOrCtrl+Alt">⌘ Cmd + ⌥ Option</option>
+    <option value="Control+Alt">⌃ Ctrl + ⌥ Option</option>
+    <option value="CmdOrCtrl+Shift">⌘ Cmd + ⇧ Shift</option>
+  </select>
+  <label>Paste from slot — modifier keys + [1-0]</label>
+  <select id="sc-paste">
+    <option value="CmdOrCtrl+Alt+Shift">⌘ Cmd + ⌥ Option + ⇧ Shift</option>
+    <option value="Control+Alt+Shift">⌃ Ctrl + ⌥ Option + ⇧ Shift</option>
+    <option value="CmdOrCtrl+Shift">⌘ Cmd + ⇧ Shift</option>
+  </select>
+  <label>Toggle HUD</label>
+  <select id="sc-hud">
+    <option value="Control+Alt+Super+Space">⌃⌥⌘ Space</option>
+    <option value="CmdOrCtrl+Alt+V">⌘⌥ V</option>
+    <option value="CmdOrCtrl+Alt+H">⌘⌥ H</option>
+  </select>
+  <label>Clear all slots</label>
+  <select id="sc-clear">
+    <option value="CmdOrCtrl+Alt+Backspace">⌘⌥ Backspace</option>
+    <option value="Control+Alt+Super+Backspace">⌃⌥⌘ Backspace</option>
+  </select>
+  <div class="actions"><button class="btn btn-p" id="btn-save-shortcuts">Save Shortcuts</button></div>
+  <p class="hint" style="margin-top:8px;">Changes require an app restart to take effect.</p>
+</div>
+
+<!-- ═══ AI MODEL ═══ -->
+<div class="panel" id="panel-model">
+  <h3>AI Model (Ollama)</h3>
+  <p class="desc">CopyCat uses Ollama for local AI processing. All data stays on your machine.</p>
+  <div id="ollama-status">Checking Ollama status...</div>
+  <div id="ollama-controls" style="display:none;">
+    <label>Pull a Model</label>
+    <div style="display:flex;gap:8px;">
+      <select id="pull-model" style="flex:1;">
+        <option value="tinyllama">tinyllama (1.1B — fast, ~640MB)</option>
+        <option value="phi3">phi3 (3.8B — balanced, ~2.2GB)</option>
+        <option value="llama3.2:1b">llama3.2:1b (1B — compact)</option>
+        <option value="mistral">mistral (7B — powerful, ~4.1GB)</option>
+      </select>
+      <button class="btn btn-p" id="btn-pull">Pull</button>
+    </div>
+  </div>
+  <div id="ollama-install" style="display:none;">
+    <p style="color:#ff9800;margin-bottom:8px;">Ollama is not running</p>
+    <p style="font-size:12px;color:#aaa;margin-bottom:8px;">Run this in your terminal:</p>
+    <div class="code-block">
+      <code>brew install ollama && ollama serve</code>
+      <button class="copy-btn" id="btn-copy-cmd">Copy</button>
+    </div>
+  </div>
+  <div class="actions" style="margin-top:12px;"><button class="btn btn-s" id="btn-refresh-ai">Refresh Status</button></div>
+</div>
+
+<!-- ═══ GENERAL ═══ -->
+<div class="panel" id="panel-general">
+  <h3>General</h3>
+  <label>HUD display duration (seconds)</label>
+  <input type="number" id="hud-duration" min="1" max="30" value="5"/>
+  <div class="actions"><button class="btn btn-p" id="btn-save-general">Save</button></div>
+</div>
+
+<script>
+// ── Tauri IPC ──
+async function invoke(cmd, args) {
+  // Poll for Tauri IPC
+  for (let i = 0; i < 30; i++) {
+    if (window.__TAURI_INTERNALS__) {
+      return window.__TAURI_INTERNALS__.invoke(cmd, args);
+    }
+    await new Promise(r => setTimeout(r, 100));
+  }
+  throw new Error('Tauri IPC not available');
+}
+
+// ── State ──
+let prompts = [];
+let config = null;
+let editingId = null;
+let editSlot = null;
+
+function slotLabel(i) { return i === 9 ? '0' : String(i + 1); }
+
+function flash(msg) {
+  const el = document.getElementById('saveMsg');
+  el.textContent = msg;
+  setTimeout(() => el.textContent = '', 2000);
+}
+
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Prompt List ──
+function renderPromptList() {
+  const list = document.getElementById('prompt-list');
+  list.innerHTML = '';
+  prompts.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'prompt-row';
+    const badge = p.assigned_slot !== null && p.assigned_slot !== undefined
+      ? `<div class="slot-badge">${slotLabel(p.assigned_slot)}</div>`
+      : `<div class="slot-badge none">—</div>`;
+    const sub = p.assigned_slot !== null && p.assigned_slot !== undefined
+      ? `<div class="prompt-sub assigned">⌘⌥${slotLabel(p.assigned_slot)} to copy</div>`
+      : `<div class="prompt-sub">Not assigned to a slot</div>`;
+    row.innerHTML = `${badge}<div><div class="prompt-name">${p.name}</div>${sub}</div>`;
+    row.addEventListener('click', () => openEditor(p));
+    list.appendChild(row);
+  });
+  renderSlotGrid();
+}
+
+function renderSlotGrid() {
+  const grid = document.getElementById('slot-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const p = prompts.find(pr => pr.assigned_slot === i);
+    const item = document.createElement('div');
+    item.className = 'sg-item' + (p ? ' has' : '');
+    item.innerHTML = `<span class="sg-num">${slotLabel(i)}</span><span class="sg-lbl">${p ? p.name : 'No prompt'}</span>`;
+    grid.appendChild(item);
+  }
+}
+
+// ── Prompt Editor ──
+function openEditor(p) {
+  editingId = p ? p.id : crypto.randomUUID();
+  document.getElementById('ed-name').value = p ? p.name : '';
+  document.getElementById('ed-template').value = p ? p.template : '';
+  editSlot = p ? p.assigned_slot : null;
+  document.getElementById('btn-delete-prompt').style.display = p && p.name ? 'inline-block' : 'none';
+  renderSlotPicker();
+  document.getElementById('prompt-list-view').style.display = 'none';
+  document.getElementById('prompt-edit-view').style.display = 'block';
+}
+
+function renderSlotPicker() {
+  const picker = document.getElementById('slot-picker');
+  picker.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'sp-btn' + (editSlot === i ? ' sel' : '');
+    btn.textContent = slotLabel(i);
+    btn.addEventListener('click', () => {
+      editSlot = editSlot === i ? null : i;
+      renderSlotPicker();
+    });
+    picker.appendChild(btn);
+  }
+  const hint = document.getElementById('slot-hint');
+  hint.textContent = editSlot !== null
+    ? `Assigned to slot ${slotLabel(editSlot)} — copy with ⌘⌥${slotLabel(editSlot)}`
+    : 'Click a number to assign this prompt to a slot';
+}
+
+document.getElementById('btn-new-prompt').addEventListener('click', () => openEditor(null));
+
+document.getElementById('btn-cancel-prompt').addEventListener('click', () => {
+  document.getElementById('prompt-edit-view').style.display = 'none';
+  document.getElementById('prompt-list-view').style.display = 'block';
+});
+
+document.getElementById('btn-save-prompt').addEventListener('click', async () => {
+  const name = document.getElementById('ed-name').value.trim();
+  const template = document.getElementById('ed-template').value.trim();
+  if (!name || !template) return;
+  try {
+    await invoke('save_prompt', { prompt: { id: editingId, name, template, assigned_slot: editSlot } });
+    prompts = await invoke('get_prompts');
+  } catch (e) {
+    // Fallback: update local state
+    const idx = prompts.findIndex(p => p.id === editingId);
+    const obj = { id: editingId, name, template, assigned_slot: editSlot };
+    if (idx >= 0) prompts[idx] = obj; else prompts.push(obj);
+  }
+  document.getElementById('prompt-edit-view').style.display = 'none';
+  document.getElementById('prompt-list-view').style.display = 'block';
+  renderPromptList();
+  flash('Saved!');
+});
+
+document.getElementById('btn-delete-prompt').addEventListener('click', async () => {
+  try { await invoke('delete_prompt', { promptId: editingId }); prompts = await invoke('get_prompts'); }
+  catch { prompts = prompts.filter(p => p.id !== editingId); }
+  document.getElementById('prompt-edit-view').style.display = 'none';
+  document.getElementById('prompt-list-view').style.display = 'block';
+  renderPromptList();
+  flash('Deleted');
+});
+
+// ── Shortcuts ──
+document.getElementById('btn-save-shortcuts').addEventListener('click', async () => {
+  if (!config) return;
+  config.shortcuts.copy_modifier = document.getElementById('sc-copy').value;
+  config.shortcuts.paste_modifier = document.getElementById('sc-paste').value;
+  config.shortcuts.toggle_hud = document.getElementById('sc-hud').value;
+  config.shortcuts.clear_all = document.getElementById('sc-clear').value;
+  try { await invoke('save_config', { config }); } catch {}
+  flash('Saved!');
+});
+
+// ── AI Model ──
+async function checkAi() {
+  try {
+    const status = await invoke('ai_check_status');
+    if (status.ollama_running) {
+      document.getElementById('ollama-status').innerHTML = '<span class="status-ok">Ollama: Running ✓</span>';
+      document.getElementById('ollama-controls').style.display = 'block';
+      document.getElementById('ollama-install').style.display = 'none';
+    } else {
+      document.getElementById('ollama-status').innerHTML = '';
+      document.getElementById('ollama-controls').style.display = 'none';
+      document.getElementById('ollama-install').style.display = 'block';
+    }
+  } catch {
+    document.getElementById('ollama-status').innerHTML = '<span class="status-warn">Cannot check (IPC unavailable)</span>';
+    document.getElementById('ollama-install').style.display = 'block';
+  }
+}
+
+document.getElementById('btn-pull').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-pull');
+  const model = document.getElementById('pull-model').value;
+  btn.textContent = 'Pulling...'; btn.disabled = true;
+  try { await invoke('ai_pull_model', { modelName: model }); flash('Model pulled!'); }
+  catch (e) { flash('Error: ' + e); }
+  btn.textContent = 'Pull'; btn.disabled = false;
+  checkAi();
+});
+
+document.getElementById('btn-refresh-ai').addEventListener('click', checkAi);
+document.getElementById('btn-copy-cmd').addEventListener('click', () => {
+  navigator.clipboard.writeText('brew install ollama && ollama serve');
+  document.getElementById('btn-copy-cmd').textContent = '✓ Copied';
+  setTimeout(() => document.getElementById('btn-copy-cmd').textContent = 'Copy', 2000);
+});
+
+// ── General ──
+document.getElementById('btn-save-general').addEventListener('click', async () => {
+  if (!config) return;
+  config.hud_duration_secs = parseInt(document.getElementById('hud-duration').value) || 5;
+  try { await invoke('save_config', { config }); } catch {}
+  flash('Saved!');
+});
+
+// ── Init ──
+async function init() {
+  // Default prompts
+  prompts = [
+    { id: 'summarize', name: 'Summarize in 5 bullet points', template: 'Summarize the following text in exactly 5 concise bullet points:\n\n{{content}}', assigned_slot: null },
+    { id: 'fix-grammar', name: 'Fix grammar', template: 'Fix the grammar and spelling in the following text. Only return the corrected text:\n\n{{content}}', assigned_slot: null },
+    { id: 'translate-spanish', name: 'Translate to Spanish', template: 'Translate the following text to Spanish. Only return the translation:\n\n{{content}}', assigned_slot: null },
+  ];
+  renderPromptList();
+
+  // Try to load from Tauri
+  try {
+    config = await invoke('get_config');
+    prompts = await invoke('get_prompts');
+    renderPromptList();
+    // Populate shortcuts UI
+    document.getElementById('sc-copy').value = config.shortcuts.copy_modifier;
+    document.getElementById('sc-paste').value = config.shortcuts.paste_modifier;
+    document.getElementById('sc-hud').value = config.shortcuts.toggle_hud;
+    document.getElementById('sc-clear').value = config.shortcuts.clear_all;
+    document.getElementById('hud-duration').value = config.hud_duration_secs;
+  } catch (e) {
+    console.warn('Tauri IPC not available, using defaults:', e);
+  }
+  checkAi();
+}
+
+init();
+</script>
+</body>
+</html>
