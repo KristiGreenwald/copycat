@@ -1,4 +1,17 @@
-import { invoke } from "@tauri-apps/api/core";
+// Safe invoke wrapper that handles Tauri IPC not being ready
+async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  const w = window as any;
+
+  // Wait up to 2 seconds for Tauri IPC to be available
+  for (let i = 0; i < 20; i++) {
+    if (w.__TAURI_INTERNALS__?.invoke) {
+      return await w.__TAURI_INTERNALS__.invoke(cmd, args);
+    }
+    await new Promise((r) => setTimeout(r, 100));
+  }
+
+  throw new Error(`Tauri IPC not available (command: ${cmd})`);
+}
 
 export interface SlotInfo {
   index: number;
