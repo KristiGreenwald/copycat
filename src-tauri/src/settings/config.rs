@@ -83,7 +83,7 @@ impl Default for AppConfig {
                     assigned_slot: None,
                 },
             ],
-            hud_duration_secs: 5,
+            hud_duration_secs: 10,
             launch_at_startup: false,
         }
     }
