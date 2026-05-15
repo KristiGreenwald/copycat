@@ -131,6 +131,16 @@ fn get_hud_duration(state: tauri::State<SharedConfig>) -> u64 {
     state.lock().unwrap().hud_duration_secs
 }
 
+#[tauri::command]
+fn hide_hud_window(app: tauri::AppHandle) {
+    hotkeys::manager::hide_hud_window(&app);
+}
+
+#[tauri::command]
+fn show_hud_window(app: tauri::AppHandle) {
+    hotkeys::manager::show_hud_window(&app);
+}
+
 // ── App Setup ──
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -163,18 +173,86 @@ pub fn run() {
             save_prompt,
             delete_prompt,
             get_hud_duration,
+            hide_hud_window,
+            show_hud_window,
         ])
         .setup(|app| {
+            // Check macOS Accessibility permissions
+            #[cfg(target_os = "macos")]
+            {
+                let trusted = macos_accessibility_check();
+                if !trusted {
+                    eprintln!("[ClipX] ⚠️  Accessibility permissions NOT granted!");
+                    eprintln!("[ClipX] ⚠️  Global shortcuts will NOT work without Accessibility access.");
+                    eprintln!("[ClipX] ⚠️  Go to: System Settings → Privacy & Security → Accessibility");
+                    eprintln!("[ClipX] ⚠️  Enable access for this app, then restart ClipX.");
+                } else {
+                    eprintln!("[ClipX] ✓ Accessibility permissions granted");
+                }
+            }
+
             // Set up system tray
             tray::menu::setup_tray(app.handle())?;
 
             // Register global shortcuts
-            if let Err(e) = hotkeys::manager::register_shortcuts(app.handle()) {
-                log::error!("Failed to register shortcuts: {}", e);
+            match hotkeys::manager::register_shortcuts(app.handle()) {
+                Ok(()) => eprintln!("[ClipX] App setup complete"),
+                Err(e) => eprintln!("[ClipX] WARNING: Failed to register shortcuts: {}", e),
             }
 
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(target_os = "macos")]
+fn macos_accessibility_check() -> bool {
+    // AXIsProcessTrustedWithOptions with kAXTrustedCheckOptionPrompt = true
+    // shows the macOS permission dialog if not already trusted
+    extern "C" {
+        fn CFStringCreateWithCString(
+            alloc: *const std::ffi::c_void,
+            c_str: *const std::ffi::c_char,
+            encoding: u32,
+        ) -> *const std::ffi::c_void;
+        fn CFDictionaryCreate(
+            allocator: *const std::ffi::c_void,
+            keys: *const *const std::ffi::c_void,
+            values: *const *const std::ffi::c_void,
+            num_values: isize,
+            key_callbacks: *const std::ffi::c_void,
+            value_callbacks: *const std::ffi::c_void,
+            ) -> *const std::ffi::c_void;
+        fn CFRelease(cf: *const std::ffi::c_void);
+
+        static kCFTypeDictionaryKeyCallBacks: std::ffi::c_void;
+        static kCFTypeDictionaryValueCallBacks: std::ffi::c_void;
+        static kCFBooleanTrue: *const std::ffi::c_void;
+
+        fn AXIsProcessTrustedWithOptions(options: *const std::ffi::c_void) -> u8;
+    }
+
+    unsafe {
+        let key_str = b"AXTrustedCheckOptionPrompt\0";
+        let key = CFStringCreateWithCString(
+            std::ptr::null(),
+            key_str.as_ptr() as *const std::ffi::c_char,
+            0x08000100, // kCFStringEncodingUTF8
+        );
+        let keys = [key];
+        let values = [kCFBooleanTrue];
+        let options = CFDictionaryCreate(
+            std::ptr::null(),
+            keys.as_ptr(),
+            values.as_ptr(),
+            1,
+            &kCFTypeDictionaryKeyCallBacks as *const _,
+            &kCFTypeDictionaryValueCallBacks as *const _,
+        );
+        let trusted = AXIsProcessTrustedWithOptions(options) != 0;
+        CFRelease(options);
+        CFRelease(key);
+        trusted
+    }
 }

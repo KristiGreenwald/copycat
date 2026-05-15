@@ -19,17 +19,21 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         .on_menu_event(move |app, event| {
             match event.id.as_ref() {
                 "settings" => {
+                    eprintln!("[ClipX] Tray: Settings clicked");
                     if let Some(window) = app.get_webview_window("settings") {
                         window.show().ok();
                         window.set_focus().ok();
                     }
                 }
                 "show_hud" => {
+                    eprintln!("[ClipX] Tray: Show HUD clicked");
+                    crate::hotkeys::manager::show_hud_window(app);
                     if let Some(window) = app.get_webview_window("main") {
                         let _ = window.emit("show-hud", ());
                     }
                 }
                 "clear_all" => {
+                    eprintln!("[ClipX] Tray: Clear All clicked");
                     if let Some(state) = app.try_state::<crate::clipboard::manager::SharedClipboardManager>() {
                         let mut mgr = state.lock().unwrap();
                         mgr.clear_all();
@@ -40,6 +44,7 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
                 "quit" => {
+                    eprintln!("[ClipX] Tray: Quit clicked");
                     app.exit(0);
                 }
                 _ => {}

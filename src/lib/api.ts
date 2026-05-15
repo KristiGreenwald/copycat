@@ -81,3 +81,11 @@ export async function deletePrompt(promptId: string): Promise<void> {
 export async function getHudDuration(): Promise<number> {
   return invoke("get_hud_duration");
 }
+
+export async function hideHudWindow(): Promise<void> {
+  return invoke("hide_hud_window");
+}
+
+export async function showHudWindow(): Promise<void> {
+  return invoke("show_hud_window");
+}

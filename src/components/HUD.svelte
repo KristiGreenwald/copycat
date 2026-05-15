@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { getAllSlots, getOccupiedSlots, clearSlot, getHudDuration } from "$lib/api";
+  import { getOccupiedSlots, clearSlot, getHudDuration, hideHudWindow } from "$lib/api";
   import type { SlotInfo } from "$lib/api";
   import SlotItem from "./SlotItem.svelte";
 
@@ -28,7 +28,7 @@
 
     const unlisten3 = await listen("toggle-hud", async () => {
       if (visible) {
-        hideHud();
+        await hideHud();
       } else {
         await refreshSlots();
         showHud();
@@ -45,7 +45,7 @@
     const unlisten5 = await listen("slots-updated", async () => {
       await refreshSlots();
       if (occupiedSlots.length === 0) {
-        hideHud();
+        await hideHud();
       }
     });
     unlisteners.push(unlisten5);
@@ -69,12 +69,14 @@
     dismissTimer = setTimeout(() => hideHud(), hudDuration);
   }
 
-  function hideHud() {
+  async function hideHud() {
     if (dismissTimer) clearTimeout(dismissTimer);
+    dismissTimer = null;
     animClass = "hud-exit";
-    setTimeout(() => {
+    setTimeout(async () => {
       visible = false;
       animClass = "";
+      await hideHudWindow();
     }, 200);
   }
 
@@ -82,37 +84,44 @@
     await clearSlot(index);
     await refreshSlots();
     if (occupiedSlots.length === 0) {
-      hideHud();
+      await hideHud();
     }
   }
 </script>
 
-{#if visible && occupiedSlots.length > 0}
-  <div class="hud-container glass-panel {animClass}">
+{#if visible}
+  <div class="hud-container {animClass}">
     <div class="hud-header">
       <span class="hud-title">ClipX</span>
-      <span class="hud-count">{occupiedSlots.length} slot{occupiedSlots.length !== 1 ? 's' : ''}</span>
+      {#if occupiedSlots.length > 0}
+        <span class="hud-count">{occupiedSlots.length} slot{occupiedSlots.length !== 1 ? 's' : ''}</span>
+      {/if}
     </div>
-    <div class="hud-slots">
-      {#each occupiedSlots as slot (slot.index)}
-        <SlotItem {slot} onClear={handleClear} />
-      {/each}
-    </div>
+    {#if occupiedSlots.length > 0}
+      <div class="hud-slots">
+        {#each occupiedSlots as slot (slot.index)}
+          <SlotItem {slot} onClear={handleClear} />
+        {/each}
+      </div>
+    {:else}
+      <div class="hud-empty">All slots empty</div>
+    {/if}
   </div>
 {/if}
 
 <style>
-  @import "../styles/glassmorphic.css";
-
   .hud-container {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    width: 280px;
-    max-height: 380px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
     padding: 14px;
     overflow-y: auto;
-    z-index: 9999;
+    background: rgba(30, 30, 30, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   .hud-header {
@@ -127,18 +136,55 @@
   .hud-title {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #f0f0f0;
     letter-spacing: 0.5px;
   }
 
   .hud-count {
     font-size: 11px;
-    color: var(--text-secondary);
+    color: #a0a0a0;
   }
 
   .hud-slots {
     display: flex;
     flex-direction: column;
     gap: 2px;
+  }
+
+  .hud-empty {
+    text-align: center;
+    padding: 16px 0;
+    color: #a0a0a0;
+    font-size: 12px;
+  }
+
+  .hud-enter {
+    animation: slideIn 0.25s ease-out forwards;
+  }
+
+  .hud-exit {
+    animation: slideOut 0.2s ease-in forwards;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
   }
 </style>
