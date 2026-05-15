@@ -4,10 +4,13 @@ mod hotkeys;
 mod settings;
 mod tray;
 
-use clipboard::manager::{ClipboardManager, SharedClipboardManager, SlotInfo};
+use clipboard::manager::{ClipboardManager, SharedClipboardManager, SlotContent, SlotInfo};
 use clipboard::persistence;
+use ai::engine::{AiEngine, SharedAiEngine};
 use settings::config::{AppConfig, PromptTemplate, SharedConfig};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
+use tauri::{Emitter, Manager};
+use tokio::sync::Mutex as TokioMutex;
 
 // ── Tauri Commands ──
 
@@ -147,6 +150,120 @@ fn show_hud_window(
     hotkeys::manager::show_hud_window(&app, occupied);
 }
 
+// ── AI Commands ──
+
+#[tauri::command]
+async fn ai_check_status(engine: tauri::State<'_, SharedAiEngine>) -> Result<serde_json::Value, String> {
+    let eng = engine.lock().await;
+    let running = eng.is_ollama_running().await;
+    let model_available = if running { eng.is_model_available().await } else { false };
+    Ok(serde_json::json!({
+        "ollama_running": running,
+        "model_available": model_available,
+    }))
+}
+
+#[tauri::command]
+async fn ai_list_models(engine: tauri::State<'_, SharedAiEngine>) -> Result<Vec<serde_json::Value>, String> {
+    let eng = engine.lock().await;
+    let models = eng.list_models().await?;
+    Ok(models.iter().map(|m| serde_json::json!({
+        "name": m.name,
+        "size": m.size,
+    })).collect())
+}
+
+#[tauri::command]
+async fn ai_pull_model(
+    model_name: String,
+    engine: tauri::State<'_, SharedAiEngine>,
+    config_state: tauri::State<'_, SharedConfig>,
+) -> Result<(), String> {
+    let mut eng = engine.lock().await;
+    eng.set_model(&model_name);
+    eng.pull_model().await?;
+
+    let mut config = config_state.lock().unwrap();
+    config.ai_model.model_name = model_name;
+    config.ai_model.downloaded = true;
+    config.save()?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn ai_generate(
+    prompt: String,
+    engine: tauri::State<'_, SharedAiEngine>,
+) -> Result<String, String> {
+    let eng = engine.lock().await;
+    eng.generate(&prompt).await
+}
+
+#[tauri::command]
+async fn ai_process_slot(
+    slot_index: usize,
+    app: tauri::AppHandle,
+    engine: tauri::State<'_, SharedAiEngine>,
+    clipboard_state: tauri::State<'_, SharedClipboardManager>,
+    config_state: tauri::State<'_, SharedConfig>,
+) -> Result<(), String> {
+    let prompt_template = {
+        let config = config_state.lock().unwrap();
+        config.get_prompt_for_slot(slot_index).cloned()
+            .ok_or("No prompt assigned to this slot")?
+    };
+
+    let content: String = {
+        let mgr = clipboard_state.lock().unwrap();
+        match mgr.get_slot(slot_index) {
+            Some(slot) => match &slot.content {
+                SlotContent::Text(t) => Ok(t.clone()),
+                _ => Err("AI processing only works on text content".to_string()),
+            },
+            None => Err("Invalid slot".to_string()),
+        }?
+    };
+
+    // Mark slot as processing
+    {
+        let mut mgr = clipboard_state.lock().unwrap();
+        if let Some(slot) = mgr.get_slot_mut(slot_index) {
+            slot.set_ai_processing();
+        }
+    }
+    let _ = app.get_webview_window("main").map(|w| w.emit("slots-updated", ()));
+
+    // Run inference (all sync mutex guards are dropped at this point)
+    let rendered = ai::prompts::render_prompt(&prompt_template.template, &content);
+    let eng = engine.lock().await;
+    let result = eng.generate(&rendered).await;
+    drop(eng);
+
+    match result {
+        Ok(output) => {
+            let mut mgr = clipboard_state.lock().unwrap();
+            if let Some(slot) = mgr.get_slot_mut(slot_index) {
+                slot.set_ai_result(SlotContent::Text(output));
+            }
+            persistence::save_slots(mgr.slots_for_persistence()).ok();
+            drop(mgr);
+            let _ = app.get_webview_window("main").map(|w| w.emit("slots-updated", ()));
+            eprintln!("[ClipX AI] Slot {} processed successfully", slot_index);
+        }
+        Err(e) => {
+            let mut mgr = clipboard_state.lock().unwrap();
+            if let Some(slot) = mgr.get_slot_mut(slot_index) {
+                slot.set_ai_error(e.clone());
+            }
+            drop(mgr);
+            let _ = app.get_webview_window("main").map(|w| w.emit("slots-updated", ()));
+            eprintln!("[ClipX AI] Slot {} processing failed: {}", slot_index, e);
+        }
+    }
+
+    Ok(())
+}
+
 // ── App Setup ──
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -161,11 +278,14 @@ pub fn run() {
         mgr.set_slot_prompt(i, prompt_id).ok();
     }
 
+    let ai_engine = AiEngine::new(&config.ai_model.model_name);
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .manage::<SharedClipboardManager>(Mutex::new(mgr))
         .manage::<SharedConfig>(Mutex::new(config))
+        .manage::<SharedAiEngine>(Arc::new(TokioMutex::new(ai_engine)))
         .invoke_handler(tauri::generate_handler![
             get_all_slots,
             get_occupied_slots,
@@ -181,6 +301,11 @@ pub fn run() {
             get_hud_duration,
             hide_hud_window,
             show_hud_window,
+            ai_check_status,
+            ai_list_models,
+            ai_pull_model,
+            ai_generate,
+            ai_process_slot,
         ])
         .setup(|app| {
             // Check macOS Accessibility permissions

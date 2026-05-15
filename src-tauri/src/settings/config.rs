@@ -41,11 +41,9 @@ pub struct AiModelConfig {
 impl Default for AiModelConfig {
     fn default() -> Self {
         Self {
-            model_name: "TinyLlama-1.1B-Chat-GGUF".to_string(),
+            model_name: "tinyllama".to_string(),
             model_path: None,
-            download_url: Some(
-                "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf".to_string(),
-            ),
+            download_url: None,
             downloaded: false,
         }
     }

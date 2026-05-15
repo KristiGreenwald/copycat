@@ -136,6 +136,7 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
     match mgr.copy_to_slot(slot_index) {
         Ok(slot_info) => {
             eprintln!("[ClipX] Copied to slot {}: '{}'", slot_index, slot_info.preview);
+            let has_prompt = slot_info.has_prompt;
             persistence::save_slots(mgr.slots_for_persistence()).ok();
             let occupied = mgr.get_occupied_slots().len();
             drop(mgr);
@@ -143,6 +144,72 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
             show_hud_window(app, occupied);
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.emit("slot-copied", &slot_info);
+            }
+
+            // Trigger AI processing if slot has an assigned prompt
+            if has_prompt {
+                let app_clone = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    eprintln!("[ClipX AI] Auto-processing slot {} with assigned prompt", slot_index);
+                    let engine = app_clone.state::<crate::ai::engine::SharedAiEngine>();
+                    let clipboard = app_clone.state::<SharedClipboardManager>();
+                    let config = app_clone.state::<crate::settings::config::SharedConfig>();
+
+                    let prompt_template = {
+                        let config_guard = config.lock().unwrap();
+                        config_guard.get_prompt_for_slot(slot_index).cloned()
+                    };
+
+                    if let Some(prompt) = prompt_template {
+                        let content = {
+                            let mgr = clipboard.lock().unwrap();
+                            mgr.get_slot(slot_index).and_then(|s| match &s.content {
+                                crate::clipboard::manager::SlotContent::Text(t) => Some(t.clone()),
+                                _ => None,
+                            })
+                        };
+
+                        if let Some(text) = content {
+                            {
+                                let mut mgr = clipboard.lock().unwrap();
+                                if let Some(slot) = mgr.get_slot_mut(slot_index) {
+                                    slot.set_ai_processing();
+                                }
+                            }
+                            if let Some(window) = app_clone.get_webview_window("main") {
+                                let _ = window.emit("slots-updated", ());
+                            }
+
+                            let rendered = crate::ai::prompts::render_prompt(&prompt.template, &text);
+                            let eng = engine.lock().await;
+                            match eng.generate(&rendered).await {
+                                Ok(output) => {
+                                    let mut mgr = clipboard.lock().unwrap();
+                                    if let Some(slot) = mgr.get_slot_mut(slot_index) {
+                                        slot.set_ai_result(crate::clipboard::manager::SlotContent::Text(output));
+                                    }
+                                    persistence::save_slots(mgr.slots_for_persistence()).ok();
+                                    drop(mgr);
+                                    if let Some(window) = app_clone.get_webview_window("main") {
+                                        let _ = window.emit("slots-updated", ());
+                                    }
+                                    eprintln!("[ClipX AI] Slot {} auto-processed successfully", slot_index);
+                                }
+                                Err(e) => {
+                                    let mut mgr = clipboard.lock().unwrap();
+                                    if let Some(slot) = mgr.get_slot_mut(slot_index) {
+                                        slot.set_ai_error(e.clone());
+                                    }
+                                    drop(mgr);
+                                    if let Some(window) = app_clone.get_webview_window("main") {
+                                        let _ = window.emit("slots-updated", ());
+                                    }
+                                    eprintln!("[ClipX AI] Slot {} auto-processing failed: {}", slot_index, e);
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
         Err(e) => {

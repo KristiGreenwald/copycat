@@ -1,19 +1,51 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { getConfig, saveConfig, getPrompts, savePrompt, deletePrompt } from "$lib/api";
-  import type { AppConfig, PromptTemplate } from "$lib/api";
+  import { getConfig, saveConfig, getPrompts, savePrompt, deletePrompt, aiCheckStatus, aiListModels, aiPullModel } from "$lib/api";
+  import type { AppConfig, PromptTemplate, AiStatus } from "$lib/api";
   import PromptEditor from "../../components/PromptEditor.svelte";
 
   let config = $state<AppConfig | null>(null);
   let prompts = $state<PromptTemplate[]>([]);
   let editingPrompt = $state<PromptTemplate | null>(null);
   let activeTab = $state<"prompts" | "shortcuts" | "model" | "general">("prompts");
+  let aiStatus = $state<AiStatus | null>(null);
+  let availableModels = $state<{ name: string; size: number }[]>([]);
+  let pulling = $state(false);
+  let pullModelName = $state("tinyllama");
   let saveStatus = $state("");
 
   onMount(async () => {
     config = await getConfig();
     prompts = await getPrompts();
+    refreshAiStatus();
   });
+
+  async function refreshAiStatus() {
+    try {
+      aiStatus = await aiCheckStatus();
+      if (aiStatus.ollama_running) {
+        availableModels = await aiListModels();
+      }
+    } catch {
+      aiStatus = { ollama_running: false, model_available: false };
+    }
+  }
+
+  async function handlePullModel() {
+    pulling = true;
+    try {
+      await aiPullModel(pullModelName);
+      await refreshAiStatus();
+      if (config) {
+        config = await getConfig();
+      }
+      showSaved();
+    } catch (e) {
+      saveStatus = `Error: ${e}`;
+      setTimeout(() => (saveStatus = ""), 4000);
+    }
+    pulling = false;
+  }
 
   async function handleSavePrompt(prompt: PromptTemplate) {
     await savePrompt(prompt);
@@ -133,23 +165,54 @@
 
     {:else if activeTab === "model" && config}
       <div class="section">
-        <h3>AI Model</h3>
-        <div class="model-info">
+        <h3>AI Model (Ollama)</h3>
+        <p class="section-desc">ClipX uses Ollama for local AI processing. All data stays on your machine.</p>
+
+        <div class="field">
+          <label>Ollama Status</label>
+          {#if aiStatus === null}
+            <span style="color: #888;">Checking...</span>
+          {:else if aiStatus.ollama_running}
+            <span class="status-ok">Running ✓</span>
+          {:else}
+            <span class="status-pending">Not running ✗</span>
+            <p class="hint">Install Ollama: <code>brew install ollama</code> then run <code>ollama serve</code></p>
+          {/if}
+        </div>
+
+        {#if aiStatus?.ollama_running}
           <div class="field">
             <label>Current Model</label>
             <span class="model-name">{config.ai_model.model_name}</span>
+            {#if aiStatus.model_available}
+              <span class="status-ok" style="margin-left: 8px;">Available ✓</span>
+            {:else}
+              <span class="status-pending" style="margin-left: 8px;">Not pulled</span>
+            {/if}
           </div>
-          <div class="field">
-            <label>Status</label>
-            <span class={config.ai_model.downloaded ? "status-ok" : "status-pending"}>
-              {config.ai_model.downloaded ? "Downloaded ✓" : "Not downloaded"}
-            </span>
-          </div>
-          {#if !config.ai_model.downloaded}
-            <button class="btn btn-primary">Download Model</button>
-            <p class="hint">Downloads ~700MB TinyLlama model for local AI processing.</p>
+
+          {#if availableModels.length > 0}
+            <div class="field">
+              <label>Installed Models</label>
+              {#each availableModels as model}
+                <div class="model-row">{model.name} <span class="hint">({(model.size / 1e9).toFixed(1)} GB)</span></div>
+              {/each}
+            </div>
           {/if}
-        </div>
+
+          <div class="field">
+            <label for="pull-model">Pull a Model</label>
+            <div style="display: flex; gap: 8px;">
+              <input id="pull-model" type="text" bind:value={pullModelName} placeholder="e.g., tinyllama, phi3, llama3.2:1b" />
+              <button class="btn btn-primary" onclick={handlePullModel} disabled={pulling || !pullModelName.trim()}>
+                {pulling ? "Pulling..." : "Pull"}
+              </button>
+            </div>
+            <span class="hint">Recommended small models: tinyllama, phi3, llama3.2:1b</span>
+          </div>
+        {/if}
+
+        <button class="btn btn-secondary" style="margin-top: 8px;" onclick={refreshAiStatus}>Refresh Status</button>
       </div>
 
     {:else if activeTab === "general" && config}
@@ -339,6 +402,12 @@
     font-size: 14px;
     color: #ddd;
     font-weight: 500;
+  }
+
+  .model-row {
+    font-size: 13px;
+    color: #ccc;
+    padding: 4px 0;
   }
 
   .status-ok {

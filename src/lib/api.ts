@@ -89,3 +89,29 @@ export async function hideHudWindow(): Promise<void> {
 export async function showHudWindow(): Promise<void> {
   return invoke("show_hud_window");
 }
+
+// AI commands
+export interface AiStatus {
+  ollama_running: boolean;
+  model_available: boolean;
+}
+
+export async function aiCheckStatus(): Promise<AiStatus> {
+  return invoke("ai_check_status");
+}
+
+export async function aiListModels(): Promise<{ name: string; size: number }[]> {
+  return invoke("ai_list_models");
+}
+
+export async function aiPullModel(modelName: string): Promise<void> {
+  return invoke("ai_pull_model", { modelName });
+}
+
+export async function aiGenerate(prompt: string): Promise<string> {
+  return invoke("ai_generate", { prompt });
+}
+
+export async function aiProcessSlot(slotIndex: number): Promise<void> {
+  return invoke("ai_process_slot", { slotIndex });
+}
