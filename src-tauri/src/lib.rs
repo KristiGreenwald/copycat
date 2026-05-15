@@ -291,6 +291,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage::<SharedClipboardManager>(Mutex::new(mgr))
         .manage::<SharedConfig>(Mutex::new(config))
         .manage::<SharedAiEngine>(Arc::new(TokioMutex::new(ai_engine)))
@@ -339,6 +340,25 @@ pub fn run() {
                 Ok(()) => eprintln!("[CopyCat] App setup complete"),
                 Err(e) => eprintln!("[CopyCat] WARNING: Failed to register shortcuts: {}", e),
             }
+
+            // Check for updates in background
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let updater = match tauri_plugin_updater::UpdaterExt::updater(&handle) {
+                    Ok(u) => u,
+                    Err(e) => { eprintln!("[CopyCat] Updater init skipped: {}", e); return; }
+                };
+                match updater.check().await {
+                    Ok(Some(update)) => {
+                        eprintln!("[CopyCat] Update available: v{}", update.version);
+                        if let Err(e) = update.download_and_install(|_, _| {}, || {}).await {
+                            eprintln!("[CopyCat] Update install failed: {}", e);
+                        }
+                    }
+                    Ok(None) => eprintln!("[CopyCat] App is up to date"),
+                    Err(e) => eprintln!("[CopyCat] Update check skipped: {}", e),
+                }
+            });
 
             Ok(())
         })
