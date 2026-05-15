@@ -24,15 +24,6 @@
         "visible": false,
         "skipTaskbar": true,
         "url": "/"
-      },
-      {
-        "label": "settings",
-        "title": "CopyCat Settings",
-        "width": 700,
-        "height": 550,
-        "resizable": true,
-        "visible": false,
-        "url": "/settings"
       }
     ],
     "security": {

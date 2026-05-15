@@ -1,6 +1,7 @@
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
+    webview::WebviewWindowBuilder,
     AppHandle, Emitter, Manager,
 };
 
@@ -23,6 +24,17 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     if let Some(window) = app.get_webview_window("settings") {
                         window.show().ok();
                         window.set_focus().ok();
+                    } else {
+                        // Create settings window dynamically
+                        match WebviewWindowBuilder::new(app, "settings", tauri::WebviewUrl::App("/settings".into()))
+                            .title("CopyCat Settings")
+                            .inner_size(700.0, 550.0)
+                            .resizable(true)
+                            .build()
+                        {
+                            Ok(_) => eprintln!("[CopyCat] Settings window created"),
+                            Err(e) => eprintln!("[CopyCat] Failed to create settings window: {}", e),
+                        }
                     }
                 }
                 "show_hud" => {
