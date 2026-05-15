@@ -227,6 +227,14 @@ fn handle_paste(app: &AppHandle, slot_index: usize) {
             eprintln!("[CopyCat] Pasted from slot {}", slot_index);
             let occupied = mgr.get_occupied_slots().len();
             drop(mgr);
+
+            // Simulate Cmd+V to paste into the focused app
+            #[cfg(target_os = "macos")]
+            {
+                std::thread::sleep(std::time::Duration::from_millis(50));
+                simulate_paste_keystroke();
+            }
+
             show_hud_window(app, occupied);
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.emit("slot-pasted", slot_index);
@@ -240,6 +248,16 @@ fn handle_paste(app: &AppHandle, slot_index: usize) {
 
 #[cfg(target_os = "macos")]
 fn simulate_copy_keystroke() {
+    simulate_key_with_cmd(0x08); // kVK_ANSI_C
+}
+
+#[cfg(target_os = "macos")]
+fn simulate_paste_keystroke() {
+    simulate_key_with_cmd(0x09); // kVK_ANSI_V
+}
+
+#[cfg(target_os = "macos")]
+fn simulate_key_with_cmd(virtual_key: u16) {
     use std::ptr;
 
     extern "C" {
@@ -253,16 +271,14 @@ fn simulate_copy_keystroke() {
         fn CFRelease(cf: *const std::ffi::c_void);
     }
 
-    // kVK_ANSI_C = 0x08, kCGEventFlagMaskCommand = 0x100000
-    const VK_C: u16 = 0x08;
-    const CMD_FLAG: u64 = 0x100000;
+    const CMD_FLAG: u64 = 0x100000; // kCGEventFlagMaskCommand
 
     unsafe {
-        let key_down = CGEventCreateKeyboardEvent(ptr::null(), VK_C, true);
+        let key_down = CGEventCreateKeyboardEvent(ptr::null(), virtual_key, true);
         CGEventSetFlags(key_down, CMD_FLAG);
-        CGEventPost(0, key_down); // kCGHIDEventTap = 0
+        CGEventPost(0, key_down);
 
-        let key_up = CGEventCreateKeyboardEvent(ptr::null(), VK_C, false);
+        let key_up = CGEventCreateKeyboardEvent(ptr::null(), virtual_key, false);
         CGEventSetFlags(key_up, CMD_FLAG);
         CGEventPost(0, key_up);
 

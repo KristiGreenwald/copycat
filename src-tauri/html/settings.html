@@ -122,11 +122,10 @@ select {
     <label>Name</label>
     <input type="text" id="ed-name" placeholder="e.g., Summarize"/>
     <label>Prompt Template</label>
-    <textarea id="ed-template" placeholder="Use {{content}} where the clipboard content should be inserted"></textarea>
-    <p class="hint">Use {{content}} as a placeholder for the copied text</p>
-    <label>Assign to Slot</label>
+    <textarea id="ed-template" placeholder="Insert prompt here"></textarea>
+    <label style="margin-top: 16px;">Assign to Slot</label>
     <div class="slot-picker" id="slot-picker"></div>
-    <p class="hint" id="slot-hint">Click a number to assign this prompt to a slot</p>
+    <p class="hint" id="slot-hint" style="margin-top: 8px;">Click a number to assign this prompt to a slot</p>
     <div class="actions">
       <button class="btn btn-p" id="btn-save-prompt">Save</button>
       <button class="btn btn-d" id="btn-delete-prompt" style="display:none;">Delete</button>
