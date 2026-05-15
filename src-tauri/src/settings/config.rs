@@ -55,6 +55,7 @@ pub struct AppConfig {
     pub ai_model: AiModelConfig,
     pub prompts: Vec<PromptTemplate>,
     pub hud_duration_secs: u64,
+    pub hud_always_visible: bool,
     pub launch_at_startup: bool,
 }
 
@@ -84,6 +85,7 @@ impl Default for AppConfig {
                 },
             ],
             hud_duration_secs: 10,
+            hud_always_visible: false,
             launch_at_startup: false,
         }
     }

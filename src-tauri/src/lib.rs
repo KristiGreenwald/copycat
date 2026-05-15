@@ -135,6 +135,11 @@ fn get_hud_duration(state: tauri::State<SharedConfig>) -> u64 {
 }
 
 #[tauri::command]
+fn get_hud_always_visible(state: tauri::State<SharedConfig>) -> bool {
+    state.lock().unwrap().hud_always_visible
+}
+
+#[tauri::command]
 fn hide_hud_window(app: tauri::AppHandle) {
     hotkeys::manager::hide_hud_window(&app);
 }
@@ -299,6 +304,7 @@ pub fn run() {
             save_prompt,
             delete_prompt,
             get_hud_duration,
+            get_hud_always_visible,
             hide_hud_window,
             show_hud_window,
             ai_check_status,

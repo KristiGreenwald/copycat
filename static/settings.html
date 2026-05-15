@@ -197,7 +197,18 @@ select {
 <div class="panel" id="panel-general">
   <h3>General</h3>
   <label>HUD display duration (seconds)</label>
-  <input type="number" id="hud-duration" min="1" max="30" value="5"/>
+  <div style="width: 100px;">
+    <input type="number" id="hud-duration" min="1" max="60" value="10" style="width: 100px; font-size: 16px; text-align: center; -webkit-appearance: none; -moz-appearance: textfield;"/>
+  </div>
+  <div style="display: flex; gap: 8px; margin: 8px 0 16px;">
+    <button class="btn btn-s" style="padding: 4px 12px; font-size: 16px;" id="btn-dur-down">−</button>
+    <button class="btn btn-s" style="padding: 4px 12px; font-size: 16px;" id="btn-dur-up">+</button>
+  </div>
+  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #ddd; margin-bottom: 16px;">
+    <input type="checkbox" id="hud-always-visible" style="width: 18px; height: 18px; accent-color: #6c8cff; cursor: pointer;"/>
+    Always show HUD
+  </label>
+  <p class="hint" style="margin-top: -8px;">When enabled, the HUD stays visible at all times instead of auto-hiding.</p>
   <div class="actions"><button class="btn btn-p" id="btn-save-general">Save</button></div>
 </div>
 
@@ -384,9 +395,18 @@ document.getElementById('btn-copy-cmd').addEventListener('click', () => {
 });
 
 // ── General ──
+document.getElementById('btn-dur-up').addEventListener('click', () => {
+  const el = document.getElementById('hud-duration');
+  el.value = Math.min(60, parseInt(el.value || '10') + 1);
+});
+document.getElementById('btn-dur-down').addEventListener('click', () => {
+  const el = document.getElementById('hud-duration');
+  el.value = Math.max(1, parseInt(el.value || '10') - 1);
+});
 document.getElementById('btn-save-general').addEventListener('click', async () => {
-  if (!config) return;
-  config.hud_duration_secs = parseInt(document.getElementById('hud-duration').value) || 5;
+  if (!config) config = {};
+  config.hud_duration_secs = parseInt(document.getElementById('hud-duration').value) || 10;
+  config.hud_always_visible = document.getElementById('hud-always-visible').checked;
   try { await invoke('save_config', { config }); } catch {}
   flash('Saved!');
 });
@@ -412,6 +432,7 @@ async function init() {
     document.getElementById('sc-hud').value = config.shortcuts.toggle_hud;
     document.getElementById('sc-clear').value = config.shortcuts.clear_all;
     document.getElementById('hud-duration').value = config.hud_duration_secs;
+    document.getElementById('hud-always-visible').checked = config.hud_always_visible || false;
   } catch (e) {
     console.warn('Tauri IPC not available, using defaults:', e);
   }

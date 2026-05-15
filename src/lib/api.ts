@@ -95,6 +95,10 @@ export async function getHudDuration(): Promise<number> {
   return invoke("get_hud_duration");
 }
 
+export async function getHudAlwaysVisible(): Promise<boolean> {
+  return invoke("get_hud_always_visible");
+}
+
 export async function hideHudWindow(): Promise<void> {
   return invoke("hide_hud_window");
 }

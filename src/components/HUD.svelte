@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { listen } from "@tauri-apps/api/event";
-  import { getOccupiedSlots, clearSlot, getHudDuration, hideHudWindow } from "$lib/api";
+  import { getOccupiedSlots, clearSlot, getHudDuration, getHudAlwaysVisible, hideHudWindow } from "$lib/api";
   import type { SlotInfo } from "$lib/api";
   import SlotItem from "./SlotItem.svelte";
 
@@ -9,11 +9,13 @@
   let visible = $state(false);
   let animClass = $state("");
   let dismissTimer: ReturnType<typeof setTimeout> | null = null;
-  let hudDuration = $state(5000);
+  let hudDuration = $state(10000);
+  let alwaysVisible = $state(false);
   let unlisteners: (() => void)[] = [];
 
   onMount(async () => {
     hudDuration = (await getHudDuration()) * 1000;
+    alwaysVisible = await getHudAlwaysVisible();
 
     const unlisten1 = await listen<SlotInfo>("slot-copied", async () => {
       await refreshSlots();
@@ -66,7 +68,9 @@
     if (dismissTimer) clearTimeout(dismissTimer);
     visible = true;
     animClass = "hud-enter";
-    dismissTimer = setTimeout(() => hideHud(), hudDuration);
+    if (!alwaysVisible) {
+      dismissTimer = setTimeout(() => hideHud(), hudDuration);
+    }
   }
 
   async function hideHud() {
