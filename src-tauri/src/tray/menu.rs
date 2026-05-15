@@ -25,15 +25,19 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                         window.show().ok();
                         window.set_focus().ok();
                     } else {
+                        // Write settings HTML to app data dir and load from file://
                         let html = include_str!("../../html/settings.html");
-                        let data_url = format!(
-                            "data:text/html;charset=utf-8,{}",
-                            urlencoding::encode(html)
-                        );
+                        let data_dir = dirs::data_dir()
+                            .unwrap_or_else(|| std::path::PathBuf::from("."))
+                            .join("com.krisgreenwald.copycat");
+                        std::fs::create_dir_all(&data_dir).ok();
+                        let html_path = data_dir.join("settings.html");
+                        std::fs::write(&html_path, html).ok();
+                        let file_url = format!("file://{}", html_path.display());
                         match WebviewWindowBuilder::new(
                             app,
                             "settings",
-                            tauri::WebviewUrl::External(data_url.parse().unwrap()),
+                            tauri::WebviewUrl::External(file_url.parse().unwrap()),
                         )
                         .title("CopyCat Settings")
                         .inner_size(700.0, 600.0)
