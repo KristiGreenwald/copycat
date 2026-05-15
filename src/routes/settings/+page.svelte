@@ -50,8 +50,15 @@
     try {
       config = await getConfig();
       prompts = await getPrompts();
+      loadError = "";
     } catch (e) {
       loadError = String(e);
+      // Fallback: use default prompts so UI is still interactive
+      prompts = [
+        { id: "summarize", name: "Summarize in 5 bullet points", template: "Summarize the following text in exactly 5 concise bullet points:\n\n{{content}}", assigned_slot: null },
+        { id: "fix-grammar", name: "Fix grammar", template: "Fix the grammar and spelling in the following text. Only return the corrected text:\n\n{{content}}", assigned_slot: null },
+        { id: "translate-spanish", name: "Translate to Spanish", template: "Translate the following text to Spanish. Only return the translation:\n\n{{content}}", assigned_slot: null },
+      ];
     }
     refreshAiStatus();
   });
@@ -182,16 +189,16 @@
   {/if}
 
   <nav class="tabs">
-    <button class="tab" class:active={activeTab === "prompts"} on:click={() => { editMode = false; activeTab = "prompts"; }}>
+    <button class="tab" class:active={activeTab === "prompts"} onclick={() => { editMode = false; activeTab = "prompts"; }}>
       Prompts
     </button>
-    <button class="tab" class:active={activeTab === "shortcuts"} on:click={() => { editMode = false; activeTab = "shortcuts"; }}>
+    <button class="tab" class:active={activeTab === "shortcuts"} onclick={() => { editMode = false; activeTab = "shortcuts"; }}>
       Shortcuts
     </button>
-    <button class="tab" class:active={activeTab === "model"} on:click={() => { editMode = false; activeTab = "model"; }}>
+    <button class="tab" class:active={activeTab === "model"} onclick={() => { editMode = false; activeTab = "model"; }}>
       AI Model
     </button>
-    <button class="tab" class:active={activeTab === "general"} on:click={() => { editMode = false; activeTab = "general"; }}>
+    <button class="tab" class:active={activeTab === "general"} onclick={() => { editMode = false; activeTab = "general"; }}>
       General
     </button>
   </nav>
@@ -200,6 +207,11 @@
 
     <!-- ═══ PROMPTS TAB ═══ -->
     {#if activeTab === "prompts"}
+      <!-- Debug: remove this after testing -->
+      <div style="font-size: 10px; color: #555; margin-bottom: 8px;">
+        editMode={editMode} | prompts={prompts.length} | editSlot={editSlot}
+      </div>
+
       {#if editMode}
         <div class="prompt-editor">
           <div class="field">
@@ -215,7 +227,7 @@
             <label>Assign to Slot</label>
             <div class="slot-picker">
               {#each Array(10) as _, i}
-                <button class="slot-pick-btn" class:selected={editSlot === i} on:click={() => toggleSlot(i)} type="button">
+                <button class="slot-pick-btn" class:selected={editSlot === i} onclick={() => toggleSlot(i)} type="button">
                   {slotLabel(i)}
                 </button>
               {/each}
@@ -229,18 +241,18 @@
             </span>
           </div>
           <div class="actions">
-            <button class="btn btn-primary" on:click={doSavePrompt} disabled={!editName.trim() || !editTemplate.trim()}>Save</button>
+            <button class="btn btn-primary" onclick={doSavePrompt} disabled={!editName.trim() || !editTemplate.trim()}>Save</button>
             {#if !editIsNew}
-              <button class="btn btn-danger" on:click={doDeletePrompt}>Delete</button>
+              <button class="btn btn-danger" onclick={doDeletePrompt}>Delete</button>
             {/if}
-            <button class="btn btn-secondary" on:click={cancelEdit}>Cancel</button>
+            <button class="btn btn-secondary" onclick={cancelEdit}>Cancel</button>
           </div>
         </div>
       {:else}
         <p class="section-desc">Assign AI prompts to slots. When you copy to a slot with a prompt, the AI will automatically transform the content.</p>
         <div class="prompt-list">
           {#each prompts as p}
-            <button class="prompt-row" on:click={() => openEditPrompt(p)}>
+            <button class="prompt-row" onclick={() => openEditPrompt(p)}>
               <div class="prompt-info">
                 {#if p.assigned_slot !== null}
                   <span class="slot-badge">{slotLabel(p.assigned_slot)}</span>
@@ -274,7 +286,7 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" on:click={openNewPrompt}>+ New Prompt</button>
+        <button class="btn btn-primary" onclick={openNewPrompt}>+ New Prompt</button>
       {/if}
 
     <!-- ═══ SHORTCUTS TAB ═══ -->
@@ -321,7 +333,7 @@
           </select>
         </div>
 
-        <button class="btn btn-primary" on:click={handleSaveConfig}>Save Shortcuts</button>
+        <button class="btn btn-primary" onclick={handleSaveConfig}>Save Shortcuts</button>
         <p class="hint" style="margin-top: 8px;">Changes require an app restart to take effect.</p>
       </div>
 
@@ -343,7 +355,7 @@
               <p class="install-label">Run this in your terminal to install and start Ollama:</p>
               <div class="code-block">
                 <code>brew install ollama && ollama serve</code>
-                <button class="copy-btn" on:click={() => copyToClipboard('brew install ollama && ollama serve')}>
+                <button class="copy-btn" onclick={() => copyToClipboard('brew install ollama && ollama serve')}>
                   {copiedCommand ? '✓ Copied' : 'Copy'}
                 </button>
               </div>
@@ -382,7 +394,7 @@
                 <option value="llama3.2:3b">llama3.2:3b (3B — capable, ~2GB)</option>
                 <option value="mistral">mistral (7B — powerful, ~4.1GB)</option>
               </select>
-              <button class="btn btn-primary" on:click={handlePullModel} disabled={pulling}>
+              <button class="btn btn-primary" onclick={handlePullModel} disabled={pulling}>
                 {pulling ? "Pulling..." : "Pull"}
               </button>
             </div>
@@ -390,7 +402,7 @@
           </div>
         {/if}
 
-        <button class="btn btn-secondary" style="margin-top: 8px;" on:click={refreshAiStatus}>Refresh Status</button>
+        <button class="btn btn-secondary" style="margin-top: 8px;" onclick={refreshAiStatus}>Refresh Status</button>
       </div>
 
     <!-- ═══ GENERAL TAB ═══ -->
@@ -407,7 +419,7 @@
             Launch at startup
           </label>
         </div>
-        <button class="btn btn-primary" on:click={handleSaveConfig}>Save</button>
+        <button class="btn btn-primary" onclick={handleSaveConfig}>Save</button>
       </div>
     {/if}
   </div>
