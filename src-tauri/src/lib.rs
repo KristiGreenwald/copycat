@@ -157,7 +157,6 @@ fn show_hud_window(
         let _ = window.emit("show-hud", ());
     }
 }
-}
 
 // ── AI Commands ──
 
