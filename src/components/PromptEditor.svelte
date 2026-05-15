@@ -10,10 +10,18 @@
 
   let { prompt, onSave, onDelete, onCancel }: Props = $props();
 
-  let name = $state(prompt.name);
-  let template = $state(prompt.template);
-  let assignedSlot = $state<number | null>(prompt.assigned_slot);
-  let isNew = $derived(!prompt.name);
+  let name = $state("");
+  let template = $state("");
+  let assignedSlot = $state<number | null>(null);
+  let isNew = $state(true);
+
+  // Sync local state when prompt prop changes
+  $effect(() => {
+    name = prompt.name;
+    template = prompt.template;
+    assignedSlot = prompt.assigned_slot;
+    isNew = !prompt.name;
+  });
 
   function handleSave() {
     onSave({
@@ -24,8 +32,12 @@
     });
   }
 
-  function slotLabel(i: number): string {
-    return i === 9 ? "Slot 0" : `Slot ${i + 1}`;
+  function selectSlot(i: number) {
+    assignedSlot = assignedSlot === i ? null : i;
+  }
+
+  function slotDisplay(i: number): string {
+    return i === 9 ? "0" : String(i + 1);
   }
 </script>
 
@@ -47,13 +59,26 @@
   </div>
 
   <div class="field">
-    <label for="prompt-slot">Assign to Slot</label>
-    <select id="prompt-slot" bind:value={assignedSlot}>
-      <option value={null}>None</option>
+    <label>Assign to Slot</label>
+    <div class="slot-picker">
       {#each Array(10) as _, i}
-        <option value={i}>{slotLabel(i)}</option>
+        <button
+          class="slot-pick-btn"
+          class:selected={assignedSlot === i}
+          onclick={() => selectSlot(i)}
+          type="button"
+        >
+          {slotDisplay(i)}
+        </button>
       {/each}
-    </select>
+    </div>
+    <span class="hint">
+      {#if assignedSlot !== null}
+        Assigned to slot {slotDisplay(assignedSlot)} — copy with ⌘⌥{slotDisplay(assignedSlot)}
+      {:else}
+        Click a number to assign this prompt to a slot
+      {/if}
+    </span>
   </div>
 
   <div class="actions">
@@ -84,19 +109,20 @@
     margin-bottom: 6px;
   }
 
-  input, textarea, select {
+  input, textarea {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     font-size: 13px;
-    border: 1px solid #444;
-    border-radius: 6px;
-    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background: #252525;
     color: #f0f0f0;
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.15s;
   }
 
-  input:focus, textarea:focus, select:focus {
+  input:focus, textarea:focus {
     border-color: #6c8cff;
   }
 
@@ -108,7 +134,7 @@
   .hint {
     font-size: 11px;
     color: #888;
-    margin-top: 4px;
+    margin-top: 6px;
     display: block;
   }
 
@@ -117,6 +143,38 @@
     padding: 1px 4px;
     border-radius: 3px;
     font-size: 11px;
+  }
+
+  .slot-picker {
+    display: flex;
+    gap: 6px;
+  }
+
+  .slot-pick-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background: #252525;
+    color: #888;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slot-pick-btn:hover {
+    border-color: #6c8cff;
+    color: #ddd;
+  }
+
+  .slot-pick-btn.selected {
+    background: #6c8cff;
+    border-color: #6c8cff;
+    color: #fff;
   }
 
   .actions {
@@ -128,38 +186,18 @@
   .btn {
     padding: 8px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.15s;
   }
 
-  .btn-primary {
-    background: #6c8cff;
-    color: #fff;
-  }
-  .btn-primary:hover:not(:disabled) {
-    background: #8aa4ff;
-  }
-  .btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .btn-danger {
-    background: #ff6b6b;
-    color: #fff;
-  }
-  .btn-danger:hover {
-    background: #ff8585;
-  }
-
-  .btn-secondary {
-    background: #444;
-    color: #ccc;
-  }
-  .btn-secondary:hover {
-    background: #555;
-  }
+  .btn-primary { background: #6c8cff; color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: #8aa4ff; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-danger { background: #ff6b6b; color: #fff; }
+  .btn-danger:hover { background: #ff8585; }
+  .btn-secondary { background: #333; color: #aaa; }
+  .btn-secondary:hover { background: #444; color: #ddd; }
 </style>

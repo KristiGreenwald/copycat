@@ -132,16 +132,16 @@
   </header>
 
   <nav class="tabs">
-    <button class="tab" class:active={activeTab === "prompts"} onclick={() => (activeTab = "prompts")}>
+    <button class="tab" class:active={activeTab === "prompts"} onclick={() => { editingPrompt = null; activeTab = "prompts"; }}>
       Prompts
     </button>
-    <button class="tab" class:active={activeTab === "shortcuts"} onclick={() => (activeTab = "shortcuts")}>
+    <button class="tab" class:active={activeTab === "shortcuts"} onclick={() => { editingPrompt = null; activeTab = "shortcuts"; }}>
       Shortcuts
     </button>
-    <button class="tab" class:active={activeTab === "model"} onclick={() => (activeTab = "model")}>
+    <button class="tab" class:active={activeTab === "model"} onclick={() => { editingPrompt = null; activeTab = "model"; }}>
       AI Model
     </button>
-    <button class="tab" class:active={activeTab === "general"} onclick={() => (activeTab = "general")}>
+    <button class="tab" class:active={activeTab === "general"} onclick={() => { editingPrompt = null; activeTab = "general"; }}>
       General
     </button>
   </nav>
@@ -392,16 +392,28 @@
   input[type="number"],
   select {
     width: 100%;
-    padding: 8px 12px;
+    padding: 10px 12px;
     font-size: 13px;
-    border: 1px solid #444;
-    border-radius: 6px;
-    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    background: #252525;
     color: #f0f0f0;
     outline: none;
     box-sizing: border-box;
+    transition: border-color 0.15s;
   }
   input:focus, select:focus { border-color: #6c8cff; }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+    cursor: pointer;
+  }
+  select:hover { border-color: #555; }
 
   .hint { font-size: 11px; color: #666; margin-top: 4px; display: block; }
 
@@ -430,18 +442,18 @@
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #333;
-    border-radius: 8px;
+    padding: 10px 14px;
+    border: 1px solid #3a3a3a;
+    border-radius: 10px;
     margin-bottom: 6px;
     cursor: pointer;
-    transition: background 0.15s;
-    background: none;
+    transition: all 0.15s;
+    background: #252525;
     color: inherit;
     text-align: left;
     font: inherit;
   }
-  .prompt-row:hover { background: #2a2a2a; }
+  .prompt-row:hover { background: #2e2e2e; border-color: #555; }
 
   .prompt-info { display: flex; align-items: center; gap: 10px; }
 
@@ -539,17 +551,17 @@
 
   /* Buttons */
   .btn {
-    padding: 8px 16px;
+    padding: 9px 18px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.15s;
   }
   .btn-primary { background: #6c8cff; color: #fff; }
   .btn-primary:hover:not(:disabled) { background: #8aa4ff; }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-secondary { background: #444; color: #ccc; }
-  .btn-secondary:hover { background: #555; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { background: #333; color: #aaa; }
+  .btn-secondary:hover { background: #444; color: #ddd; }
 </style>
