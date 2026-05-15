@@ -24,7 +24,7 @@ impl Default for ShortcutConfig {
         Self {
             copy_modifier: "CmdOrCtrl+Alt".to_string(),
             paste_modifier: "CmdOrCtrl+Alt+Shift".to_string(),
-            toggle_hud: "CmdOrCtrl+Alt+V".to_string(),
+            toggle_hud: "Control+Alt+Super+Space".to_string(),
             clear_all: "CmdOrCtrl+Alt+Backspace".to_string(),
         }
     }

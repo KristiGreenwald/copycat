@@ -137,8 +137,14 @@ fn hide_hud_window(app: tauri::AppHandle) {
 }
 
 #[tauri::command]
-fn show_hud_window(app: tauri::AppHandle) {
-    hotkeys::manager::show_hud_window(&app);
+fn show_hud_window(
+    app: tauri::AppHandle,
+    state: tauri::State<SharedClipboardManager>,
+) {
+    let mgr = state.lock().unwrap();
+    let occupied = mgr.get_occupied_slots().len();
+    drop(mgr);
+    hotkeys::manager::show_hud_window(&app, occupied);
 }
 
 // ── App Setup ──

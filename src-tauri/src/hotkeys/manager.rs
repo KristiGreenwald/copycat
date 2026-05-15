@@ -54,7 +54,11 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
     app.global_shortcut().on_shortcut(toggle_hud, move |_app, _shortcut: &Shortcut, event: ShortcutEvent| {
         if event.state == ShortcutState::Pressed {
             eprintln!("[ClipX] HUD toggle pressed");
-            show_hud_window(&app_hud);
+            let state = app_hud.state::<SharedClipboardManager>();
+            let mgr = state.lock().unwrap();
+            let occupied = mgr.get_occupied_slots().len();
+            drop(mgr);
+            show_hud_window(&app_hud, occupied);
             let _ = app_hud.get_webview_window("main").map(|w| w.emit("toggle-hud", ()));
         }
     })?;
@@ -84,23 +88,26 @@ pub fn register_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Err
     Ok(())
 }
 
-pub fn show_hud_window(app: &AppHandle) {
+pub fn show_hud_window(app: &AppHandle, slot_count: usize) {
     if let Some(window) = app.get_webview_window("main") {
-        // Position window at bottom-right of primary monitor
         if let Ok(Some(monitor)) = window.primary_monitor() {
             let screen_size = monitor.size();
             let screen_pos = monitor.position();
             let scale = monitor.scale_factor();
-            let win_w = (320.0 * scale) as i32;
-            let win_h = (400.0 * scale) as i32;
-            let margin = (16.0 * scale) as i32;
+            let win_w = (280.0 * scale) as i32;
+            // Dynamic height: header(40) + slots(36 each) + padding(16)
+            let count = if slot_count == 0 { 1 } else { slot_count };
+            let content_h = 40.0 + (count as f64 * 36.0) + 16.0;
+            let win_h = (content_h * scale) as i32;
+            let margin = (12.0 * scale) as i32;
             let x = screen_pos.x + screen_size.width as i32 - win_w - margin;
             let y = screen_pos.y + screen_size.height as i32 - win_h - margin;
+            let _ = window.set_size(tauri::PhysicalSize::new(win_w as u32, win_h as u32));
             let _ = window.set_position(tauri::PhysicalPosition::new(x, y));
         }
         window.show().ok();
         window.set_focus().ok();
-        eprintln!("[ClipX] HUD window shown");
+        eprintln!("[ClipX] HUD window shown ({} slots)", slot_count);
     } else {
         eprintln!("[ClipX] WARNING: main window not found");
     }
@@ -113,6 +120,14 @@ pub fn hide_hud_window(app: &AppHandle) {
 }
 
 fn handle_copy(app: &AppHandle, slot_index: usize) {
+    // Simulate Cmd+C to copy current selection to system clipboard
+    #[cfg(target_os = "macos")]
+    {
+        simulate_copy_keystroke();
+        // Brief delay to let the clipboard update
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+
     let state = app.state::<SharedClipboardManager>();
     let mut mgr = state.lock().unwrap();
 
@@ -120,9 +135,10 @@ fn handle_copy(app: &AppHandle, slot_index: usize) {
         Ok(slot_info) => {
             eprintln!("[ClipX] Copied to slot {}: '{}'", slot_index, slot_info.preview);
             persistence::save_slots(mgr.slots_for_persistence()).ok();
+            let occupied = mgr.get_occupied_slots().len();
             drop(mgr);
 
-            show_hud_window(app);
+            show_hud_window(app, occupied);
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.emit("slot-copied", &slot_info);
             }
@@ -140,8 +156,9 @@ fn handle_paste(app: &AppHandle, slot_index: usize) {
     match mgr.paste_from_slot(slot_index) {
         Ok(()) => {
             eprintln!("[ClipX] Pasted from slot {}", slot_index);
+            let occupied = mgr.get_occupied_slots().len();
             drop(mgr);
-            show_hud_window(app);
+            show_hud_window(app, occupied);
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.emit("slot-pasted", slot_index);
             }
@@ -149,5 +166,38 @@ fn handle_paste(app: &AppHandle, slot_index: usize) {
         Err(e) => {
             eprintln!("[ClipX] Failed to paste from slot {}: {}", slot_index, e);
         }
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn simulate_copy_keystroke() {
+    use std::ptr;
+
+    extern "C" {
+        fn CGEventCreateKeyboardEvent(
+            source: *const std::ffi::c_void,
+            virtual_key: u16,
+            key_down: bool,
+        ) -> *mut std::ffi::c_void;
+        fn CGEventSetFlags(event: *mut std::ffi::c_void, flags: u64);
+        fn CGEventPost(tap: u32, event: *mut std::ffi::c_void);
+        fn CFRelease(cf: *const std::ffi::c_void);
+    }
+
+    // kVK_ANSI_C = 0x08, kCGEventFlagMaskCommand = 0x100000
+    const VK_C: u16 = 0x08;
+    const CMD_FLAG: u64 = 0x100000;
+
+    unsafe {
+        let key_down = CGEventCreateKeyboardEvent(ptr::null(), VK_C, true);
+        CGEventSetFlags(key_down, CMD_FLAG);
+        CGEventPost(0, key_down); // kCGHIDEventTap = 0
+
+        let key_up = CGEventCreateKeyboardEvent(ptr::null(), VK_C, false);
+        CGEventSetFlags(key_up, CMD_FLAG);
+        CGEventPost(0, key_up);
+
+        CFRelease(key_down as *const _);
+        CFRelease(key_up as *const _);
     }
 }

@@ -27,7 +27,10 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                 }
                 "show_hud" => {
                     eprintln!("[ClipX] Tray: Show HUD clicked");
-                    crate::hotkeys::manager::show_hud_window(app);
+                    let occupied = if let Some(state) = app.try_state::<crate::clipboard::manager::SharedClipboardManager>() {
+                        state.lock().unwrap().get_occupied_slots().len()
+                    } else { 0 };
+                    crate::hotkeys::manager::show_hud_window(app, occupied);
                     if let Some(window) = app.get_webview_window("main") {
                         let _ = window.emit("show-hud", ());
                     }
