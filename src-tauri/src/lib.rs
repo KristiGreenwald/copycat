@@ -66,6 +66,28 @@ fn clear_all_slots(state: tauri::State<SharedClipboardManager>) -> Vec<SlotInfo>
 }
 
 #[tauri::command]
+fn get_slot_content(slot_index: usize, state: tauri::State<SharedClipboardManager>) -> Result<String, String> {
+    let mgr = state.lock().unwrap();
+    match mgr.get_slot(slot_index) {
+        Some(slot) => match &slot.content {
+            SlotContent::Text(t) => Ok(t.clone()),
+            SlotContent::Image(_) => Ok("[Image data]".to_string()),
+            SlotContent::Empty => Ok(String::new()),
+        },
+        None => Err(format!("Invalid slot index: {}", slot_index)),
+    }
+}
+
+#[tauri::command]
+fn get_slot_original(slot_index: usize, state: tauri::State<SharedClipboardManager>) -> Result<Option<String>, String> {
+    let mgr = state.lock().unwrap();
+    match mgr.get_slot(slot_index) {
+        Some(slot) => Ok(slot.original_content.clone()),
+        None => Err(format!("Invalid slot index: {}", slot_index)),
+    }
+}
+
+#[tauri::command]
 fn get_config(state: tauri::State<SharedConfig>) -> AppConfig {
     state.lock().unwrap().clone()
 }
@@ -137,6 +159,21 @@ fn get_hud_duration(state: tauri::State<SharedConfig>) -> u64 {
 #[tauri::command]
 fn get_hud_always_visible(state: tauri::State<SharedConfig>) -> bool {
     state.lock().unwrap().hud_always_visible
+}
+
+#[tauri::command]
+fn get_hud_position(state: tauri::State<SharedConfig>) -> String {
+    state.lock().unwrap().hud_position.clone()
+}
+
+#[tauri::command]
+fn get_hud_appearance(state: tauri::State<SharedConfig>) -> String {
+    state.lock().unwrap().hud_appearance.clone()
+}
+
+#[tauri::command]
+fn get_hud_accent_color(state: tauri::State<SharedConfig>) -> String {
+    state.lock().unwrap().hud_accent_color.clone()
 }
 
 #[tauri::command]
@@ -302,6 +339,8 @@ pub fn run() {
             paste_from_slot,
             clear_slot,
             clear_all_slots,
+            get_slot_content,
+            get_slot_original,
             get_config,
             save_config,
             get_prompts,
@@ -309,6 +348,9 @@ pub fn run() {
             delete_prompt,
             get_hud_duration,
             get_hud_always_visible,
+            get_hud_position,
+            get_hud_appearance,
+            get_hud_accent_color,
             hide_hud_window,
             show_hud_window,
             ai_check_status,

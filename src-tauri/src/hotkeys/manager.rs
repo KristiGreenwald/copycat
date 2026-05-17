@@ -94,16 +94,37 @@ pub fn show_hud_window(app: &AppHandle, slot_count: usize) {
             let screen_size = monitor.size();
             let screen_pos = monitor.position();
             let scale = monitor.scale_factor();
-            let win_w = (280.0 * scale) as i32;
-            // Dynamic height: header(44) + slots(48 each) + padding(20)
+            let win_w = (300.0 * scale) as i32;
             let count = if slot_count == 0 { 1 } else { slot_count };
-            let content_h = 44.0 + (count as f64 * 48.0) + 20.0;
+            let content_h = 50.0 + (count as f64 * 52.0) + 24.0;
             let win_h = (content_h * scale) as i32;
-            // Use 80px bottom margin to clear the macOS Dock
-            let margin_x = (12.0 * scale) as i32;
-            let margin_y = (80.0 * scale) as i32;
-            let x = screen_pos.x + screen_size.width as i32 - win_w - margin_x;
-            let y = screen_pos.y + screen_size.height as i32 - win_h - margin_y;
+
+            // Read position from config
+            let position = {
+                let config = app.state::<SharedConfig>();
+                let guard = config.lock().unwrap();
+                guard.hud_position.clone()
+            };
+
+            let margin = (24.0 * scale) as i32;
+            let dock_margin = (80.0 * scale) as i32;
+            let sw = screen_size.width as i32;
+            let sh = screen_size.height as i32;
+            let sx = screen_pos.x;
+            let sy = screen_pos.y;
+
+            let (x, y) = match position.as_str() {
+                "tl" => (sx + margin, sy + margin),
+                "tc" => (sx + (sw - win_w) / 2, sy + margin),
+                "tr" => (sx + sw - win_w - margin, sy + margin),
+                "ml" => (sx + margin, sy + (sh - win_h) / 2),
+                "mc" => (sx + (sw - win_w) / 2, sy + (sh - win_h) / 2),
+                "mr" => (sx + sw - win_w - margin, sy + (sh - win_h) / 2),
+                "bl" => (sx + margin, sy + sh - win_h - dock_margin),
+                "bc" => (sx + (sw - win_w) / 2, sy + sh - win_h - dock_margin),
+                _ => (sx + sw - win_w - margin, sy + sh - win_h - dock_margin), // br default
+            };
+
             let _ = window.set_size(tauri::PhysicalSize::new(win_w as u32, win_h as u32));
             let _ = window.set_position(tauri::PhysicalPosition::new(x, y));
         }

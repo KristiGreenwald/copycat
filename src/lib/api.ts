@@ -44,6 +44,10 @@ export interface AppConfig {
   };
   prompts: PromptTemplate[];
   hud_duration_secs: number;
+  hud_always_visible: boolean;
+  hud_position: string;
+  hud_appearance: string;
+  hud_accent_color: string;
   launch_at_startup: boolean;
 }
 
@@ -97,6 +101,18 @@ export async function getHudDuration(): Promise<number> {
 
 export async function getHudAlwaysVisible(): Promise<boolean> {
   return invoke("get_hud_always_visible");
+}
+
+export async function getHudPosition(): Promise<string> {
+  return invoke("get_hud_position");
+}
+
+export async function getHudAppearance(): Promise<string> {
+  return invoke("get_hud_appearance");
+}
+
+export async function getHudAccentColor(): Promise<string> {
+  return invoke("get_hud_accent_color");
 }
 
 export async function hideHudWindow(): Promise<void> {

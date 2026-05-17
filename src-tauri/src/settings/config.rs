@@ -56,6 +56,9 @@ pub struct AppConfig {
     pub prompts: Vec<PromptTemplate>,
     pub hud_duration_secs: u64,
     pub hud_always_visible: bool,
+    pub hud_position: String,
+    pub hud_appearance: String,
+    pub hud_accent_color: String,
     pub launch_at_startup: bool,
 }
 
@@ -86,6 +89,9 @@ impl Default for AppConfig {
             ],
             hud_duration_secs: 10,
             hud_always_visible: false,
+            hud_position: "br".to_string(),
+            hud_appearance: "glass".to_string(),
+            hud_accent_color: "#d4a054".to_string(),
             launch_at_startup: false,
         }
     }

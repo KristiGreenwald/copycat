@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 const NUM_SLOTS: usize = 10;
-const PREVIEW_LENGTH: usize = 10;
+const PREVIEW_LENGTH: usize = 40;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SlotContent {
@@ -27,6 +27,7 @@ pub struct Slot {
     pub prompt_id: Option<String>,
     pub processing_state: ProcessingState,
     pub original_preview: Option<String>,
+    pub original_content: Option<String>,
 }
 
 impl Slot {
@@ -38,6 +39,7 @@ impl Slot {
             prompt_id: None,
             processing_state: ProcessingState::Idle,
             original_preview: None,
+            original_content: None,
         }
     }
 
@@ -61,10 +63,15 @@ impl Slot {
         self.content = content;
         self.processing_state = ProcessingState::Idle;
         self.original_preview = None;
+        self.original_content = None;
     }
 
     pub fn set_ai_processing(&mut self) {
         self.original_preview = Some(self.preview.clone());
+        self.original_content = match &self.content {
+            SlotContent::Text(t) => Some(t.clone()),
+            _ => None,
+        };
         self.processing_state = ProcessingState::Processing;
     }
 
@@ -77,6 +84,7 @@ impl Slot {
     pub fn set_ai_error(&mut self, error: String) {
         self.processing_state = ProcessingState::Error(error);
         self.original_preview = None;
+        self.original_content = None;
     }
 }
 
@@ -88,6 +96,7 @@ pub struct SlotInfo {
     pub processing_state: ProcessingState,
     pub original_preview: Option<String>,
     pub has_prompt: bool,
+    pub prompt_id: Option<String>,
 }
 
 impl From<&Slot> for SlotInfo {
@@ -99,6 +108,7 @@ impl From<&Slot> for SlotInfo {
             processing_state: slot.processing_state.clone(),
             original_preview: slot.original_preview.clone(),
             has_prompt: slot.prompt_id.is_some(),
+            prompt_id: slot.prompt_id.clone(),
         }
     }
 }

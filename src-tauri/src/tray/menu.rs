@@ -31,7 +31,7 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                             tauri::WebviewUrl::App("/settings.html".into()),
                         )
                         .title("CopyCat Settings")
-                        .inner_size(700.0, 600.0)
+                        .inner_size(1180.0, 820.0)
                         .resizable(true)
                         .build()
                         {

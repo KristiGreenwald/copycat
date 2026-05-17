@@ -1,449 +1,1545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CopyCat Settings</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: var(--font-sans);
+  --bg-0: #15110f;
+  --bg-1: #1c1815;
+  --bg-2: #221d19;
+  --bg-3: #2a2420;
+  --bg-4: #332c27;
+  --ink-0: #f4ece4;
+  --ink-1: #d8cfc4;
+  --ink-2: #968b80;
+  --ink-3: #645b53;
+  --line-1: rgba(244,236,228,0.08);
+  --line-2: rgba(244,236,228,0.14);
+  --accent: oklch(0.78 0.15 62);
+  --accent-soft: oklch(0.78 0.15 62 / 0.16);
+  --accent-ink: #1c1408;
+  --good: oklch(0.78 0.13 155);
+  --warn: oklch(0.82 0.14 80);
+  --bad: oklch(0.72 0.18 25);
+}
+
+[data-theme="light"] {
+  --bg-0: #f5f1eb;
+  --bg-1: #fbf8f3;
+  --bg-2: #ffffff;
+  --bg-3: #f0ebe3;
+  --bg-4: #e6dfd4;
+  --ink-0: #1a1612;
+  --ink-1: #4a443c;
+  --ink-2: #756c61;
+  --ink-3: #a59c91;
+  --line-1: rgba(26,22,18,0.08);
+  --line-2: rgba(26,22,18,0.14);
+  --accent: oklch(0.62 0.14 50);
+  --accent-soft: oklch(0.62 0.14 50 / 0.16);
+  --accent-ink: #fbf8f3;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: #0a0807;
+  color: var(--ink-0);
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #1e1e1e; color: #f0f0f0; padding: 24px;
-  max-width: 650px; margin: 0 auto;
+  background: radial-gradient(1200px 800px at 70% -10%, #2a1f17 0%, transparent 60%),
+              radial-gradient(800px 600px at -10% 110%, #1e1a16 0%, transparent 50%), #0a0807;
+  display: flex; align-items: center; justify-content: center;
 }
-h1 { font-size: 20px; font-weight: 700; margin-bottom: 24px; }
-h3 { font-size: 15px; font-weight: 600; color: #ddd; margin-bottom: 12px; }
-h4 { font-size: 13px; font-weight: 600; color: #aaa; margin: 16px 0 8px; }
-.save-msg { font-size: 12px; color: #6c8cff; font-weight: 600; float: right; }
-.tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 20px; }
-.tab {
-  padding: 8px 16px; border: none; background: none; color: #888;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  border-bottom: 2px solid transparent;
+
+/* Window shell */
+.window {
+  width: min(1180px, 100%);
+  height: min(820px, calc(100vh - 24px));
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 50px 100px -20px rgba(0,0,0,0.6), 0 30px 60px -30px rgba(0,0,0,0.7), inset 0 0 0 0.5px rgba(255,255,255,0.06);
 }
-.tab:hover { color: #ccc; }
-.tab.active { color: #6c8cff; border-bottom-color: #6c8cff; }
-.panel { display: none; }
-.panel.active { display: block; }
-.desc { font-size: 12px; color: #888; margin-bottom: 16px; }
-label { display: block; font-size: 12px; font-weight: 600; color: #aaa; margin-bottom: 4px; }
-input[type="text"], input[type="number"], textarea, select {
-  width: 100%; padding: 10px 12px; font-size: 13px;
-  border: 1px solid #3a3a3a; border-radius: 8px;
-  background: #252525; color: #f0f0f0; outline: none; margin-bottom: 14px;
+
+/* Titlebar */
+.titlebar {
+  height: 38px; min-height: 38px;
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border-bottom: 0.5px solid var(--line-1);
+  display: flex; align-items: center;
+  padding: 0 16px;
+  position: relative;
+  -webkit-app-region: drag;
+  user-select: none;
 }
-input:focus, textarea:focus, select:focus { border-color: #6c8cff; }
-textarea { font-family: 'SF Mono', 'Fira Code', monospace; resize: vertical; height: 100px; }
-select {
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer;
+.traffic-lights { display: flex; gap: 8px; z-index: 1; -webkit-app-region: no-drag; }
+.traffic-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 0.5px solid rgba(0,0,0,0.25);
+  cursor: pointer;
 }
-.hint { font-size: 11px; color: #666; margin: -10px 0 14px; }
+.traffic-dot.red { background: #ff5f57; }
+.traffic-dot.yellow { background: #febc2e; }
+.traffic-dot.green { background: #28c840; }
+.titlebar-title {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  font-size: 13px; font-weight: 600; color: var(--ink-1);
+}
+.titlebar-status {
+  margin-left: auto; display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--ink-2);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--good);
+}
+.status-dot.offline { background: var(--bad); }
+
+/* Main layout */
+.main-layout {
+  display: flex; flex: 1; overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px; min-width: 220px;
+  background: var(--bg-0);
+  border-right: 0.5px solid var(--line-1);
+  padding: 18px 12px;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px; padding: 0 4px;
+}
+.brand-mark {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent), oklch(0.62 0.17 38));
+  display: block; position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px -4px var(--accent-soft);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.brand-text { display: flex; flex-direction: column; }
+.brand-name { font-size: 14px; font-weight: 600; color: var(--ink-0); }
+.brand-version { font-size: 11px; color: var(--ink-2); }
+
+.nav-section-label {
+  font-size: 10.5px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--ink-3);
+  padding: 14px 10px 6px;
+}
+.nav-item {
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 13px; font-weight: 500; color: var(--ink-1);
+  cursor: pointer; display: flex; align-items: center; gap: 10px;
+  transition: background 100ms;
+}
+.nav-item:hover { background: var(--bg-2); }
+.nav-item.active { background: var(--accent-soft); color: var(--accent); }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.sidebar-footer {
+  margin-top: auto; padding: 12px 10px 0;
+  font-size: 11px; color: var(--ink-3); line-height: 1.4;
+}
+
+/* Content area */
+.content {
+  flex: 1; background: var(--bg-1);
+  padding: 28px 36px 40px;
+  overflow-y: auto; overflow-x: hidden;
+}
+.content::-webkit-scrollbar { width: 10px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb {
+  background: var(--bg-3); border-radius: 5px;
+  border: 2px solid var(--bg-1);
+}
+
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+.page-header-left {}
+.page-title { font-size: 22px; font-weight: 700; color: var(--ink-0); letter-spacing: -0.02em; }
+.page-subtitle { font-size: 13px; font-weight: 400; color: var(--ink-2); margin-top: 4px; max-width: 560px; line-height: 1.5; }
+.page-header-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+/* Animation */
+.anim-fade { animation: fadeIn 180ms ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseDot { 0%,100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.4); opacity: 1; } }
+
+/* ─── Component Atoms ─── */
+
+/* Keycap */
+.keycap {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(180deg, var(--bg-4) 0%, var(--bg-3) 100%);
+  color: var(--ink-0);
+  font-family: var(--font-sans); font-weight: 600; font-size: 17px; letter-spacing: -0.01em;
+  border: 0.5px solid var(--line-2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 0 rgba(0,0,0,0.4), 0 4px 10px -4px rgba(0,0,0,0.5);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0; user-select: none;
+}
+.keycap.sm { width: 28px; height: 28px; border-radius: 7px; font-size: 12px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.3); }
+.keycap.lg { width: 58px; height: 58px; border-radius: 12px; font-size: 22px; }
+.keycap.wide { min-width: 56px; width: auto; padding: 0 14px; height: 44px; }
+.keycap.wide.sm { min-width: 36px; padding: 0 8px; height: 28px; }
+.keycap.assigned {
+  background: linear-gradient(180deg, oklch(0.82 0.15 62), oklch(0.7 0.16 55));
+  color: var(--accent-ink); border-color: oklch(0.62 0.16 58);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 0 rgba(0,0,0,0.3), 0 4px 14px -4px var(--accent-soft);
+}
+.keycap.assigned.sm { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 0 rgba(0,0,0,0.2), 0 2px 8px -2px var(--accent-soft); }
+
+/* Card */
+.card {
+  background: var(--bg-2); border: 0.5px solid var(--line-1);
+  border-radius: 12px; padding: 16px;
+}
+
+/* Button */
 .btn {
-  padding: 9px 18px; border: none; border-radius: 8px;
-  font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 7px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+  background: var(--bg-3); border: 0.5px solid var(--line-2); color: var(--ink-0);
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: background 100ms, filter 100ms;
+  font-family: var(--font-sans);
 }
-.btn-p { background: #6c8cff; color: #fff; }
-.btn-p:hover { background: #8aa4ff; }
-.btn-d { background: #ff6b6b; color: #fff; margin-left: 8px; }
-.btn-s { background: #333; color: #aaa; margin-left: 8px; }
-.btn-s:hover { background: #444; }
+.btn:hover { background: var(--bg-4); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); font-weight: 600; border: none; }
+.btn.primary:hover { filter: brightness(1.07); }
+.btn.ghost { background: transparent; }
+.btn.ghost:hover { background: var(--bg-3); }
+.btn.danger { color: var(--bad); }
+.btn:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
 
-/* Prompt list */
+/* Switch */
+.switch {
+  width: 36px; height: 22px; border-radius: 999px;
+  background: var(--bg-4); border: 0.5px solid var(--line-2);
+  position: relative; cursor: pointer;
+  transition: background 140ms cubic-bezier(.4,1.4,.5,1);
+  flex-shrink: 0;
+}
+.switch .thumb {
+  width: 17px; height: 17px; border-radius: 50%;
+  background: var(--ink-0);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  position: absolute; top: 2px; left: 2px;
+  transition: transform 140ms cubic-bezier(.4,1.4,.5,1);
+}
+.switch.on { background: var(--accent); }
+.switch.on .thumb { background: var(--accent-ink); transform: translateX(14px); }
+
+/* Pill */
+.pill {
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  background: var(--bg-3); color: var(--ink-1);
+  border: 0.5px solid var(--line-2);
+  display: inline-flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+.pill .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink-2); flex-shrink: 0;
+}
+.pill.good .dot { background: var(--good); box-shadow: 0 0 8px var(--good); }
+.pill.warn .dot { background: var(--warn); box-shadow: 0 0 8px var(--warn); animation: pulseDot 1s infinite; }
+.pill.bad .dot { background: var(--bad); box-shadow: 0 0 8px var(--bad); }
+
+/* Form controls */
+input[type="text"], select, textarea {
+  width: 100%; padding: 9px 11px; font-size: 13px;
+  background: var(--bg-0); border: 0.5px solid var(--line-2);
+  border-radius: 8px; color: var(--ink-0);
+  font-family: var(--font-sans);
+  outline: none; transition: border-color 100ms, box-shadow 100ms;
+}
+input[type="text"]:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+textarea {
+  line-height: 1.5; min-height: 84px; resize: vertical;
+  font-family: var(--font-sans);
+}
+select {
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23968b80' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; padding-right: 30px;
+}
+.field-label { font-size: 12px; font-weight: 600; color: var(--ink-1); margin-bottom: 6px; display: block; }
+.field-help { font-size: 11.5px; font-weight: 400; color: var(--ink-2); margin-top: 4px; line-height: 1.4; }
+
+/* ─── Page: Slots ─── */
+.slot-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+}
+.slot-card {
+  min-height: 124px; padding: 12px; border-radius: 12px;
+  background: var(--bg-2); border: 0.5px solid var(--line-1);
+  cursor: pointer; transition: background 100ms, border-color 100ms, box-shadow 100ms;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.slot-card:hover { background: var(--bg-3); }
+.slot-card.selected {
+  background: var(--bg-3); border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.slot-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.slot-card-body { flex: 1; }
+.slot-prompt-name {
+  font-size: 12px; font-weight: 600; color: var(--accent);
+  display: flex; align-items: center; gap: 4px;
+}
+.slot-no-prompt { font-size: 12px; font-weight: 500; color: var(--ink-3); font-style: italic; }
+.slot-preview {
+  font-size: 11px; font-weight: 500; color: var(--ink-0); letter-spacing: -0.01em;
+  line-height: 1.4; margin-top: 4px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.slot-empty-text { font-size: 11.5px; font-style: italic; color: var(--ink-3); margin-top: 4px; }
+
+/* Slot detail panel */
+.slot-detail {
+  margin-top: 18px; padding: 18px;
+}
+.slot-detail-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+}
+.slot-detail-info { flex: 1; }
+.slot-detail-title { font-size: 14px; font-weight: 600; color: var(--ink-0); }
+.slot-detail-shortcut { font-size: 12px; color: var(--ink-2); margin-top: 3px; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.slot-detail-shortcut .keycap.sm { width: 22px; height: 22px; font-size: 10px; border-radius: 5px; }
+.slot-detail-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.prompt-preview-box {
+  background: var(--bg-0); border-radius: 8px; padding: 10px;
+  font-size: 11.5px; color: var(--ink-2); line-height: 1.5;
+  white-space: pre-wrap; max-height: 110px; overflow-y: auto;
+  margin-top: 8px;
+}
+.slot-detail textarea { min-height: 156px; }
+.original-details { margin-top: 8px; }
+.original-details summary {
+  font-size: 12px; color: var(--ink-2); cursor: pointer;
+  padding: 4px 0;
+}
+.original-content-box {
+  background: var(--bg-0); border-radius: 8px; padding: 10px;
+  font-size: 11.5px; color: var(--ink-2); line-height: 1.5;
+  white-space: pre-wrap; max-height: 120px; overflow-y: auto;
+  margin-top: 4px;
+}
+
+/* ─── Page: Prompts ─── */
+.prompts-layout {
+  display: grid; grid-template-columns: 280px 1fr; gap: 18px;
+  height: calc(100vh - 240px); min-height: 460px;
+}
+.prompt-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
 .prompt-row {
-  display: flex; align-items: center; padding: 10px 14px;
-  border: 1px solid #3a3a3a; border-radius: 10px; margin-bottom: 6px;
-  cursor: pointer; background: #252525;
+  padding: 11px 12px; border-radius: 10px;
+  border: 0.5px solid var(--line-1); cursor: pointer;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: background 100ms, border-color 100ms;
 }
-.prompt-row:hover { background: #2e2e2e; border-color: #555; }
-.slot-badge {
-  width: 28px; height: 28px; border-radius: 7px;
-  background: #6c8cff; color: #fff; font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-right: 10px;
+.prompt-row:hover { background: var(--bg-3); }
+.prompt-row.selected { background: var(--accent-soft); border-color: var(--accent); }
+.prompt-row-top { display: flex; justify-content: space-between; align-items: center; }
+.prompt-row-name { font-size: 13px; font-weight: 600; color: var(--ink-0); }
+.prompt-row.selected .prompt-row-name { color: var(--accent); }
+.prompt-row-preview {
+  font-size: 11.5px; color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.slot-badge.none { background: #444; color: #888; }
-.prompt-name { font-size: 13px; font-weight: 600; color: #ddd; }
-.prompt-sub { font-size: 11px; color: #666; }
-.prompt-sub.assigned { color: #6c8cff; font-family: 'SF Mono', monospace; }
+.prompt-editor { overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.prompt-editor .card { display: flex; flex-direction: column; gap: 14px; padding: 18px; }
+.prompt-editor-top { display: flex; gap: 10px; align-items: center; }
+.prompt-editor-top input { flex: 1; font-size: 16px; font-weight: 600; }
+.keycap-assignment-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.keycap-assignment-row .keycap { cursor: pointer; transition: opacity 100ms; }
+.keycap-assignment-row .keycap.dimmed { opacity: 0.4; }
 
-/* Slot picker */
-.slot-picker { display: flex; gap: 6px; margin-bottom: 6px; }
-.sp-btn {
-  width: 36px; height: 36px; border: 1px solid #3a3a3a; border-radius: 8px;
-  background: #252525; color: #888; font-size: 14px; font-weight: 700;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
+/* ─── Page: Shortcuts ─── */
+.shortcut-list { display: flex; flex-direction: column; gap: 12px; }
+.shortcut-row {
+  padding: 14px 18px; display: flex; align-items: center; gap: 18px;
 }
-.sp-btn:hover { border-color: #6c8cff; color: #ddd; }
-.sp-btn.sel { background: #6c8cff; border-color: #6c8cff; color: #fff; }
-
-/* Slot grid */
-.slot-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 16px; }
-.sg-item { display: flex; flex-direction: column; align-items: center; padding: 8px 4px; border: 1px solid #333; border-radius: 6px; }
-.sg-item.has { border-color: #6c8cff; background: rgba(108,140,255,0.06); }
-.sg-num { font-size: 14px; font-weight: 700; color: #888; }
-.sg-item.has .sg-num { color: #6c8cff; }
-.sg-lbl { font-size: 9px; color: #555; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-.sg-item.has .sg-lbl { color: #aaa; }
-
-/* Install guide */
-.code-block {
-  display: flex; align-items: center; justify-content: space-between;
-  background: #1a1a1a; border: 1px solid #444; border-radius: 6px; padding: 10px 12px; gap: 8px; margin: 8px 0 12px;
+.shortcut-row-left { flex: 1; }
+.shortcut-row-title { font-size: 13.5px; font-weight: 600; color: var(--ink-0); }
+.shortcut-row-help { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+.shortcut-row-middle {
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
 }
-.code-block code { font-family: 'SF Mono', monospace; font-size: 13px; color: #e0e0e0; }
-.copy-btn { padding: 4px 10px; border: 1px solid #555; border-radius: 4px; background: #333; color: #ccc; font-size: 11px; font-weight: 600; cursor: pointer; }
-.copy-btn:hover { background: #444; border-color: #6c8cff; }
-.status-ok { color: #4caf50; }
-.status-warn { color: #ff9800; }
-.actions { margin-top: 16px; }
+.shortcut-plus { color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.shortcut-hint-key {
+  min-width: 36px; padding: 0 8px; height: 28px; border-radius: 7px;
+  background: linear-gradient(180deg, var(--bg-4) 0%, var(--bg-3) 100%);
+  border: 0.5px solid var(--line-2);
+  font-size: 11px; font-weight: 500; color: var(--ink-2);
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.3);
+}
+.shortcut-recording { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--accent); font-weight: 500; }
+.shortcut-recording .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulseDot 1s infinite; }
+.shortcut-footer { text-align: center; font-size: 11.5px; color: var(--ink-3); margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* ─── Page: AI Engine ─── */
+.engine-status-card {
+  padding: 18px; display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+}
+.engine-icon-tile {
+  width: 44px; height: 44px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+}
+.engine-icon-tile.running { background: oklch(0.78 0.13 155 / 0.15); color: var(--good); }
+.engine-icon-tile.stopped { background: oklch(0.72 0.18 25 / 0.15); color: var(--bad); }
+.engine-info { flex: 1; }
+.engine-title { font-size: 14px; font-weight: 600; color: var(--ink-0); display: flex; align-items: center; gap: 8px; }
+.engine-help { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+.section-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--ink-3); padding: 6px 4px 10px;
+}
+.model-card {
+  padding: 18px; margin-bottom: 10px;
+  display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center;
+}
+.model-card.active-model { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft); }
+.model-name { font-size: 14px; font-weight: 600; color: var(--ink-0); display: flex; align-items: center; gap: 8px; }
+.model-blurb { font-size: 12px; color: var(--ink-2); margin-top: 3px; }
+.model-stats { display: flex; gap: 18px; margin-top: 8px; font-size: 11.5px; }
+.model-stat-label { color: var(--ink-3); }
+.model-stat-value { color: var(--ink-1); font-weight: 500; }
+.model-dots { display: inline-flex; gap: 2px; vertical-align: middle; margin-left: 3px; }
+.model-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bg-4); }
+.model-dot.filled { background: var(--accent); }
+.model-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.download-progress {
+  width: 140px; display: flex; flex-direction: column; gap: 4px;
+}
+.download-label { font-size: 11px; color: var(--ink-2); text-align: right; }
+.download-track {
+  height: 6px; border-radius: 999px; background: var(--bg-0);
+  overflow: hidden;
+}
+.download-fill {
+  height: 100%; border-radius: 999px; background: var(--accent);
+  transition: width 200ms;
+}
+
+/* ─── Page: HUD ─── */
+.hud-layout {
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; align-items: start;
+}
+.hud-preview-pane {
+  border-radius: 16px; padding: 36px; min-height: 360px;
+  position: relative; overflow: hidden;
+  background: radial-gradient(1200px 800px at 70% -10%, oklch(0.62 0.18 55) 0%, transparent 60%),
+              radial-gradient(800px 600px at -10% 110%, oklch(0.42 0.13 40) 0%, transparent 55%),
+              oklch(0.24 0.07 45);
+}
+.hud-preview-pane::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(600px 200px at 80% 0%, rgba(255,255,255,0.15), transparent 60%);
+  pointer-events: none;
+}
+.hud-preview-caption {
+  position: absolute; bottom: 16px; left: 20px;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.7);
+}
+.hud-float {
+  width: 300px; border-radius: 14px; overflow: hidden;
+  background: rgba(28,22,18,0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  box-shadow: 0 12px 40px -10px rgba(0,0,0,0.5);
+  position: absolute;
+}
+.hud-float.solid { background: var(--bg-1); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.hud-float.minimal { width: 220px; }
+.hud-float-header {
+  padding: 10px 12px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 0.5px solid rgba(255,255,255,0.1);
+}
+.hud-float-mark {
+  width: 16px; height: 16px; border-radius: 4px;
+  background: var(--accent); display: block; position: relative;
+  flex-shrink: 0; overflow: hidden;
+}
+.hud-float-title { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.9); margin-left: 6px; }
+.hud-float-count { font-size: 10.5px; color: rgba(255,255,255,0.6); }
+.hud-float-body { padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+.hud-float-row {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  background: rgba(255,255,255,0.07); border-radius: 8px;
+}
+.hud-float-num {
+  width: 22px; height: 22px; border-radius: 5px;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--accent-ink); flex-shrink: 0;
+}
+.hud-float-row-body { flex: 1; min-width: 0; }
+.hud-float-prompt-label {
+  font-size: 9.5px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; color: rgba(255,255,255,0.6);
+}
+.hud-float-snippet {
+  font-size: 11.5px; color: rgba(255,255,255,0.9);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hud-controls { display: flex; flex-direction: column; gap: 14px; }
+.hud-control-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.hud-control-label { font-size: 13px; font-weight: 600; color: var(--ink-0); }
+.hud-control-sub { font-size: 11px; color: var(--ink-2); margin-top: 2px; }
+.hud-control-left { flex: 1; }
+.hud-divider { height: 1px; background: var(--line-1); margin: 2px 0; }
+.duration-row {
+  display: flex; align-items: center; gap: 10px;
+  transition: opacity 200ms;
+}
+.duration-row.disabled { opacity: 0.4; pointer-events: none; }
+.duration-row input[type="range"] {
+  flex: 1; height: 6px; accent-color: var(--accent);
+  -webkit-appearance: none; appearance: none;
+  background: var(--bg-0); border-radius: 999px; outline: none;
+}
+.duration-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.duration-value { font-size: 13px; font-weight: 600; color: var(--ink-0); min-width: 30px; text-align: right; }
+
+/* Position picker */
+.position-picker {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 4px; max-width: 220px; aspect-ratio: 4/3;
+  background: var(--bg-0); border-radius: 10px; padding: 6px;
+  border: 0.5px solid var(--line-1);
+}
+.position-cell {
+  background: var(--bg-3); border-radius: 6px; cursor: pointer;
+  transition: background 100ms;
+}
+.position-cell:hover { background: var(--bg-4); }
+.position-cell.active { background: var(--accent); }
+
+/* Appearance segmented */
+.appearance-seg { display: flex; gap: 6px; }
+.appearance-btn {
+  flex: 1; padding: 8px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 500; text-align: center;
+  background: var(--bg-3); color: var(--ink-1);
+  border: 0.5px solid var(--line-2); cursor: pointer;
+  transition: background 100ms, color 100ms, border-color 100ms;
+  font-family: var(--font-sans);
+}
+.appearance-btn.selected {
+  background: var(--accent-soft); color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Color wheel */
+.color-wheel-container { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.color-wheel-input {
+  width: 60px; height: 60px; border: none; border-radius: 50%;
+  cursor: pointer; background: none; padding: 0;
+}
+.color-wheel-input::-webkit-color-swatch-wrapper { padding: 0; }
+.color-wheel-input::-webkit-color-swatch { border: 2px solid var(--line-2); border-radius: 50%; }
+
+/* ─── Page: About ─── */
+.about-stack { max-width: 520px; display: flex; flex-direction: column; gap: 16px; }
+.about-brand-card {
+  padding: 22px; display: flex; align-items: center; gap: 16px;
+}
+.about-brand-mark {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent), oklch(0.62 0.17 38));
+  display: block; position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px -4px var(--accent-soft);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.about-name { font-size: 20px; font-weight: 700; color: var(--ink-0); }
+.about-tagline { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.about-howto { padding: 18px; }
+.about-howto-title { font-size: 13px; font-weight: 600; color: var(--ink-0); margin-bottom: 10px; }
+.about-howto ol {
+  font-size: 12.5px; color: var(--ink-1); line-height: 1.7;
+  padding-left: 20px; display: flex; flex-direction: column; gap: 6px;
+}
+.about-howto .keycap.sm { display: inline-flex; vertical-align: middle; margin: 0 2px; width: 22px; height: 20px; font-size: 10px; border-radius: 4px; }
+
+/* Logo images */
+.brand-logo-img {
+  position: absolute; top: 0; left: 0; width: 56px; height: 56px; object-fit: cover;
+}
+.about-logo-img {
+  position: absolute; top: 0; left: 0; width: 56px; height: 56px; object-fit: cover;
+}
+.hud-logo-img {
+  position: absolute; top: 0; left: 0; width: 16px; height: 16px; object-fit: cover;
+}
 </style>
 </head>
 <body>
-<h1>CopyCat Settings <span class="save-msg" id="saveMsg"></span></h1>
-
-<div class="tabs">
-  <button class="tab active" data-tab="prompts">Prompts</button>
-  <button class="tab" data-tab="shortcuts">Shortcuts</button>
-  <button class="tab" data-tab="model">AI Model</button>
-  <button class="tab" data-tab="general">General</button>
-</div>
-
-<!-- ═══ PROMPTS ═══ -->
-<div class="panel active" id="panel-prompts">
-  <div id="prompt-list-view">
-    <p class="desc">Assign AI prompts to slots. When you copy to a slot with a prompt, the AI will automatically transform the content.</p>
-    <div id="prompt-list"></div>
-    <h4>Slot Overview</h4>
-    <div class="slot-grid" id="slot-grid"></div>
-    <button class="btn btn-p" id="btn-new-prompt">+ New Prompt</button>
-  </div>
-  <div id="prompt-edit-view" style="display:none;">
-    <label>Name</label>
-    <input type="text" id="ed-name" placeholder="e.g., Summarize"/>
-    <label>Prompt Template</label>
-    <textarea id="ed-template" placeholder="e.g., Translate from English to Spanish&#10;&#10;The copied text will be automatically included."></textarea>
-    <label style="margin-top: 16px;">Assign to Slot</label>
-    <div class="slot-picker" id="slot-picker"></div>
-    <p class="hint" id="slot-hint" style="margin-top: 8px;">Click a number to assign this prompt to a slot</p>
-    <div class="actions">
-      <button class="btn btn-p" id="btn-save-prompt">Save</button>
-      <button class="btn btn-d" id="btn-delete-prompt" style="display:none;">Delete</button>
-      <button class="btn btn-s" id="btn-cancel-prompt">Cancel</button>
+<div class="window">
+  <div class="titlebar">
+    <div class="traffic-lights">
+      <div class="traffic-dot red" onclick="window.__TAURI_INTERNALS__ && window.__TAURI_INTERNALS__.invoke('plugin:window|close')"></div>
+      <div class="traffic-dot yellow"></div>
+      <div class="traffic-dot green"></div>
+    </div>
+    <div class="titlebar-title">CopyCat</div>
+    <div class="titlebar-status">
+      <span class="status-dot" id="titlebar-dot"></span>
+      <span id="titlebar-model-status">loading…</span>
     </div>
   </div>
-</div>
-
-<!-- ═══ SHORTCUTS ═══ -->
-<div class="panel" id="panel-shortcuts">
-  <h3>Keyboard Shortcuts</h3>
-  <p class="desc">Choose modifier keys for copy/paste. The slot number (1–0) is added automatically.</p>
-  <label>Copy to slot — modifier keys + [1-0]</label>
-  <select id="sc-copy">
-    <option value="CmdOrCtrl+Alt">⌘ Cmd + ⌥ Option</option>
-    <option value="Control+Alt">⌃ Ctrl + ⌥ Option</option>
-    <option value="CmdOrCtrl+Shift">⌘ Cmd + ⇧ Shift</option>
-  </select>
-  <label>Paste from slot — modifier keys + [1-0]</label>
-  <select id="sc-paste">
-    <option value="CmdOrCtrl+Alt+Shift">⌘ Cmd + ⌥ Option + ⇧ Shift</option>
-    <option value="Control+Alt+Shift">⌃ Ctrl + ⌥ Option + ⇧ Shift</option>
-    <option value="CmdOrCtrl+Shift">⌘ Cmd + ⇧ Shift</option>
-  </select>
-  <label>Toggle HUD</label>
-  <select id="sc-hud">
-    <option value="Control+Alt+Super+Space">⌃⌥⌘ Space</option>
-    <option value="CmdOrCtrl+Alt+V">⌘⌥ V</option>
-    <option value="CmdOrCtrl+Alt+H">⌘⌥ H</option>
-  </select>
-  <label>Clear all slots</label>
-  <select id="sc-clear">
-    <option value="CmdOrCtrl+Alt+Backspace">⌘⌥ Backspace</option>
-    <option value="Control+Alt+Super+Backspace">⌃⌥⌘ Backspace</option>
-  </select>
-  <div class="actions"><button class="btn btn-p" id="btn-save-shortcuts">Save Shortcuts</button></div>
-  <p class="hint" style="margin-top:8px;">Changes require an app restart to take effect.</p>
-</div>
-
-<!-- ═══ AI MODEL ═══ -->
-<div class="panel" id="panel-model">
-  <h3>AI Model (Ollama)</h3>
-  <p class="desc">CopyCat uses Ollama for local AI processing. All data stays on your machine.</p>
-  <div id="ollama-status">Checking Ollama status...</div>
-  <div id="ollama-controls" style="display:none;">
-    <label>Pull a Model</label>
-    <div style="display:flex;gap:8px;">
-      <select id="pull-model" style="flex:1;">
-        <option value="tinyllama">tinyllama (1.1B — fast, ~640MB)</option>
-        <option value="phi3">phi3 (3.8B — balanced, ~2.2GB)</option>
-        <option value="llama3.2:1b">llama3.2:1b (1B — compact)</option>
-        <option value="mistral">mistral (7B — powerful, ~4.1GB)</option>
-      </select>
-      <button class="btn btn-p" id="btn-pull">Pull</button>
+  <div class="main-layout">
+    <div class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-text">
+          <span class="brand-name">CopyCat</span>
+          <span class="brand-version">v0.1.0</span>
+        </div>
+      </div>
+      <div class="nav-section-label">Workflow</div>
+      <div class="nav-item active" data-page="slots" onclick="navigateTo('slots')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h5v5H2zM9 4h5v5H9zM2 11h5v3H2zM9 11h5v3H9z"/></svg>
+        Slots
+      </div>
+      <div class="nav-item" data-page="prompts" onclick="navigateTo('prompts')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v8H6l-3 3z"/></svg>
+        Prompts
+      </div>
+      <div class="nav-item" data-page="shortcuts" onclick="navigateTo('shortcuts')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h12v6H2z"/><path d="M5 8h6"/></svg>
+        Shortcuts
+      </div>
+      <div class="nav-section-label">System</div>
+      <div class="nav-item" data-page="ai-engine" onclick="navigateTo('ai-engine')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M3.8 12.2l1.4-1.4M10.8 5.2l1.4-1.4"/></svg>
+        AI Engine
+      </div>
+      <div class="nav-item" data-page="hud" onclick="navigateTo('hud')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12v8H2z"/><path d="M5 7h6M5 9.5h4"/></svg>
+        HUD
+      </div>
+      <div class="nav-item" data-page="about" onclick="navigateTo('about')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M8 11V7M8 5.5v0"/></svg>
+        About
+      </div>
+      <div class="sidebar-footer">Local-only. Your text never leaves this machine.</div>
     </div>
+    <div class="content" id="content"></div>
   </div>
-  <div id="ollama-install" style="display:none;">
-    <p style="color:#ff9800;margin-bottom:8px;">Ollama is not running</p>
-    <p style="font-size:12px;color:#aaa;margin-bottom:8px;">Run this in your terminal:</p>
-    <div class="code-block">
-      <code>brew install ollama && ollama serve</code>
-      <button class="copy-btn" id="btn-copy-cmd">Copy</button>
-    </div>
-  </div>
-  <div class="actions" style="margin-top:12px;"><button class="btn btn-s" id="btn-refresh-ai">Refresh Status</button></div>
-</div>
-
-<!-- ═══ GENERAL ═══ -->
-<div class="panel" id="panel-general">
-  <h3>General</h3>
-  <label>HUD display duration (seconds)</label>
-  <div style="display: inline-flex; align-items: stretch; margin-bottom: 16px;">
-    <button class="btn btn-s" style="padding: 8px 14px; font-size: 18px; line-height: 1; border-radius: 8px 0 0 8px; margin: 0;" id="btn-dur-down">−</button>
-    <input type="text" id="hud-duration" value="10" style="width: 48px; font-size: 16px; text-align: center; padding: 8px 0; border-radius: 0; border-left: none; border-right: none; margin: 0;"/>
-    <button class="btn btn-s" style="padding: 8px 14px; font-size: 18px; line-height: 1; border-radius: 0 8px 8px 0; margin: 0;" id="btn-dur-up">+</button>
-  </div>
-  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: #ddd; margin-bottom: 16px;">
-    <input type="checkbox" id="hud-always-visible" style="width: 18px; height: 18px; accent-color: #6c8cff; cursor: pointer;"/>
-    Always show HUD
-  </label>
-  <p class="hint" style="margin-top: -8px;">When enabled, the HUD stays visible at all times instead of auto-hiding.</p>
-  <div class="actions"><button class="btn btn-p" id="btn-save-general">Save</button></div>
 </div>
 
 <script>
-// ── Tauri IPC ──
-async function invoke(cmd, args) {
-  // Poll for Tauri IPC
-  for (let i = 0; i < 30; i++) {
-    if (window.__TAURI_INTERNALS__) {
-      return window.__TAURI_INTERNALS__.invoke(cmd, args);
-    }
-    await new Promise(r => setTimeout(r, 100));
+// ─── State ───
+const state = {
+  tab: 'slots',
+  slots: [],
+  prompts: [],
+  selectedSlot: null,
+  selectedPromptId: null,
+  shortcuts: { copy_modifier: 'CmdOrCtrl+Alt', paste_modifier: 'CmdOrCtrl+Alt+Shift', toggle_hud: 'Control+Alt+Super+Space', clear_all: 'CmdOrCtrl+Alt+Backspace' },
+  hud: { always_visible: false, duration: 10, position: 'br', appearance: 'glass', accent_color: '#d4a054' },
+  engineStatus: { ollama_running: false, model_available: false },
+  activeModelId: 'llama3.2:1b',
+  downloads: {},
+  config: null,
+};
+
+const LOGO_DATA_URI = 'data:image/png;base64,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';
+
+// Model catalog
+const MODEL_CATALOG = [
+  { id: 'tinyllama', name: 'TinyLlama 1.1B', ollama: 'tinyllama', size: '640 MB', speed: 5, quality: 2, blurb: 'Tiny + fast. Great for simple rewrites on any laptop.' },
+  { id: 'phi3', name: 'Phi-3 Mini 3.8B', ollama: 'phi3:mini', size: '2.3 GB', speed: 4, quality: 3, blurb: "Microsoft's capable small model. A balanced default." },
+  { id: 'llama32', name: 'Llama 3.2 3B', ollama: 'llama3.2:1b', size: '2.0 GB', speed: 4, quality: 4, blurb: "Meta's small Llama. Excellent for everyday tasks." },
+  { id: 'qwen25', name: 'Qwen 2.5 7B', ollama: 'qwen2.5:7b', size: '4.7 GB', speed: 3, quality: 5, blurb: 'Higher quality, needs a recent Mac or 16 GB+ RAM.' },
+  { id: 'mistral', name: 'Mistral 7B', ollama: 'mistral:7b', size: '4.4 GB', speed: 3, quality: 4, blurb: 'A classic. Strong reasoning and writing.' },
+];
+
+// ─── Tauri IPC ───
+let invoke = null;
+function initInvoke() {
+  if (window.__TAURI_INTERNALS__) {
+    invoke = window.__TAURI_INTERNALS__.invoke;
+    return true;
   }
-  throw new Error('Tauri IPC not available');
+  return false;
 }
 
-// ── State ──
-let prompts = [];
-let config = null;
-let editingId = null;
-let editSlot = null;
-
-function slotLabel(i) { return i === 9 ? '0' : String(i + 1); }
-
-function flash(msg) {
-  const el = document.getElementById('saveMsg');
-  el.textContent = msg;
-  setTimeout(() => el.textContent = '', 2000);
+async function tauriInvoke(cmd, args) {
+  if (!invoke && !initInvoke()) return null;
+  try { return await invoke(cmd, args || {}); }
+  catch (e) { console.error(`[CopyCat] invoke ${cmd} failed:`, e); return null; }
 }
 
-// ── Tabs ──
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-  });
-});
-
-// ── Prompt List ──
-function renderPromptList() {
-  const list = document.getElementById('prompt-list');
-  list.innerHTML = '';
-  prompts.forEach(p => {
-    const row = document.createElement('div');
-    row.className = 'prompt-row';
-    const badge = p.assigned_slot !== null && p.assigned_slot !== undefined
-      ? `<div class="slot-badge">${slotLabel(p.assigned_slot)}</div>`
-      : `<div class="slot-badge none">—</div>`;
-    const sub = p.assigned_slot !== null && p.assigned_slot !== undefined
-      ? `<div class="prompt-sub assigned">⌘⌥${slotLabel(p.assigned_slot)} to copy</div>`
-      : `<div class="prompt-sub">Not assigned to a slot</div>`;
-    row.innerHTML = `${badge}<div><div class="prompt-name">${p.name}</div>${sub}</div>`;
-    row.addEventListener('click', () => openEditor(p));
-    list.appendChild(row);
-  });
-  renderSlotGrid();
+async function loadState() {
+  const [config, slots, engineStatus] = await Promise.all([
+    tauriInvoke('get_config'),
+    tauriInvoke('get_all_slots'),
+    tauriInvoke('ai_check_status'),
+  ]);
+  if (config) {
+    state.config = config;
+    state.prompts = config.prompts || [];
+    state.shortcuts = config.shortcuts || state.shortcuts;
+    state.activeModelId = config.ai_model?.model_name || state.activeModelId;
+    state.hud.always_visible = config.hud_always_visible || false;
+    state.hud.duration = config.hud_duration_secs || 10;
+    state.hud.position = config.hud_position || 'br';
+    state.hud.appearance = config.hud_appearance || 'glass';
+    state.hud.accent_color = config.hud_accent_color || '#d4a054';
+  }
+  if (slots) state.slots = slots;
+  if (engineStatus) state.engineStatus = engineStatus;
+  if (!state.selectedPromptId && state.prompts.length > 0) state.selectedPromptId = state.prompts[0].id;
+  updateTitlebarStatus();
 }
 
-function renderSlotGrid() {
-  const grid = document.getElementById('slot-grid');
-  grid.innerHTML = '';
-  for (let i = 0; i < 10; i++) {
-    const p = prompts.find(pr => pr.assigned_slot === i);
-    const item = document.createElement('div');
-    item.className = 'sg-item' + (p ? ' has' : '');
-    item.innerHTML = `<span class="sg-num">${slotLabel(i)}</span><span class="sg-lbl">${p ? p.name : 'No prompt'}</span>`;
-    grid.appendChild(item);
+function updateTitlebarStatus() {
+  const dot = document.getElementById('titlebar-dot');
+  const label = document.getElementById('titlebar-model-status');
+  if (state.engineStatus.ollama_running) {
+    dot.className = 'status-dot';
+    label.textContent = state.activeModelId + ' · ready';
+  } else {
+    dot.className = 'status-dot offline';
+    label.textContent = 'engine offline';
   }
 }
 
-// ── Prompt Editor ──
-function openEditor(p) {
-  editingId = p ? p.id : crypto.randomUUID();
-  document.getElementById('ed-name').value = p ? p.name : '';
-  document.getElementById('ed-template').value = p ? p.template : '';
-  editSlot = p ? p.assigned_slot : null;
-  document.getElementById('btn-delete-prompt').style.display = p && p.name ? 'inline-block' : 'none';
-  renderSlotPicker();
-  document.getElementById('prompt-list-view').style.display = 'none';
-  document.getElementById('prompt-edit-view').style.display = 'block';
+async function saveConfig() {
+  if (!state.config) return;
+  state.config.prompts = state.prompts;
+  state.config.shortcuts = state.shortcuts;
+  state.config.ai_model.model_name = state.activeModelId;
+  state.config.hud_always_visible = state.hud.always_visible;
+  state.config.hud_duration_secs = state.hud.duration;
+  state.config.hud_position = state.hud.position || 'br';
+  state.config.hud_appearance = state.hud.appearance || 'glass';
+  state.config.hud_accent_color = state.hud.accent_color || '#d4a054';
+  await tauriInvoke('save_config', { config: state.config });
 }
 
-function renderSlotPicker() {
-  const picker = document.getElementById('slot-picker');
-  picker.innerHTML = '';
-  for (let i = 0; i < 10; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'sp-btn' + (editSlot === i ? ' sel' : '');
-    btn.textContent = slotLabel(i);
-    btn.addEventListener('click', () => {
-      editSlot = editSlot === i ? null : i;
-      renderSlotPicker();
+// ─── Helpers ───
+function getPromptName(promptId) {
+  const p = state.prompts.find(pr => pr.id === promptId);
+  return p ? p.name : null;
+}
+function getPromptForSlot(slotIndex) {
+  return state.prompts.find(p => p.assigned_slot === slotIndex) || null;
+}
+function slotLabel(index) { return index === 9 ? '0' : String(index + 1); }
+
+function renderDots(filled, total) {
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    html += `<span class="model-dot${i < filled ? ' filled' : ''}"></span>`;
+  }
+  return html;
+}
+
+function keycapHtml(label, classes = '') {
+  return `<span class="keycap ${classes}">${label}</span>`;
+}
+
+function shortcutKeycaps(shortcutStr, small = true) {
+  const cls = small ? 'sm' : '';
+  const parts = shortcutStr.split('+');
+  const mapped = parts.map(p => {
+    const key = p.trim();
+    const symbols = { 'CmdOrCtrl': '⌘', 'Cmd': '⌘', 'Ctrl': '⌃', 'Control': '⌃', 'Alt': '⌥', 'Shift': '⇧', 'Super': '⌘', 'Space': '␣', 'Backspace': '⌫' };
+    return symbols[key] || key;
+  });
+  return mapped.map((m, i) => {
+    const wide = m.length === 1 && '⌘⌃⌥⇧␣⌫'.includes(m) ? ' wide' : '';
+    return (i > 0 ? '<span class="shortcut-plus">+</span>' : '') + keycapHtml(m, `${cls}${wide}`);
+  }).join('');
+}
+
+// ─── Navigation ───
+function navigateTo(page) {
+  state.tab = page;
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  renderPage();
+}
+
+function renderPage() {
+  const el = document.getElementById('content');
+  switch (state.tab) {
+    case 'slots': el.innerHTML = renderSlots(); setupSlots(); break;
+    case 'prompts': el.innerHTML = renderPrompts(); setupPrompts(); break;
+    case 'shortcuts': el.innerHTML = renderShortcuts(); setupShortcuts(); break;
+    case 'ai-engine': el.innerHTML = renderAiEngine(); setupAiEngine(); break;
+    case 'hud': el.innerHTML = renderHud(); setupHud(); break;
+    case 'about': el.innerHTML = renderAbout(); break;
+  }
+}
+
+// ─── Page: Slots ───
+function renderSlots() {
+  const filledCount = state.slots.filter(s => s.occupied).length;
+  const mappedCount = state.prompts.filter(p => p.assigned_slot != null).length;
+
+  let grid = '<div class="slot-grid">';
+  const order = [0,1,2,3,4,5,6,7,8,9];
+  for (const i of order) {
+    const s = state.slots[i] || { index: i, preview: '', occupied: false, processing_state: 'Idle', has_prompt: false, prompt_id: null };
+    const selected = state.selectedSlot === i;
+    const prompt = getPromptForSlot(i);
+    const hasPrompt = !!prompt;
+    const stateClass = s.processing_state === 'Processing' ? 'warn' : (s.occupied && s.processing_state !== 'Idle' ? 'good' : '');
+
+    grid += `<div class="slot-card${selected ? ' selected' : ''}" data-slot="${i}">
+      <div class="slot-card-top">
+        ${keycapHtml(slotLabel(i), hasPrompt ? 'assigned' : '')}
+        ${stateClass === 'warn' ? '<span class="pill warn"><span class="dot"></span>Processing</span>' :
+          (s.occupied && stateClass === 'good' ? '<span class="pill good"><span class="dot"></span>Ready</span>' : '')}
+      </div>
+      <div class="slot-card-body">
+        ${hasPrompt ?
+          `<div class="slot-prompt-name"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L3 5.5 6.5 5z"/></svg>${prompt.name}</div>` :
+          '<div class="slot-no-prompt">No prompt</div>'}
+        ${s.occupied && s.preview ?
+          `<div class="slot-preview">${escHtml(s.preview)}</div>` :
+          '<div class="slot-empty-text">Empty</div>'}
+      </div>
+    </div>`;
+  }
+  grid += '</div>';
+
+  let detail = '';
+  if (state.selectedSlot !== null) {
+    detail = renderSlotDetail(state.selectedSlot);
+  }
+
+  return `<div class="anim-fade">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2 class="page-title">Slots</h2>
+        <p class="page-subtitle">Ten keyboard-shortcut slots. Assign an AI prompt to a number key, then ⌘⌥ + that number transforms whatever you copy.</p>
+      </div>
+      <div class="page-header-right">
+        <span class="pill good"><span class="dot"></span>${filledCount} filled</span>
+        <span class="pill"><span class="dot"></span>${mappedCount} / 10 mapped</span>
+      </div>
+    </div>
+    ${grid}
+    ${detail}
+  </div>`;
+}
+
+function renderSlotDetail(slotIndex) {
+  const s = state.slots[slotIndex] || { index: slotIndex, preview: '', occupied: false, processing_state: 'Idle', has_prompt: false, prompt_id: null };
+  const prompt = getPromptForSlot(slotIndex);
+  const hasPrompt = !!prompt;
+  const copyShortcut = state.shortcuts.copy_modifier + '+' + slotLabel(slotIndex);
+
+  let promptOptions = '<option value="">— None (paste raw text) —</option>';
+  state.prompts.forEach(p => {
+    const sel = prompt && prompt.id === p.id ? ' selected' : '';
+    promptOptions += `<option value="${p.id}"${sel}>${escHtml(p.name)}</option>`;
+  });
+
+  return `<div class="card slot-detail" id="slot-detail">
+    <div class="slot-detail-header">
+      ${keycapHtml(slotLabel(slotIndex), `lg${hasPrompt ? ' assigned' : ''}`)}
+      <div class="slot-detail-info">
+        <div class="slot-detail-title">Slot ${slotLabel(slotIndex)}</div>
+        <div class="slot-detail-shortcut">Press ${shortcutKeycaps(copyShortcut)} to copy into this slot</div>
+      </div>
+      ${s.occupied ? '<button class="btn ghost danger" onclick="clearSelectedSlot()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v8.5h6V4"/></svg> Clear</button>' : ''}
+    </div>
+    <div class="slot-detail-columns">
+      <div>
+        <label class="field-label">AI Prompt</label>
+        <select id="slot-prompt-select" onchange="assignPromptToSlot(this.value)">${promptOptions}</select>
+        ${prompt ? `<div class="prompt-preview-box">${escHtml(prompt.template)}</div>` : ''}
+        <p class="field-help">When content is copied to this slot, the AI will transform it using this prompt.</p>
+      </div>
+      <div>
+        <label class="field-label">Current Content</label>
+        <textarea id="slot-content-area" placeholder="Empty — copy something to fill this slot" readonly></textarea>
+        <div id="slot-original-container"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setupSlots() {
+  document.querySelectorAll('.slot-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.dataset.slot);
+      state.selectedSlot = idx;
+      renderPage();
+      loadSlotContent(idx);
     });
-    picker.appendChild(btn);
-  }
-  const hint = document.getElementById('slot-hint');
-  hint.textContent = editSlot !== null
-    ? `Assigned to slot ${slotLabel(editSlot)} — copy with ⌘⌥${slotLabel(editSlot)}`
-    : 'Click a number to assign this prompt to a slot';
+  });
+  if (state.selectedSlot !== null) loadSlotContent(state.selectedSlot);
 }
 
-document.getElementById('btn-new-prompt').addEventListener('click', () => openEditor(null));
-
-document.getElementById('btn-cancel-prompt').addEventListener('click', () => {
-  document.getElementById('prompt-edit-view').style.display = 'none';
-  document.getElementById('prompt-list-view').style.display = 'block';
-});
-
-document.getElementById('btn-save-prompt').addEventListener('click', async () => {
-  const name = document.getElementById('ed-name').value.trim();
-  const template = document.getElementById('ed-template').value.trim();
-  if (!name || !template) return;
-  try {
-    await invoke('save_prompt', { prompt: { id: editingId, name, template, assigned_slot: editSlot } });
-    prompts = await invoke('get_prompts');
-  } catch (e) {
-    // Fallback: update local state
-    const idx = prompts.findIndex(p => p.id === editingId);
-    const obj = { id: editingId, name, template, assigned_slot: editSlot };
-    if (idx >= 0) prompts[idx] = obj; else prompts.push(obj);
-  }
-  document.getElementById('prompt-edit-view').style.display = 'none';
-  document.getElementById('prompt-list-view').style.display = 'block';
-  renderPromptList();
-  flash('Saved!');
-});
-
-document.getElementById('btn-delete-prompt').addEventListener('click', async () => {
-  try { await invoke('delete_prompt', { promptId: editingId }); prompts = await invoke('get_prompts'); }
-  catch { prompts = prompts.filter(p => p.id !== editingId); }
-  document.getElementById('prompt-edit-view').style.display = 'none';
-  document.getElementById('prompt-list-view').style.display = 'block';
-  renderPromptList();
-  flash('Deleted');
-});
-
-// ── Shortcuts ──
-document.getElementById('btn-save-shortcuts').addEventListener('click', async () => {
-  if (!config) return;
-  config.shortcuts.copy_modifier = document.getElementById('sc-copy').value;
-  config.shortcuts.paste_modifier = document.getElementById('sc-paste').value;
-  config.shortcuts.toggle_hud = document.getElementById('sc-hud').value;
-  config.shortcuts.clear_all = document.getElementById('sc-clear').value;
-  try { await invoke('save_config', { config }); } catch {}
-  flash('Saved!');
-});
-
-// ── AI Model ──
-async function checkAi() {
-  try {
-    const status = await invoke('ai_check_status');
-    if (status.ollama_running) {
-      document.getElementById('ollama-status').innerHTML = '<span class="status-ok">Ollama: Running ✓</span>';
-      document.getElementById('ollama-controls').style.display = 'block';
-      document.getElementById('ollama-install').style.display = 'none';
-    } else {
-      document.getElementById('ollama-status').innerHTML = '';
-      document.getElementById('ollama-controls').style.display = 'none';
-      document.getElementById('ollama-install').style.display = 'block';
-    }
-  } catch {
-    document.getElementById('ollama-status').innerHTML = '<span class="status-warn">Cannot check (IPC unavailable)</span>';
-    document.getElementById('ollama-install').style.display = 'block';
+async function loadSlotContent(slotIndex) {
+  const [content, original] = await Promise.all([
+    tauriInvoke('get_slot_content', { slotIndex }),
+    tauriInvoke('get_slot_original', { slotIndex }),
+  ]);
+  const area = document.getElementById('slot-content-area');
+  if (area && content) area.value = content;
+  const origContainer = document.getElementById('slot-original-container');
+  if (origContainer && original) {
+    origContainer.innerHTML = `<details class="original-details">
+      <summary>Show original (before AI transform)</summary>
+      <div class="original-content-box">${escHtml(original)}</div>
+    </details>`;
   }
 }
 
-document.getElementById('btn-pull').addEventListener('click', async () => {
-  const btn = document.getElementById('btn-pull');
-  const model = document.getElementById('pull-model').value;
-  btn.textContent = 'Pulling...'; btn.disabled = true;
-  try { await invoke('ai_pull_model', { modelName: model }); flash('Model pulled!'); }
-  catch (e) { flash('Error: ' + e); }
-  btn.textContent = 'Pull'; btn.disabled = false;
-  checkAi();
-});
+async function clearSelectedSlot() {
+  if (state.selectedSlot === null) return;
+  await tauriInvoke('clear_slot', { slotIndex: state.selectedSlot });
+  const slots = await tauriInvoke('get_all_slots');
+  if (slots) state.slots = slots;
+  renderPage();
+}
 
-document.getElementById('btn-refresh-ai').addEventListener('click', checkAi);
-document.getElementById('btn-copy-cmd').addEventListener('click', () => {
-  navigator.clipboard.writeText('brew install ollama && ollama serve');
-  document.getElementById('btn-copy-cmd').textContent = '✓ Copied';
-  setTimeout(() => document.getElementById('btn-copy-cmd').textContent = 'Copy', 2000);
-});
+async function assignPromptToSlot(promptId) {
+  if (state.selectedSlot === null) return;
+  // Unassign any prompt currently on this slot
+  state.prompts.forEach(p => { if (p.assigned_slot === state.selectedSlot) p.assigned_slot = null; });
+  // Assign new prompt
+  if (promptId) {
+    const p = state.prompts.find(pr => pr.id === promptId);
+    if (p) p.assigned_slot = state.selectedSlot;
+  }
+  await saveConfig();
+  // Refresh slots to get updated prompt mapping
+  const slots = await tauriInvoke('get_all_slots');
+  if (slots) state.slots = slots;
+  // Re-save each prompt that changed
+  for (const p of state.prompts) {
+    await tauriInvoke('save_prompt', { prompt: p });
+  }
+  renderPage();
+}
 
-// ── General ──
-document.getElementById('btn-dur-up').addEventListener('click', () => {
-  const el = document.getElementById('hud-duration');
-  el.value = Math.min(60, parseInt(el.value || '10') + 1);
-});
-document.getElementById('btn-dur-down').addEventListener('click', () => {
-  const el = document.getElementById('hud-duration');
-  el.value = Math.max(1, parseInt(el.value || '10') - 1);
-});
-document.getElementById('btn-save-general').addEventListener('click', async () => {
-  if (!config) config = {};
-  config.hud_duration_secs = parseInt(document.getElementById('hud-duration').value) || 10;
-  config.hud_always_visible = document.getElementById('hud-always-visible').checked;
-  try {
-    await invoke('save_config', { config });
-    // Notify the HUD window about the change
-    if (config.hud_always_visible) {
-      await invoke('show_hud_window');
+// ─── Page: Prompts ───
+function renderPrompts() {
+  let list = `<button class="btn primary" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="createNewPrompt()">+ New prompt</button>`;
+
+  state.prompts.forEach(p => {
+    const selected = state.selectedPromptId === p.id;
+    const slotBadge = p.assigned_slot != null ? keycapHtml(slotLabel(p.assigned_slot), 'sm assigned') : '';
+    list += `<div class="prompt-row${selected ? ' selected' : ''}" data-prompt-id="${p.id}">
+      <div class="prompt-row-top">
+        <span class="prompt-row-name">${escHtml(p.name)}</span>
+        ${slotBadge}
+      </div>
+      <div class="prompt-row-preview">${escHtml(p.template)}</div>
+    </div>`;
+  });
+
+  const sel = state.prompts.find(p => p.id === state.selectedPromptId);
+  let editor = '';
+  if (sel) {
+    let keycapRow = '';
+    for (let i = 0; i < 10; i++) {
+      const label = slotLabel(i);
+      const isAssigned = sel.assigned_slot === i;
+      const otherPrompt = state.prompts.find(p => p.id !== sel.id && p.assigned_slot === i);
+      const cls = isAssigned ? 'assigned' : (otherPrompt ? 'dimmed' : '');
+      const tooltip = otherPrompt ? ` title="Currently: ${escHtml(otherPrompt.name)}"` : '';
+      keycapRow += `<span class="keycap ${cls}" data-assign-slot="${i}"${tooltip}>${label}</span>`;
     }
-  } catch {}
-  flash('Saved! Restart app for changes to take full effect.');
-});
 
-// ── Init ──
-async function init() {
-  // Default prompts
-  prompts = [
-    { id: 'summarize', name: 'Summarize in 5 bullet points', template: 'Summarize the following text in exactly 5 concise bullet points:\n\n{{content}}', assigned_slot: null },
-    { id: 'fix-grammar', name: 'Fix grammar', template: 'Fix the grammar and spelling in the following text. Only return the corrected text:\n\n{{content}}', assigned_slot: null },
-    { id: 'translate-spanish', name: 'Translate to Spanish', template: 'Translate the following text to Spanish. Only return the translation:\n\n{{content}}', assigned_slot: null },
+    editor = `<div class="card" style="padding:18px;">
+      <div class="prompt-editor-top">
+        <input type="text" id="prompt-name-input" value="${escAttr(sel.name)}" style="font-size:16px;font-weight:600;">
+        <button class="btn ghost danger" onclick="deleteSelectedPrompt()"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h10M6 4V3h4v1M5 4v8.5h6V4"/></svg> Delete</button>
+      </div>
+      <div>
+        <label class="field-label">Prompt Template</label>
+        <textarea id="prompt-template-input" rows="6" placeholder="Insert prompt here">${escHtml(sel.template)}</textarea>
+        <p class="field-help">The copied text is automatically appended to the prompt before being sent to the AI.</p>
+      </div>
+      <div>
+        <label class="field-label">Assign to Keyboard Slot</label>
+        <div class="keycap-assignment-row">${keycapRow}
+          <button class="btn ghost" onclick="unassignPrompt()">Unassign</button>
+        </div>
+        <p class="field-help" id="assign-help-text">${sel.assigned_slot != null ? `Assigned to slot ${slotLabel(sel.assigned_slot)}.` : 'Not assigned to any slot.'}</p>
+      </div>
+    </div>`;
+  }
+
+  return `<div class="anim-fade">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2 class="page-title">Prompts</h2>
+        <p class="page-subtitle">Reusable AI templates. Assign each to a number key and CopyCat will run the transformation whenever you copy to that slot.</p>
+      </div>
+    </div>
+    <div class="prompts-layout">
+      <div class="prompt-list">${list}</div>
+      <div class="prompt-editor">${editor}</div>
+    </div>
+  </div>`;
+}
+
+let promptSaveTimer = null;
+function setupPrompts() {
+  document.querySelectorAll('.prompt-row').forEach(row => {
+    row.addEventListener('click', () => {
+      state.selectedPromptId = row.dataset.promptId;
+      renderPage();
+    });
+  });
+
+  const nameInput = document.getElementById('prompt-name-input');
+  const templateInput = document.getElementById('prompt-template-input');
+  if (nameInput) {
+    nameInput.addEventListener('input', () => { debouncePromptSave(); });
+  }
+  if (templateInput) {
+    templateInput.addEventListener('input', () => { debouncePromptSave(); });
+  }
+
+  document.querySelectorAll('[data-assign-slot]').forEach(k => {
+    k.addEventListener('click', () => {
+      const slot = parseInt(k.dataset.assignSlot);
+      assignPromptToKeySlot(slot);
+    });
+  });
+}
+
+function debouncePromptSave() {
+  clearTimeout(promptSaveTimer);
+  promptSaveTimer = setTimeout(saveCurrentPrompt, 400);
+}
+
+async function saveCurrentPrompt() {
+  const sel = state.prompts.find(p => p.id === state.selectedPromptId);
+  if (!sel) return;
+  const nameInput = document.getElementById('prompt-name-input');
+  const templateInput = document.getElementById('prompt-template-input');
+  if (nameInput) sel.name = nameInput.value;
+  if (templateInput) sel.template = templateInput.value;
+  await tauriInvoke('save_prompt', { prompt: sel });
+  await saveConfig();
+  // Re-render list but keep editor
+  const listEl = document.querySelector('.prompt-list');
+  if (listEl) {
+    let listHtml = `<button class="btn primary" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="createNewPrompt()">+ New prompt</button>`;
+    state.prompts.forEach(p => {
+      const selected = state.selectedPromptId === p.id;
+      const slotBadge = p.assigned_slot != null ? keycapHtml(slotLabel(p.assigned_slot), 'sm assigned') : '';
+      listHtml += `<div class="prompt-row${selected ? ' selected' : ''}" data-prompt-id="${p.id}">
+        <div class="prompt-row-top"><span class="prompt-row-name">${escHtml(p.name)}</span>${slotBadge}</div>
+        <div class="prompt-row-preview">${escHtml(p.template)}</div>
+      </div>`;
+    });
+    listEl.innerHTML = listHtml;
+    listEl.querySelectorAll('.prompt-row').forEach(row => {
+      row.addEventListener('click', () => {
+        state.selectedPromptId = row.dataset.promptId;
+        renderPage();
+      });
+    });
+  }
+}
+
+async function assignPromptToKeySlot(slotIndex) {
+  const sel = state.prompts.find(p => p.id === state.selectedPromptId);
+  if (!sel) return;
+  // Clear other prompts from this slot
+  state.prompts.forEach(p => { if (p.assigned_slot === slotIndex && p.id !== sel.id) p.assigned_slot = null; });
+  sel.assigned_slot = sel.assigned_slot === slotIndex ? null : slotIndex;
+  for (const p of state.prompts) {
+    await tauriInvoke('save_prompt', { prompt: p });
+  }
+  await saveConfig();
+  renderPage();
+}
+
+async function unassignPrompt() {
+  const sel = state.prompts.find(p => p.id === state.selectedPromptId);
+  if (!sel) return;
+  sel.assigned_slot = null;
+  await tauriInvoke('save_prompt', { prompt: sel });
+  await saveConfig();
+  renderPage();
+}
+
+async function createNewPrompt() {
+  const id = 'prompt-' + Date.now();
+  const newPrompt = { id, name: 'New Prompt', template: '', assigned_slot: null };
+  state.prompts.push(newPrompt);
+  state.selectedPromptId = id;
+  await tauriInvoke('save_prompt', { prompt: newPrompt });
+  await saveConfig();
+  renderPage();
+}
+
+async function deleteSelectedPrompt() {
+  if (!state.selectedPromptId) return;
+  await tauriInvoke('delete_prompt', { promptId: state.selectedPromptId });
+  state.prompts = state.prompts.filter(p => p.id !== state.selectedPromptId);
+  state.selectedPromptId = state.prompts.length > 0 ? state.prompts[0].id : null;
+  await saveConfig();
+  renderPage();
+}
+
+// ─── Page: Shortcuts ───
+function renderShortcuts() {
+  const shortcuts = [
+    { key: 'copy_modifier', title: 'Copy to slot', help: 'Modifier keys — press with 1-0 to copy to that slot.', modsOnly: true },
+    { key: 'paste_modifier', title: 'Paste from slot', help: 'Modifier keys — press with 1-0 to paste that slot.', modsOnly: true },
+    { key: 'toggle_hud', title: 'Toggle HUD', help: 'Show or hide the floating HUD.', modsOnly: false },
+    { key: 'clear_all', title: 'Clear all slots', help: 'Empty every slot at once.', modsOnly: false },
   ];
-  renderPromptList();
 
-  // Try to load from Tauri
-  try {
-    config = await invoke('get_config');
-    prompts = await invoke('get_prompts');
-    renderPromptList();
-    // Populate shortcuts UI
-    document.getElementById('sc-copy').value = config.shortcuts.copy_modifier;
-    document.getElementById('sc-paste').value = config.shortcuts.paste_modifier;
-    document.getElementById('sc-hud').value = config.shortcuts.toggle_hud;
-    document.getElementById('sc-clear').value = config.shortcuts.clear_all;
-    document.getElementById('hud-duration').value = config.hud_duration_secs;
-    document.getElementById('hud-always-visible').checked = config.hud_always_visible || false;
-  } catch (e) {
-    console.warn('Tauri IPC not available, using defaults:', e);
+  let html = '<div class="shortcut-list">';
+  shortcuts.forEach(sc => {
+    const current = state.shortcuts[sc.key];
+    html += `<div class="card shortcut-row" data-shortcut-key="${sc.key}">
+      <div class="shortcut-row-left">
+        <div class="shortcut-row-title">${sc.title}</div>
+        <div class="shortcut-row-help">${sc.help}</div>
+      </div>
+      <div class="shortcut-row-middle" id="shortcut-display-${sc.key}">
+        ${shortcutKeycaps(current, true)}
+        ${sc.modsOnly ? '<span class="shortcut-plus">+</span><span class="shortcut-hint-key">1–0</span>' : ''}
+      </div>
+      <button class="btn" id="shortcut-btn-${sc.key}" onclick="startRecording('${sc.key}', ${sc.modsOnly})">Change</button>
+    </div>`;
+  });
+  html += '</div>';
+  html += `<div class="shortcut-footer">Press ${keycapHtml('Esc', 'sm')} to cancel recording. Changes apply immediately.</div>`;
+
+  return `<div class="anim-fade">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2 class="page-title">Shortcuts</h2>
+        <p class="page-subtitle">Customize the keyboard combos. Copy and paste shortcuts pair with the number keys 1–0 to target slots.</p>
+      </div>
+    </div>
+    ${html}
+  </div>`;
+}
+
+let recordingKey = null;
+let recordingModsOnly = false;
+
+function setupShortcuts() {}
+
+function startRecording(key, modsOnly) {
+  if (recordingKey) stopRecording();
+  recordingKey = key;
+  recordingModsOnly = modsOnly;
+  const display = document.getElementById(`shortcut-display-${key}`);
+  const btn = document.getElementById(`shortcut-btn-${key}`);
+  if (display) display.innerHTML = '<div class="shortcut-recording"><span class="dot"></span>Press keys…</div>';
+  if (btn) { btn.textContent = 'Cancel'; btn.className = 'btn primary'; btn.onclick = () => stopRecording(); }
+  window.addEventListener('keydown', handleShortcutKey, true);
+  window.addEventListener('keyup', handleShortcutKeyUp, true);
+}
+
+function stopRecording() {
+  recordingKey = null;
+  window.removeEventListener('keydown', handleShortcutKey, true);
+  window.removeEventListener('keyup', handleShortcutKeyUp, true);
+  renderPage();
+}
+
+function handleShortcutKey(e) {
+  e.preventDefault(); e.stopPropagation();
+  if (e.key === 'Escape') { stopRecording(); return; }
+  const mods = [];
+  if (e.metaKey) mods.push('CmdOrCtrl');
+  if (e.ctrlKey && !e.metaKey) mods.push('Control');
+  if (e.altKey) mods.push('Alt');
+  if (e.shiftKey) mods.push('Shift');
+
+  if (recordingModsOnly) {
+    if (mods.length > 0 && !['Meta','Control','Alt','Shift'].includes(e.key)) {
+      // Non-modifier pressed with mods — save mods only
+      state.shortcuts[recordingKey] = mods.join('+');
+      saveConfig();
+      stopRecording();
+    }
+  } else {
+    if (!['Meta','Control','Alt','Shift'].includes(e.key) && mods.length > 0) {
+      let keyName = e.key === ' ' ? 'Space' : e.key.length === 1 ? e.key.toUpperCase() : e.key;
+      if (keyName === 'Backspace') keyName = 'Backspace';
+      state.shortcuts[recordingKey] = [...mods, keyName].join('+');
+      saveConfig();
+      stopRecording();
+    }
   }
-  checkAi();
+}
+
+function handleShortcutKeyUp(e) {
+  if (recordingModsOnly && recordingKey) {
+    const mods = [];
+    if (e.metaKey || e.key === 'Meta') mods.push('CmdOrCtrl');
+    if (e.ctrlKey || e.key === 'Control') {
+      if (!e.metaKey && e.key !== 'Meta') mods.push('Control');
+    }
+    if (e.altKey || e.key === 'Alt') mods.push('Alt');
+    if (e.shiftKey || e.key === 'Shift') mods.push('Shift');
+    // Save on key up if we had modifiers
+    if (['Meta','Control','Alt','Shift'].includes(e.key)) {
+      const current = [];
+      if (e.metaKey && e.key !== 'Meta') current.push('CmdOrCtrl');
+      if (e.key === 'Meta') current.push('CmdOrCtrl');
+      if (e.ctrlKey && e.key !== 'Control' && !e.metaKey) current.push('Control');
+      if (e.key === 'Control' && !e.metaKey) current.push('Control');
+      if (e.altKey && e.key !== 'Alt') current.push('Alt');
+      if (e.key === 'Alt') current.push('Alt');
+      if (e.shiftKey && e.key !== 'Shift') current.push('Shift');
+      if (e.key === 'Shift') current.push('Shift');
+      if (current.length > 0) {
+        state.shortcuts[recordingKey] = [...new Set(current)].join('+');
+        saveConfig();
+        stopRecording();
+      }
+    }
+  }
+}
+
+// ─── Page: AI Engine ───
+function renderAiEngine() {
+  const running = state.engineStatus.ollama_running;
+  let modelsHtml = '';
+  MODEL_CATALOG.forEach(m => {
+    const isActive = state.activeModelId === m.ollama;
+    const dl = state.downloads[m.id];
+    let actionHtml = '';
+    if (dl && dl.progress < 1) {
+      const pct = Math.round(dl.progress * 100);
+      actionHtml = `<div class="download-progress">
+        <div class="download-label">Downloading… ${pct}%</div>
+        <div class="download-track"><div class="download-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    } else if (isActive) {
+      actionHtml = '<button class="btn" disabled><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l3 3 7-7"/></svg> In use</button>';
+    } else if (dl && dl.progress >= 1) {
+      actionHtml = `<button class="btn primary" onclick="useModel('${m.ollama}')">Use this</button>`;
+    } else {
+      actionHtml = `<button class="btn" onclick="downloadModel('${m.id}', '${m.ollama}')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M5 7l3 3 3-3M3 12h10"/></svg> Download</button>`;
+    }
+
+    modelsHtml += `<div class="card model-card${isActive ? ' active-model' : ''}">
+      <div>
+        <div class="model-name">${m.name}${isActive ? ' <span class="pill good"><span class="dot"></span>Active</span>' : ''}</div>
+        <div class="model-blurb">${m.blurb}</div>
+        <div class="model-stats">
+          <span><span class="model-stat-label">Size</span> <span class="model-stat-value">${m.size}</span></span>
+          <span><span class="model-stat-label">Speed</span> <span class="model-dots">${renderDots(m.speed, 5)}</span></span>
+          <span><span class="model-stat-label">Quality</span> <span class="model-dots">${renderDots(m.quality, 5)}</span></span>
+        </div>
+      </div>
+      <div class="model-actions">${actionHtml}</div>
+    </div>`;
+  });
+
+  return `<div class="anim-fade">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2 class="page-title">AI Engine</h2>
+        <p class="page-subtitle">Local language models run by Ollama. Nothing you copy ever leaves your machine.</p>
+      </div>
+    </div>
+    <div class="card engine-status-card">
+      <div class="engine-icon-tile ${running ? 'running' : 'stopped'}">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="2"/><path d="M8 2v2M8 12v2M2 8h2M12 8h2M3.8 3.8l1.4 1.4M10.8 10.8l1.4 1.4M3.8 12.2l1.4-1.4M10.8 5.2l1.4-1.4"/></svg>
+      </div>
+      <div class="engine-info">
+        <div class="engine-title">Local engine ${running ? '<span class="pill good"><span class="dot"></span>Running</span>' : '<span class="pill bad"><span class="dot"></span>Stopped</span>'}</div>
+        <div class="engine-help">Powered by Ollama. All processing happens on your Mac — your text never leaves the device.</div>
+      </div>
+      <button class="btn" onclick="refreshEngineStatus()">Refresh</button>
+    </div>
+    <div class="section-label">AVAILABLE MODELS</div>
+    ${modelsHtml}
+  </div>`;
+}
+
+function setupAiEngine() {}
+
+async function refreshEngineStatus() {
+  const status = await tauriInvoke('ai_check_status');
+  if (status) {
+    state.engineStatus = status;
+    updateTitlebarStatus();
+    renderPage();
+  }
+}
+
+async function downloadModel(modelId, ollamaName) {
+  state.downloads[modelId] = { progress: 0 };
+  renderPage();
+  // Simulate download progress while actually pulling
+  const interval = setInterval(() => {
+    const dl = state.downloads[modelId];
+    if (dl && dl.progress < 0.95) {
+      dl.progress += 0.06 + Math.random() * 0.08;
+      if (dl.progress > 0.95) dl.progress = 0.95;
+      renderPage();
+    }
+  }, 280);
+
+  try {
+    await tauriInvoke('ai_pull_model', { modelName: ollamaName });
+    state.downloads[modelId] = { progress: 1 };
+    clearInterval(interval);
+    renderPage();
+  } catch (e) {
+    clearInterval(interval);
+    delete state.downloads[modelId];
+    renderPage();
+  }
+}
+
+async function useModel(ollamaName) {
+  state.activeModelId = ollamaName;
+  await saveConfig();
+  updateTitlebarStatus();
+  renderPage();
+}
+
+// ─── Page: HUD ───
+function renderHud() {
+  const pos = state.hud.position || 'br';
+  const appearance = state.hud.appearance || 'glass';
+
+  // Position mapping for the float preview
+  const posStyles = {
+    tl: 'top:24px;left:24px;', tc: 'top:24px;left:50%;transform:translateX(-50%);',
+    tr: 'top:24px;right:24px;', ml: 'top:50%;left:24px;transform:translateY(-50%);',
+    mc: 'top:50%;left:50%;transform:translate(-50%,-50%);', mr: 'top:50%;right:24px;transform:translateY(-50%);',
+    bl: 'bottom:24px;left:24px;', bc: 'bottom:24px;left:50%;transform:translateX(-50%);',
+    br: 'bottom:24px;right:24px;',
+  };
+  const posNames = ['tl','tc','tr','ml','mc','mr','bl','bc','br'];
+  const floatCls = appearance === 'solid' ? ' solid' : (appearance === 'minimal' ? ' minimal' : '');
+
+  let posGrid = '';
+  posNames.forEach(p => {
+    posGrid += `<div class="position-cell${pos === p ? ' active' : ''}" data-pos="${p}"></div>`;
+  });
+
+  const accentColor = state.hud.accent_color || '#d4a054';
+
+  return `<div class="anim-fade">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2 class="page-title">HUD</h2>
+        <p class="page-subtitle">The floating panel that shows your filled slots. Tweak when it appears and how it looks.</p>
+      </div>
+    </div>
+    <div class="hud-layout">
+      <div class="hud-preview-pane">
+        <div class="hud-float${floatCls}" style="${posStyles[pos] || posStyles.br}">
+          <div class="hud-float-header">
+            <div style="display:flex;align-items:center;">
+              <div class="hud-float-mark" style="background:${accentColor};"><img src="${LOGO_DATA_URI}" class="hud-logo-img" alt="CC"></div>
+              <span class="hud-float-title">CopyCat</span>
+            </div>
+            <span class="hud-float-count">3 slots</span>
+          </div>
+          <div class="hud-float-body">
+            <div class="hud-float-row">
+              <div class="hud-float-num" style="background:${accentColor};">1</div>
+              <div class="hud-float-row-body">
+                ${appearance !== 'minimal' ? '<div class="hud-float-prompt-label">SUMMARIZE</div>' : ''}
+                <div class="hud-float-snippet">Climate change is...</div>
+              </div>
+            </div>
+            <div class="hud-float-row">
+              <div class="hud-float-num" style="background:${accentColor};">2</div>
+              <div class="hud-float-row-body">
+                ${appearance !== 'minimal' ? '<div class="hud-float-prompt-label">FIX GRAMMAR</div>' : ''}
+                <div class="hud-float-snippet">The quick brown...</div>
+              </div>
+            </div>
+            <div class="hud-float-row">
+              <div class="hud-float-num" style="background:${accentColor};">3</div>
+              <div class="hud-float-row-body">
+                ${appearance !== 'minimal' ? '<div class="hud-float-prompt-label">TRANSLATE</div>' : ''}
+                <div class="hud-float-snippet">¡Hola! Espero que...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hud-preview-caption">LIVE PREVIEW</div>
+      </div>
+      <div class="hud-controls">
+        <div class="card" style="padding:16px;">
+          <div class="hud-control-row">
+            <div class="hud-control-left">
+              <div class="hud-control-label">Always visible</div>
+              <div class="hud-control-sub">HUD stays on screen instead of auto-hiding.</div>
+            </div>
+            <div class="switch${state.hud.always_visible ? ' on' : ''}" id="always-visible-switch" onclick="toggleAlwaysVisible()"><div class="thumb"></div></div>
+          </div>
+          <div class="hud-divider"></div>
+          <div>
+            <label class="field-label">Auto-hide after</label>
+            <div class="duration-row${state.hud.always_visible ? ' disabled' : ''}" id="duration-row">
+              <input type="range" min="2" max="30" step="1" value="${state.hud.duration}" id="duration-slider" oninput="updateDuration(this.value)">
+              <span class="duration-value" id="duration-value">${state.hud.duration}s</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px;">
+          <label class="field-label">Position</label>
+          <div class="position-picker" id="position-picker">${posGrid}</div>
+        </div>
+        <div class="card" style="padding:16px;">
+          <label class="field-label">Appearance</label>
+          <div class="appearance-seg">
+            <button class="appearance-btn${appearance === 'glass' ? ' selected' : ''}" onclick="setAppearance('glass')">Glass</button>
+            <button class="appearance-btn${appearance === 'solid' ? ' selected' : ''}" onclick="setAppearance('solid')">Solid</button>
+            <button class="appearance-btn${appearance === 'minimal' ? ' selected' : ''}" onclick="setAppearance('minimal')">Minimal</button>
+          </div>
+          <div style="margin-top:12px;">
+            <div class="hud-control-row">
+              <div class="hud-control-left">
+                <div style="font-size:12.5px;font-weight:500;color:var(--ink-0);">Show original text in preview</div>
+                <div class="hud-control-sub">Display the original text before AI transformation.</div>
+              </div>
+              <div class="switch" id="show-original-switch"><div class="thumb"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px;">
+          <label class="field-label">Accent Color</label>
+          <div class="color-wheel-container">
+            <input type="color" class="color-wheel-input" id="accent-color-input" value="${accentColor}" oninput="setAccentColor(this.value)">
+            <div style="font-size:11px;color:var(--ink-2);">Customize the HUD accent color</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function setupHud() {
+  document.querySelectorAll('.position-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      state.hud.position = cell.dataset.pos;
+      saveConfig();
+      renderPage();
+    });
+  });
+}
+
+function toggleAlwaysVisible() {
+  state.hud.always_visible = !state.hud.always_visible;
+  saveConfig();
+  renderPage();
+}
+
+function updateDuration(val) {
+  state.hud.duration = parseInt(val);
+  document.getElementById('duration-value').textContent = val + 's';
+  clearTimeout(window._durTimer);
+  window._durTimer = setTimeout(() => saveConfig(), 400);
+}
+
+function setAppearance(a) {
+  state.hud.appearance = a;
+  saveConfig();
+  renderPage();
+}
+
+function setAccentColor(color) {
+  state.hud.accent_color = color;
+  saveConfig();
+  renderPage();
+}
+
+// ─── Page: About ───
+function renderAbout() {
+  return `<div class="anim-fade">
+    <div class="page-header">
+      <div class="page-header-left">
+        <h2 class="page-title">About</h2>
+      </div>
+    </div>
+    <div class="about-stack">
+      <div class="card about-brand-card">
+        <div class="about-brand-mark"><img src="${LOGO_DATA_URI}" class="about-logo-img" alt="CC"></div>
+        <div>
+          <div class="about-name">CopyCat</div>
+          <div class="about-tagline">v0.1.0 — Ten clipboards. One keyboard. Zero cloud.</div>
+        </div>
+      </div>
+      <div class="card about-howto">
+        <div class="about-howto-title">How it works</div>
+        <ol>
+          <li>Assign an AI prompt to a number key (1–0) in <strong>Slots</strong>.</li>
+          <li>Select text anywhere and press ${keycapHtml('⌘', 'sm wide')} ${keycapHtml('⌥', 'sm wide')} + the number — CopyCat transforms it with the prompt.</li>
+          <li>Paste the transformed text anywhere with ${keycapHtml('⌘', 'sm wide')} ${keycapHtml('⌥', 'sm wide')} ${keycapHtml('⇧', 'sm wide')} + the same number.</li>
+        </ol>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ─── Utilities ───
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function escAttr(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+// ─── Init ───
+async function init() {
+  // Wait for Tauri IPC
+  let attempts = 0;
+  while (!initInvoke() && attempts < 30) {
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+  await loadState();
+  renderPage();
 }
 
 init();
+// Set sidebar logo from JS constant
 </script>
 </body>
 </html>
