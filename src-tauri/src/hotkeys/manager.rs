@@ -107,7 +107,7 @@ pub fn show_hud_window(app: &AppHandle, slot_count: usize) {
             };
 
             let margin = (24.0 * scale) as i32;
-            let dock_margin = (80.0 * scale) as i32;
+            let dock_margin = (10.0 * scale) as i32;
             let sw = screen_size.width as i32;
             let sh = screen_size.height as i32;
             let sx = screen_pos.x;
