@@ -7,7 +7,7 @@
 <meta name="description" content="CopyCat gives you 10 clipboard slots with keyboard shortcuts and local AI transformation. Privacy-first — your data never leaves your machine.">
 <meta property="og:title" content="CopyCat — The AI-Powered Clipboard Manager">
 <meta property="og:description" content="10 clipboard slots. Local AI. Zero data leaves your machine.">
-<meta property="og:image" content="images/slots-page.png">
+<meta property="og:image" content="images/desktop-hud.png">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/png" href="images/logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -212,6 +212,13 @@ nav {
   background: radial-gradient(800px 600px at 30% 50%, rgba(212, 160, 84, 0.04) 0%, transparent 60%);
   pointer-events: none;
 }
+.showcase-header {
+  text-align: center; margin-bottom: 60px; position: relative; z-index: 1;
+}
+.showcase-header p {
+  color: var(--ink-2); font-size: 1.1rem;
+  max-width: 560px; margin: 12px auto 0;
+}
 .showcase-item {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 60px; align-items: center;
@@ -225,7 +232,7 @@ nav {
   font-size: 12px; font-weight: 600; text-transform: uppercase;
   letter-spacing: 0.1em; color: var(--accent); margin-bottom: 12px;
 }
-.showcase-text h2 { margin-bottom: 16px; }
+.showcase-text h2 { margin-bottom: 16px; font-size: clamp(1.4rem, 3vw, 2rem); }
 .showcase-text p { color: var(--ink-2); font-size: 15px; margin-bottom: 16px; }
 .showcase-text ul {
   list-style: none; display: flex; flex-direction: column; gap: 10px;
@@ -481,6 +488,7 @@ footer {
     </a>
     <div class="nav-links">
       <a href="#features">Features</a>
+      <a href="#showcase">App Tour</a>
       <a href="#how-it-works">How It Works</a>
       <a href="#download">Download</a>
       <a href="#beta" class="nav-cta">Join Beta</a>
@@ -511,7 +519,7 @@ footer {
       </a>
     </div>
     <div class="hero-screenshot fade-up">
-      <img src="images/slots-page.png" alt="CopyCat Settings — Display page showing the glassmorphic HUD preview with slot management">
+      <img src="images/desktop-hud.png" alt="CopyCat HUD floating over your desktop — showing clipboard slots at a glance">
     </div>
   </div>
 </section>
@@ -535,8 +543,8 @@ footer {
         <div class="feature-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h4M14 8h4M6 12h3M12 12h6M6 16h8"/></svg>
         </div>
-        <h3>Keyboard Shortcuts</h3>
-        <p>Copy and paste from any slot instantly. ⌘⌥+1 to copy, ⌘⌥⇧+1 to paste. Fully customizable modifier keys.</p>
+        <h3>Custom Shortcuts</h3>
+        <p>Copy and paste from any slot instantly. Choose your own modifier keys — displayed with beautiful keycap-style visuals.</p>
       </div>
       <div class="feature-card fade-up">
         <div class="feature-icon">
@@ -573,65 +581,139 @@ footer {
 <!-- Showcase -->
 <section class="showcase" id="showcase">
   <div class="container">
+    <div class="showcase-header fade-up">
+      <h2>Take the tour.</h2>
+      <p>Six settings pages give you full control over every aspect of CopyCat.</p>
+    </div>
+
+    <!-- 1. Slots -->
     <div class="showcase-item fade-up">
       <div class="showcase-text">
-        <div class="label">Smart HUD</div>
-        <h2>See your slots at a glance</h2>
+        <div class="label">Slots</div>
+        <h2>Your 10 clipboard slots, at a glance</h2>
         <p>
-          The glassmorphic HUD floats above your workspace, showing only the slots
-          that have content. It appears when you copy, then fades away — or keep it
-          pinned with "Always visible" mode.
+          A 5×2 grid shows all 10 slots with their current contents, assigned prompt,
+          and status. Click any slot to view the full text, switch prompts, or clear it.
         </p>
         <ul>
-          <li>Warm glassmorphic, solid, or minimal style</li>
-          <li>9 screen positions — pin it where you want</li>
-          <li>Custom accent color with live preview</li>
-          <li>Shows AI prompt labels on each slot</li>
+          <li>Visual slot grid with content preview</li>
+          <li>Assign AI prompts to individual slots</li>
+          <li>See which slots are filled instantly</li>
+          <li>Clear individual slots or all at once</li>
         </ul>
       </div>
       <div class="showcase-img">
-        <img src="images/display-page.png" alt="CopyCat HUD overlay showing 3 filled clipboard slots with glassmorphic design">
+        <img src="images/slots.png" alt="CopyCat Slots page showing 10 clipboard slots in a 5×2 grid">
       </div>
     </div>
 
+    <!-- 2. Display -->
     <div class="showcase-item reverse fade-up">
+      <div class="showcase-text">
+        <div class="label">Display</div>
+        <h2>Design your perfect HUD</h2>
+        <p>
+          The Display page lets you customize every detail of the floating HUD overlay —
+          from its screen position to its visual style and accent color — with a live preview
+          that updates in real time.
+        </p>
+        <ul>
+          <li>Live HUD preview updates as you tweak</li>
+          <li>9-position grid — dock it anywhere on screen</li>
+          <li>Glass, solid, or minimal appearance styles</li>
+          <li>Accent color wheel for full personalization</li>
+        </ul>
+      </div>
+      <div class="showcase-img">
+        <img src="images/display.png" alt="CopyCat Display page with HUD preview, position grid, and accent color picker">
+      </div>
+    </div>
+
+    <!-- 3. Prompts -->
+    <div class="showcase-item fade-up">
       <div class="showcase-text">
         <div class="label">AI Prompts</div>
         <h2>Transform text as you copy</h2>
         <p>
-          Create custom AI prompts and assign them to any slot. When you copy text
-          to that slot, the local AI transforms it automatically — ready to paste.
+          Create custom AI prompts in a split-pane editor. Write a prompt once,
+          assign it to any slot, and every time you copy to that slot the local AI
+          transforms your text automatically.
         </p>
         <ul>
-          <li>Summarize articles into bullet points</li>
-          <li>Fix grammar and spelling instantly</li>
-          <li>Translate between languages</li>
-          <li>Create your own custom transformations</li>
+          <li>Split-pane prompt list and editor</li>
+          <li>Summarize, translate, fix grammar — anything</li>
+          <li>Assign prompts to slots with one click</li>
+          <li>Auto-saves as you type</li>
         </ul>
       </div>
       <div class="showcase-img">
-        <img src="images/screen-1.png" alt="CopyCat Prompts settings showing AI prompt creation and slot assignment">
+        <img src="images/prompts.png" alt="CopyCat Prompts page showing split-pane prompt editor with slot assignments">
       </div>
     </div>
 
-    <div class="showcase-item fade-up">
+    <!-- 4. Shortcuts -->
+    <div class="showcase-item reverse fade-up">
       <div class="showcase-text">
-        <div class="label">Full Control</div>
-        <h2>Customize every shortcut</h2>
+        <div class="label">Shortcuts</div>
+        <h2>Customize every key combo</h2>
         <p>
-          Set your own modifier keys for copy, paste, HUD toggle, and clear actions.
-          The slot number (1–0) is added automatically — just pick the modifiers
-          that feel right.
+          Pick your own modifier keys for copy, paste, HUD toggle, and clear actions.
+          Shortcuts are displayed with beautiful keycap-style visuals so you always
+          know what to press.
         </p>
         <ul>
-          <li>Configurable copy &amp; paste modifier keys</li>
-          <li>Toggle HUD with a single shortcut</li>
-          <li>Clear all slots instantly</li>
-          <li>No conflicts with existing OS shortcuts</li>
+          <li>Keycap-style modifier key display</li>
+          <li>Separate modifiers for copy &amp; paste</li>
+          <li>Toggle HUD and clear-all shortcuts</li>
+          <li>Designed to avoid OS shortcut conflicts</li>
         </ul>
       </div>
       <div class="showcase-img">
-        <img src="images/screen-2.png" alt="CopyCat Shortcuts settings showing keyboard shortcut configuration">
+        <img src="images/shortcuts.png" alt="CopyCat Shortcuts page showing keycap-style modifier key configuration">
+      </div>
+    </div>
+
+    <!-- 5. AI Engine -->
+    <div class="showcase-item fade-up">
+      <div class="showcase-text">
+        <div class="label">AI Engine</div>
+        <h2>Local models, zero cloud</h2>
+        <p>
+          Browse a curated catalog of lightweight AI models rated by speed and quality.
+          CopyCat connects to Ollama running locally on your machine — no API keys,
+          no internet required.
+        </p>
+        <ul>
+          <li>Model catalog with speed &amp; quality ratings</li>
+          <li>One-click download and activation</li>
+          <li>Ollama connection status at a glance</li>
+          <li>All processing stays on your machine</li>
+        </ul>
+      </div>
+      <div class="showcase-img">
+        <img src="images/ai-engine.png" alt="CopyCat AI Engine page showing model catalog with Ollama status">
+      </div>
+    </div>
+
+    <!-- 6. About -->
+    <div class="showcase-item reverse fade-up">
+      <div class="showcase-text">
+        <div class="label">About</div>
+        <h2>Built-in getting started guide</h2>
+        <p>
+          The About page includes the CopyCat branding, version info, and a built-in
+          quick-start guide that shows you exactly how to use every feature with
+          inline keycap displays.
+        </p>
+        <ul>
+          <li>Step-by-step how-to guide with keycap visuals</li>
+          <li>Version and build information</li>
+          <li>Links to GitHub and documentation</li>
+          <li>Privacy-first philosophy front and center</li>
+        </ul>
+      </div>
+      <div class="showcase-img">
+        <img src="images/about.png" alt="CopyCat About page showing branding, version info, and getting started guide">
       </div>
     </div>
   </div>
