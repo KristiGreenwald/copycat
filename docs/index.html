@@ -149,7 +149,7 @@ nav {
 .btn-secondary:hover { background: var(--bg-4); transform: translateY(-1px); }
 .btn svg { width: 20px; height: 20px; }
 
-/* ─── Hero Screenshot ─── */
+/* ─── Hero Interactive Prototype ─── */
 .hero-screenshot {
   max-width: 960px; margin: 0 auto;
   position: relative;
@@ -161,6 +161,381 @@ nav {
 .hero-screenshot img {
   width: 100%; display: block;
   border-radius: 16px;
+}
+
+/* ─── Prototype App ─── */
+.proto {
+  --p-bg0: #15110f; --p-bg1: #1c1815; --p-bg2: #221d19; --p-bg3: #2a2420; --p-bg4: #332c27;
+  --p-ink0: #f4ece4; --p-ink1: #d8cfc4; --p-ink2: #968b80; --p-ink3: #645b53;
+  --p-accent: #d4a054; --p-accent-soft: rgba(212,160,84,0.16); --p-accent-ink: #1c1408;
+  --p-line1: rgba(244,236,228,0.08); --p-line2: rgba(244,236,228,0.14);
+  --p-good: #5ec998; --p-warn: #d4b054; --p-bad: #d45454;
+  display: flex; height: 540px; background: var(--p-bg0);
+  border-radius: 16px; overflow: hidden; font-family: var(--font);
+  border: 1px solid var(--p-line2); user-select: none;
+}
+
+/* Sidebar */
+.proto-side {
+  width: 200px; flex-shrink: 0; background: var(--p-bg1);
+  border-right: 1px solid var(--p-line1); display: flex; flex-direction: column;
+  padding: 16px 10px 12px;
+}
+.proto-brand { display: flex; align-items: center; gap: 10px; padding: 0 6px; margin-bottom: 16px; }
+.proto-brand-mark {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--p-accent), #9a6530);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px -4px var(--p-accent-soft);
+}
+.proto-brand-mark img { width: 30px; height: 30px; border-radius: 8px; }
+.proto-brand-info { display: flex; flex-direction: column; }
+.proto-brand-name { font-size: 13px; font-weight: 600; color: var(--p-ink0); }
+.proto-brand-ver { font-size: 10px; color: var(--p-ink3); }
+.proto-status {
+  display: flex; align-items: center; gap: 6px; padding: 0 6px; margin-bottom: 14px;
+  font-size: 10px; color: var(--p-ink2);
+}
+.proto-status-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--p-good);
+  box-shadow: 0 0 6px var(--p-good);
+}
+.proto-nav-label {
+  font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--p-ink3); padding: 0 6px; margin: 8px 0 4px;
+}
+.proto-nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+  border-radius: 8px; cursor: pointer; font-size: 12.5px; font-weight: 500;
+  color: var(--p-ink2); transition: all 0.12s; border: 1px solid transparent;
+}
+.proto-nav-item:hover { background: var(--p-bg2); color: var(--p-ink1); }
+.proto-nav-item.active {
+  background: var(--p-accent-soft); color: var(--p-accent);
+  border-color: rgba(212,160,84,0.1);
+}
+.proto-nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+.proto-side-footer {
+  margin-top: auto; padding: 8px 6px 0;
+  border-top: 1px solid var(--p-line1);
+}
+.proto-theme-row {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
+}
+.proto-theme-row svg { width: 12px; height: 12px; color: var(--p-ink3); }
+.proto-theme-label { font-size: 10px; color: var(--p-ink3); flex: 1; }
+.proto-switch {
+  width: 30px; height: 17px; border-radius: 10px; background: var(--p-bg4);
+  position: relative; cursor: pointer; transition: background 0.14s;
+}
+.proto-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 13px; height: 13px; border-radius: 50%; background: white;
+  transition: transform 0.14s cubic-bezier(.4,1.4,.5,1);
+}
+.proto-switch.on { background: var(--p-accent); }
+.proto-switch.on::after { transform: translateX(13px); }
+.proto-footer-text { font-size: 9.5px; color: var(--p-ink3); line-height: 1.4; }
+
+/* Content area */
+.proto-content {
+  flex: 1; overflow-y: auto; padding: 22px 28px 28px;
+  scrollbar-width: thin; scrollbar-color: var(--p-bg3) transparent;
+}
+.proto-content::-webkit-scrollbar { width: 8px; }
+.proto-content::-webkit-scrollbar-track { background: transparent; }
+.proto-content::-webkit-scrollbar-thumb { background: var(--p-bg3); border-radius: 4px; }
+
+.proto-page { display: none; animation: protoFade 0.18s ease-out; }
+.proto-page.active { display: block; }
+@keyframes protoFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+.proto-page-title { font-size: 18px; font-weight: 700; color: var(--p-ink0); margin-bottom: 4px; }
+.proto-page-sub { font-size: 11.5px; color: var(--p-ink2); margin-bottom: 18px; line-height: 1.5; }
+
+/* Keycaps */
+.pk {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, var(--p-bg4), var(--p-bg3));
+  border: 1px solid var(--p-line2); border-radius: 6px;
+  padding: 2px 7px; min-width: 24px; font-size: 11px; font-weight: 600;
+  color: var(--p-ink1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 2px 0 rgba(0,0,0,0.4);
+}
+.pk.accent { background: linear-gradient(180deg, var(--p-accent), #b8873e); color: var(--p-accent-ink); border-color: var(--p-accent); }
+.pk.sm { padding: 1px 5px; min-width: 20px; font-size: 10px; border-radius: 5px; }
+.pk.lg { padding: 6px 12px; min-width: 40px; font-size: 18px; border-radius: 10px; }
+
+/* Pill badge */
+.proto-pill {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  border-radius: 999px; font-size: 10px; font-weight: 600;
+  background: var(--p-bg3); color: var(--p-ink2);
+}
+.proto-pill .pdot { width: 5px; height: 5px; border-radius: 50%; }
+.proto-pill .pdot.green { background: var(--p-good); }
+
+/* Cards */
+.proto-card {
+  background: var(--p-bg2); border: 1px solid var(--p-line1);
+  border-radius: 12px; padding: 14px; margin-bottom: 12px;
+}
+
+/* ─── SLOTS PAGE ─── */
+.proto-slots-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.proto-slots-pills { display: flex; gap: 8px; }
+.proto-slots-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 14px;
+}
+.proto-slot {
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 10px;
+  padding: 10px; cursor: pointer; transition: all 0.12s; min-height: 90px;
+}
+.proto-slot:hover { border-color: var(--p-line2); }
+.proto-slot.selected { border-color: var(--p-accent); background: rgba(212,160,84,0.05); }
+.proto-slot-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.proto-slot-prompt { font-size: 9.5px; font-weight: 600; color: var(--p-accent); margin-bottom: 3px; }
+.proto-slot-prompt.empty { color: var(--p-ink3); font-style: italic; font-weight: 400; }
+.proto-slot-preview { font-size: 9px; color: var(--p-ink2); line-height: 1.4; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.proto-slot-preview.empty { color: var(--p-ink3); font-style: italic; }
+
+/* Detail panel */
+.proto-detail {
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 12px;
+  padding: 16px; display: flex; gap: 20px;
+}
+.proto-detail-left { display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 80px; }
+.proto-detail-right { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.proto-detail-label { font-size: 10px; font-weight: 600; color: var(--p-ink3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.proto-detail-box {
+  background: var(--p-bg0); border: 1px solid var(--p-line1); border-radius: 8px;
+  padding: 8px; font-size: 10px; color: var(--p-ink2); min-height: 50px; line-height: 1.5;
+}
+
+/* ─── PROMPTS PAGE ─── */
+.proto-prompts { display: flex; gap: 16px; height: 380px; }
+.proto-prompts-list { width: 220px; flex-shrink: 0; display: flex; flex-direction: column; gap: 6px; }
+.proto-prompt-new {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border-radius: 8px; font-size: 11.5px; font-weight: 600;
+  background: var(--p-accent); color: var(--p-accent-ink); cursor: pointer;
+  border: none; width: 100%;
+}
+.proto-prompt-row {
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 10px;
+  padding: 10px 12px; cursor: pointer; transition: all 0.12s;
+}
+.proto-prompt-row:hover { border-color: var(--p-line2); }
+.proto-prompt-row.active { border-color: var(--p-accent); background: rgba(212,160,84,0.05); }
+.proto-prompt-name { font-size: 12px; font-weight: 600; color: var(--p-ink0); margin-bottom: 3px; }
+.proto-prompt-preview { font-size: 10px; color: var(--p-ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.proto-prompt-badge { display: inline-flex; margin-top: 5px; }
+.proto-prompts-editor { flex: 1; display: flex; flex-direction: column; }
+.proto-editor-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.proto-editor-name {
+  background: transparent; border: 1px solid var(--p-line1); border-radius: 8px;
+  padding: 6px 10px; color: var(--p-ink0); font-size: 14px; font-weight: 600;
+  font-family: var(--font); flex: 1; margin-right: 10px; outline: none;
+}
+.proto-editor-name:focus { border-color: var(--p-accent); }
+.proto-del-btn {
+  background: transparent; border: 1px solid rgba(212,84,84,0.3); border-radius: 8px;
+  padding: 6px 12px; color: var(--p-bad); font-size: 11px; font-weight: 600;
+  cursor: pointer; font-family: var(--font);
+}
+.proto-textarea {
+  flex: 1; background: var(--p-bg0); border: 1px solid var(--p-line1); border-radius: 8px;
+  padding: 10px; color: var(--p-ink1); font-size: 11.5px; font-family: var(--font);
+  resize: none; outline: none; line-height: 1.5; margin-bottom: 8px;
+}
+.proto-textarea:focus { border-color: var(--p-accent); }
+.proto-editor-help { font-size: 10px; color: var(--p-ink3); margin-bottom: 12px; }
+.proto-keycap-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+/* ─── SHORTCUTS PAGE ─── */
+.proto-shortcut-row {
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 12px;
+}
+.proto-shortcut-info { flex: 1; }
+.proto-shortcut-title { font-size: 12.5px; font-weight: 600; color: var(--p-ink0); margin-bottom: 2px; }
+.proto-shortcut-help { font-size: 10.5px; color: var(--p-ink2); }
+.proto-shortcut-keys { display: flex; align-items: center; gap: 4px; }
+.proto-shortcut-keys .plus { font-size: 10px; color: var(--p-ink3); }
+.proto-shortcut-keys .hint { font-size: 10px; color: var(--p-ink3); font-style: italic; }
+.proto-change-btn {
+  background: var(--p-bg3); border: 1px solid var(--p-line2); border-radius: 8px;
+  padding: 6px 14px; font-size: 11px; font-weight: 600; color: var(--p-ink1);
+  cursor: pointer; font-family: var(--font); white-space: nowrap;
+}
+.proto-shortcut-footer { font-size: 10px; color: var(--p-ink3); margin-top: 6px; }
+
+/* ─── AI ENGINE PAGE ─── */
+.proto-engine-status {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 12px;
+  padding: 16px; margin-bottom: 18px;
+}
+.proto-engine-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(94,201,152,0.15); display: flex; align-items: center; justify-content: center;
+  color: var(--p-good);
+}
+.proto-engine-icon svg { width: 20px; height: 20px; }
+.proto-engine-info { flex: 1; }
+.proto-engine-title { font-size: 13px; font-weight: 600; color: var(--p-ink0); display: flex; align-items: center; gap: 8px; }
+.proto-engine-help { font-size: 10.5px; color: var(--p-ink2); margin-top: 2px; }
+.proto-refresh-btn {
+  background: var(--p-bg3); border: 1px solid var(--p-line2); border-radius: 8px;
+  padding: 6px 12px; font-size: 11px; font-weight: 500; color: var(--p-ink1);
+  cursor: pointer; font-family: var(--font);
+}
+.proto-models-label { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--p-ink3); margin-bottom: 10px; }
+.proto-model {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 12px;
+  padding: 14px; margin-bottom: 8px;
+}
+.proto-model-info { flex: 1; }
+.proto-model-name { font-size: 12.5px; font-weight: 600; color: var(--p-ink0); display: flex; align-items: center; gap: 8px; }
+.proto-model-blurb { font-size: 10px; color: var(--p-ink2); margin: 2px 0 6px; }
+.proto-model-stats { display: flex; gap: 12px; font-size: 9.5px; color: var(--p-ink3); }
+.proto-model-stats span { display: flex; align-items: center; gap: 4px; }
+.proto-dots { display: flex; gap: 2px; }
+.proto-dots i {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--p-bg4);
+}
+.proto-dots i.filled { background: var(--p-accent); }
+.proto-model-btn {
+  background: var(--p-bg3); border: 1px solid var(--p-line2); border-radius: 8px;
+  padding: 6px 14px; font-size: 11px; font-weight: 600; color: var(--p-ink1);
+  cursor: pointer; font-family: var(--font); white-space: nowrap;
+}
+.proto-model-btn.primary { background: var(--p-accent); color: var(--p-accent-ink); border-color: var(--p-accent); }
+.proto-model-btn.active { opacity: 0.6; cursor: default; }
+
+/* ─── DISPLAY PAGE ─── */
+.proto-display { display: grid; grid-template-columns: 1.2fr 1fr; gap: 18px; }
+.proto-hud-preview {
+  background: radial-gradient(ellipse at 30% 40%, rgba(40,32,26,0.9) 0%, var(--p-bg0) 100%);
+  border: 1px solid var(--p-line1); border-radius: 12px; position: relative;
+  min-height: 340px; overflow: hidden;
+}
+.proto-hud-float {
+  position: absolute; width: 240px;
+  background: rgba(28,24,21,0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(244,236,228,0.1); border-radius: 14px;
+  padding: 12px; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.5);
+  transition: all 0.3s ease;
+}
+.proto-hud-float.pos-br { bottom: 14px; right: 14px; }
+.proto-hud-float.pos-bl { bottom: 14px; left: 14px; }
+.proto-hud-float.pos-tr { top: 14px; right: 14px; }
+.proto-hud-float.pos-tl { top: 14px; left: 14px; }
+.proto-hud-float.pos-tc { top: 14px; left: 50%; transform: translateX(-50%); }
+.proto-hud-float.pos-bc { bottom: 14px; left: 50%; transform: translateX(-50%); }
+.proto-hud-float.pos-ml { top: 50%; left: 14px; transform: translateY(-50%); }
+.proto-hud-float.pos-mc { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.proto-hud-float.pos-mr { top: 50%; right: 14px; transform: translateY(-50%); }
+.proto-hud-float.solid { background: var(--p-bg2); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.proto-hud-float.minimal { width: 180px; padding: 8px; }
+.proto-hud-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(244,236,228,0.06); }
+.proto-hud-logo { width: 20px; height: 20px; border-radius: 6px; background: linear-gradient(135deg, var(--p-accent), #9a6530); display: flex; align-items: center; justify-content: center; }
+.proto-hud-logo img { width: 14px; height: 14px; border-radius: 4px; }
+.proto-hud-title { font-size: 10px; font-weight: 600; color: var(--p-ink0); flex: 1; }
+.proto-hud-count { font-size: 9px; color: var(--p-ink3); }
+.proto-hud-slot { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+.proto-hud-num {
+  width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; flex-shrink: 0;
+}
+.proto-hud-slot-info { flex: 1; min-width: 0; }
+.proto-hud-prompt { font-size: 8.5px; color: var(--p-accent); font-weight: 600; }
+.proto-hud-text { font-size: 9px; color: var(--p-ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.proto-controls { display: flex; flex-direction: column; gap: 10px; }
+.proto-ctrl-card {
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 10px; padding: 12px;
+}
+.proto-ctrl-title { font-size: 11px; font-weight: 600; color: var(--p-ink0); margin-bottom: 6px; }
+.proto-ctrl-help { font-size: 9.5px; color: var(--p-ink3); }
+.proto-pos-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 8px 0;
+}
+.proto-pos-cell {
+  aspect-ratio: 1.6; border-radius: 6px; background: var(--p-bg3); border: 1px solid var(--p-line1);
+  cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center;
+}
+.proto-pos-cell:hover { border-color: var(--p-line2); }
+.proto-pos-cell.active { background: var(--p-accent-soft); border-color: var(--p-accent); }
+.proto-pos-cell.active::after {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--p-accent);
+}
+.proto-appear-row { display: flex; gap: 4px; margin: 6px 0; }
+.proto-appear-btn {
+  flex: 1; padding: 6px; border-radius: 7px; text-align: center;
+  font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.12s;
+  background: var(--p-bg3); border: 1px solid var(--p-line1); color: var(--p-ink2);
+}
+.proto-appear-btn:hover { border-color: var(--p-line2); }
+.proto-appear-btn.active { background: var(--p-accent-soft); border-color: var(--p-accent); color: var(--p-accent); }
+.proto-color-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.proto-color-input {
+  width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--p-line2);
+  cursor: pointer; background: var(--p-accent); padding: 0; overflow: hidden;
+}
+.proto-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+.proto-color-input::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+/* ─── ABOUT PAGE ─── */
+.proto-about-brand {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 12px;
+  padding: 18px; margin-bottom: 18px;
+}
+.proto-about-logo {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--p-accent), #9a6530);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px -4px var(--p-accent-soft);
+}
+.proto-about-logo img { width: 36px; height: 36px; border-radius: 10px; }
+.proto-about-name { font-size: 17px; font-weight: 700; color: var(--p-ink0); }
+.proto-about-tag { font-size: 11px; color: var(--p-ink2); margin-top: 2px; }
+.proto-howto { margin-top: 6px; }
+.proto-howto-title { font-size: 13px; font-weight: 600; color: var(--p-ink0); margin-bottom: 12px; }
+.proto-howto-step {
+  display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px;
+  background: var(--p-bg2); border: 1px solid var(--p-line1); border-radius: 10px; padding: 12px;
+}
+.proto-step-num {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  background: var(--p-accent-soft); color: var(--p-accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.proto-step-text { font-size: 11.5px; color: var(--p-ink1); line-height: 1.5; }
+
+/* Tooltip */
+.proto-tooltip {
+  position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) translateY(100%);
+  background: var(--p-bg4); color: var(--p-ink0); font-size: 10px; padding: 4px 10px;
+  border-radius: 6px; white-space: nowrap; pointer-events: none; opacity: 0;
+  transition: opacity 0.15s; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.proto:hover .proto-tooltip-trigger:hover .proto-tooltip { opacity: 1; }
+
+@media (max-width: 768px) {
+  .proto { height: auto; flex-direction: column; }
+  .proto-side { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 10px; gap: 4px; }
+  .proto-nav-label { display: none; }
+  .proto-brand { margin-bottom: 0; }
+  .proto-status { margin-bottom: 0; }
+  .proto-side-footer { display: none; }
+  .proto-display { grid-template-columns: 1fr; }
+  .proto-prompts { flex-direction: column; height: auto; }
+  .proto-prompts-list { width: 100%; }
+  .proto-slots-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ─── Features Grid ─── */
@@ -518,8 +893,416 @@ footer {
         View on GitHub
       </a>
     </div>
+    <!-- Interactive Prototype -->
     <div class="hero-screenshot fade-up">
-      <img src="images/desktop-hud.png" alt="CopyCat HUD floating over your desktop — showing clipboard slots at a glance">
+      <div class="proto" id="proto">
+        <!-- Sidebar -->
+        <div class="proto-side">
+          <div class="proto-brand">
+            <div class="proto-brand-mark"><img src="images/logo.png" alt=""></div>
+            <div class="proto-brand-info">
+              <span class="proto-brand-name">CopyCat</span>
+              <span class="proto-brand-ver">v0.1.0</span>
+            </div>
+          </div>
+          <div class="proto-status">
+            <span class="proto-status-dot"></span>
+            gemma3:4b · ready
+          </div>
+          <div class="proto-nav-label">Workflow</div>
+          <div class="proto-nav-item active" data-page="slots" onclick="protoNav(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            Slots
+          </div>
+          <div class="proto-nav-item" data-page="prompts" onclick="protoNav(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Prompts
+          </div>
+          <div class="proto-nav-item" data-page="shortcuts" onclick="protoNav(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h4M14 8h4M6 12h3M12 12h6M6 16h8"/></svg>
+            Shortcuts
+          </div>
+          <div class="proto-nav-label">System</div>
+          <div class="proto-nav-item" data-page="ai-engine" onclick="protoNav(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            AI Engine
+          </div>
+          <div class="proto-nav-item" data-page="display" onclick="protoNav(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Display
+          </div>
+          <div class="proto-nav-item" data-page="about" onclick="protoNav(this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            About
+          </div>
+          <div class="proto-side-footer">
+            <div class="proto-theme-row">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              <span class="proto-theme-label">Light mode</span>
+              <div class="proto-switch" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="proto-footer-text">Local-only. Your text never leaves this machine.</div>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="proto-content">
+
+          <!-- SLOTS PAGE -->
+          <div class="proto-page active" id="proto-slots">
+            <div class="proto-slots-header">
+              <div>
+                <div class="proto-page-title">Slots</div>
+                <div class="proto-page-sub">Ten keyboard-shortcut slots. Assign an AI prompt to a number key, then ⌘⌥ + that number transforms whatever you copy.</div>
+              </div>
+              <div class="proto-slots-pills">
+                <span class="proto-pill"><span class="pdot green"></span> 3 filled</span>
+                <span class="proto-pill">5 / 10 mapped</span>
+              </div>
+            </div>
+            <div class="proto-slots-grid">
+              <div class="proto-slot selected" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk accent sm">1</span></div>
+                <div class="proto-slot-prompt">★ Summarize</div>
+                <div class="proto-slot-preview">The quick brown fox jumped over the lazy dog near…</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk accent sm">2</span></div>
+                <div class="proto-slot-prompt">★ Fix Grammar</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk accent sm">3</span></div>
+                <div class="proto-slot-prompt">★ Translate ES</div>
+                <div class="proto-slot-preview">Meeting notes from the quarterly review with…</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk sm">4</span></div>
+                <div class="proto-slot-prompt empty">No prompt</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk accent sm">5</span></div>
+                <div class="proto-slot-prompt">★ Bullet Points</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk sm">6</span></div>
+                <div class="proto-slot-prompt empty">No prompt</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk sm">7</span></div>
+                <div class="proto-slot-prompt empty">No prompt</div>
+                <div class="proto-slot-preview">Dear team, I wanted to follow up on the action…</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk accent sm">8</span></div>
+                <div class="proto-slot-prompt">★ Redline</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk sm">9</span></div>
+                <div class="proto-slot-prompt empty">No prompt</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+              <div class="proto-slot" onclick="protoSelectSlot(this)">
+                <div class="proto-slot-top"><span class="pk sm">0</span></div>
+                <div class="proto-slot-prompt empty">No prompt</div>
+                <div class="proto-slot-preview empty">Empty</div>
+              </div>
+            </div>
+            <div class="proto-detail">
+              <div class="proto-detail-left">
+                <span class="pk lg accent">1</span>
+                <span style="font-size:12px;font-weight:600;color:var(--p-ink0)">Slot 1</span>
+                <span style="font-size:9px;color:var(--p-ink2);text-align:center">Press <span class="pk sm">⌘</span> <span class="pk sm">⌥</span> <span class="pk sm">1</span> to copy</span>
+              </div>
+              <div class="proto-detail-right">
+                <div>
+                  <div class="proto-detail-label">AI Prompt</div>
+                  <div class="proto-detail-box" style="color:var(--p-accent);font-weight:500">★ Summarize</div>
+                </div>
+                <div>
+                  <div class="proto-detail-label">Current Content</div>
+                  <div class="proto-detail-box">The quick brown fox jumped over the lazy dog near the riverbank while the sun set behind the mountains…</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROMPTS PAGE -->
+          <div class="proto-page" id="proto-prompts">
+            <div class="proto-page-title">Prompts</div>
+            <div class="proto-page-sub">Create AI prompts and assign them to clipboard slots.</div>
+            <div class="proto-prompts">
+              <div class="proto-prompts-list">
+                <button class="proto-prompt-new">+ New prompt</button>
+                <div class="proto-prompt-row active">
+                  <div class="proto-prompt-name">Summarize</div>
+                  <div class="proto-prompt-preview">Summarize the following text into 5 concise…</div>
+                  <div class="proto-prompt-badge"><span class="pk sm accent">1</span></div>
+                </div>
+                <div class="proto-prompt-row" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active')">
+                  <div class="proto-prompt-name">Fix Grammar</div>
+                  <div class="proto-prompt-preview">Fix all grammar and spelling errors in the…</div>
+                  <div class="proto-prompt-badge"><span class="pk sm accent">2</span></div>
+                </div>
+                <div class="proto-prompt-row" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active')">
+                  <div class="proto-prompt-name">Translate to Spanish</div>
+                  <div class="proto-prompt-preview">Translate the following text to Spanish…</div>
+                  <div class="proto-prompt-badge"><span class="pk sm accent">3</span></div>
+                </div>
+                <div class="proto-prompt-row" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active')">
+                  <div class="proto-prompt-name">Bullet Points</div>
+                  <div class="proto-prompt-preview">Extract the key points from this text and…</div>
+                  <div class="proto-prompt-badge"><span class="pk sm accent">5</span></div>
+                </div>
+                <div class="proto-prompt-row" onclick="this.parentElement.querySelector('.active').classList.remove('active');this.classList.add('active')">
+                  <div class="proto-prompt-name">Redline Contract</div>
+                  <div class="proto-prompt-preview">Review this contract clause and identify…</div>
+                  <div class="proto-prompt-badge"><span class="pk sm accent">8</span></div>
+                </div>
+              </div>
+              <div class="proto-prompts-editor">
+                <div class="proto-editor-header">
+                  <input class="proto-editor-name" value="Summarize" readonly>
+                  <button class="proto-del-btn">Delete</button>
+                </div>
+                <div class="proto-detail-label">Prompt Template</div>
+                <textarea class="proto-textarea" readonly>Summarize the following text into 5 concise bullet points. Focus on the key takeaways and most important information. Keep each bullet point to one sentence.</textarea>
+                <div class="proto-editor-help">The copied text is automatically appended to the prompt before being sent to the AI.</div>
+                <div class="proto-detail-label">Assign to Keyboard Slot</div>
+                <div class="proto-keycap-row">
+                  <span class="pk sm accent">1</span>
+                  <span class="pk sm" style="opacity:0.4">2</span>
+                  <span class="pk sm" style="opacity:0.4">3</span>
+                  <span class="pk sm">4</span>
+                  <span class="pk sm" style="opacity:0.4">5</span>
+                  <span class="pk sm">6</span>
+                  <span class="pk sm">7</span>
+                  <span class="pk sm" style="opacity:0.4">8</span>
+                  <span class="pk sm">9</span>
+                  <span class="pk sm">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SHORTCUTS PAGE -->
+          <div class="proto-page" id="proto-shortcuts">
+            <div class="proto-page-title">Shortcuts</div>
+            <div class="proto-page-sub">Configure modifier keys for each action. The slot number (1–0) is added automatically.</div>
+            <div class="proto-shortcut-row">
+              <div class="proto-shortcut-info">
+                <div class="proto-shortcut-title">Copy to slot</div>
+                <div class="proto-shortcut-help">Modifier keys — press with 1-0 to copy to that slot</div>
+              </div>
+              <div class="proto-shortcut-keys">
+                <span class="pk sm">⌘</span><span class="plus">+</span><span class="pk sm">⌥</span><span class="plus">+</span><span class="hint">1-0</span>
+              </div>
+              <button class="proto-change-btn">Change</button>
+            </div>
+            <div class="proto-shortcut-row">
+              <div class="proto-shortcut-info">
+                <div class="proto-shortcut-title">Paste from slot</div>
+                <div class="proto-shortcut-help">Modifier keys — press with 1-0 to paste that slot</div>
+              </div>
+              <div class="proto-shortcut-keys">
+                <span class="pk sm">⌘</span><span class="plus">+</span><span class="pk sm">⌥</span><span class="plus">+</span><span class="pk sm">⇧</span><span class="plus">+</span><span class="hint">1-0</span>
+              </div>
+              <button class="proto-change-btn">Change</button>
+            </div>
+            <div class="proto-shortcut-row">
+              <div class="proto-shortcut-info">
+                <div class="proto-shortcut-title">Toggle HUD</div>
+                <div class="proto-shortcut-help">Show or hide the floating HUD</div>
+              </div>
+              <div class="proto-shortcut-keys">
+                <span class="pk sm">⌃</span><span class="plus">+</span><span class="pk sm">⌥</span><span class="plus">+</span><span class="pk sm">⌘</span><span class="plus">+</span><span class="pk sm">␣</span>
+              </div>
+              <button class="proto-change-btn">Change</button>
+            </div>
+            <div class="proto-shortcut-row">
+              <div class="proto-shortcut-info">
+                <div class="proto-shortcut-title">Clear all slots</div>
+                <div class="proto-shortcut-help">Empty every slot at once</div>
+              </div>
+              <div class="proto-shortcut-keys">
+                <span class="pk sm">⌘</span><span class="plus">+</span><span class="pk sm">⌥</span><span class="plus">+</span><span class="pk sm">⌫</span>
+              </div>
+              <button class="proto-change-btn">Change</button>
+            </div>
+            <div class="proto-shortcut-footer">Press Esc to cancel recording. Changes apply immediately.</div>
+          </div>
+
+          <!-- AI ENGINE PAGE -->
+          <div class="proto-page" id="proto-ai-engine">
+            <div class="proto-page-title">AI Engine</div>
+            <div class="proto-page-sub">Manage the local AI model that powers text transformations.</div>
+            <div class="proto-engine-status">
+              <div class="proto-engine-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="proto-engine-info">
+                <div class="proto-engine-title">Local engine <span class="proto-pill"><span class="pdot green"></span> Running</span></div>
+                <div class="proto-engine-help">Powered by Ollama. All processing happens on your Mac — your text never leaves the device.</div>
+              </div>
+              <button class="proto-refresh-btn">Refresh</button>
+            </div>
+            <div class="proto-models-label">Available Models</div>
+            <div class="proto-model">
+              <div class="proto-model-info">
+                <div class="proto-model-name">TinyLlama 1.1B <span class="proto-pill">tinyllama</span></div>
+                <div class="proto-model-blurb">Ultra-fast, lightweight — great for simple tasks</div>
+                <div class="proto-model-stats">
+                  <span>640 MB</span>
+                  <span>Speed <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i></span></span>
+                  <span>Quality <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i></i><i></i><i></i></span></span>
+                </div>
+              </div>
+              <button class="proto-model-btn">⬇ Download</button>
+            </div>
+            <div class="proto-model">
+              <div class="proto-model-info">
+                <div class="proto-model-name">Gemma 3 4B <span class="proto-pill"><span class="pdot green"></span> active</span></div>
+                <div class="proto-model-blurb">Google's latest — fast with strong reasoning</div>
+                <div class="proto-model-stats">
+                  <span>2.9 GB</span>
+                  <span>Speed <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i><i></i></span></span>
+                  <span>Quality <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i><i></i></span></span>
+                </div>
+              </div>
+              <button class="proto-model-btn active">✓ In use</button>
+            </div>
+            <div class="proto-model">
+              <div class="proto-model-info">
+                <div class="proto-model-name">Llama 3.2 3B <span class="proto-pill">llama3.2</span></div>
+                <div class="proto-model-blurb">Meta's compact model — great balance of speed and quality</div>
+                <div class="proto-model-stats">
+                  <span>2.0 GB</span>
+                  <span>Speed <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i><i></i></span></span>
+                  <span>Quality <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i><i></i></span></span>
+                </div>
+              </div>
+              <button class="proto-model-btn primary">Use this</button>
+            </div>
+            <div class="proto-model">
+              <div class="proto-model-info">
+                <div class="proto-model-name">Qwen 2.5 7B <span class="proto-pill">qwen2.5:7b</span></div>
+                <div class="proto-model-blurb">Highest quality — best for complex transformations</div>
+                <div class="proto-model-stats">
+                  <span>4.7 GB</span>
+                  <span>Speed <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i></i><i></i></span></span>
+                  <span>Quality <span class="proto-dots"><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i><i class="filled"></i></span></span>
+                </div>
+              </div>
+              <button class="proto-model-btn">⬇ Download</button>
+            </div>
+          </div>
+
+          <!-- DISPLAY PAGE -->
+          <div class="proto-page" id="proto-display">
+            <div class="proto-page-title">Display</div>
+            <div class="proto-page-sub">Customize the floating HUD overlay.</div>
+            <div class="proto-display">
+              <div class="proto-hud-preview">
+                <div class="proto-hud-float pos-br" id="proto-hud-float">
+                  <div class="proto-hud-header">
+                    <div class="proto-hud-logo"><img src="images/logo.png" alt=""></div>
+                    <span class="proto-hud-title">CopyCat</span>
+                    <span class="proto-hud-count">3 slots</span>
+                  </div>
+                  <div class="proto-hud-slot">
+                    <div class="proto-hud-num" style="background:var(--p-accent-soft);color:var(--p-accent)">1</div>
+                    <div class="proto-hud-slot-info">
+                      <div class="proto-hud-prompt">Summarize</div>
+                      <div class="proto-hud-text">The quick brown fox jumped…</div>
+                    </div>
+                  </div>
+                  <div class="proto-hud-slot">
+                    <div class="proto-hud-num" style="background:var(--p-accent-soft);color:var(--p-accent)">3</div>
+                    <div class="proto-hud-slot-info">
+                      <div class="proto-hud-prompt">Translate ES</div>
+                      <div class="proto-hud-text">Meeting notes from the qu…</div>
+                    </div>
+                  </div>
+                  <div class="proto-hud-slot">
+                    <div class="proto-hud-num" style="background:var(--p-bg3);color:var(--p-ink2)">7</div>
+                    <div class="proto-hud-slot-info">
+                      <div class="proto-hud-text">Dear team, I wanted to fo…</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="proto-controls">
+                <div class="proto-ctrl-card">
+                  <div class="proto-ctrl-title">Position</div>
+                  <div class="proto-pos-grid">
+                    <div class="proto-pos-cell" data-pos="tl" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="tc" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="tr" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="ml" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="mc" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="mr" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="bl" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell" data-pos="bc" onclick="protoSetPos(this)"></div>
+                    <div class="proto-pos-cell active" data-pos="br" onclick="protoSetPos(this)"></div>
+                  </div>
+                </div>
+                <div class="proto-ctrl-card">
+                  <div class="proto-ctrl-title">Appearance</div>
+                  <div class="proto-appear-row">
+                    <div class="proto-appear-btn active" onclick="protoSetAppear(this,'glass')">Glass</div>
+                    <div class="proto-appear-btn" onclick="protoSetAppear(this,'solid')">Solid</div>
+                    <div class="proto-appear-btn" onclick="protoSetAppear(this,'minimal')">Minimal</div>
+                  </div>
+                </div>
+                <div class="proto-ctrl-card">
+                  <div class="proto-ctrl-title">Accent Color</div>
+                  <div class="proto-color-row">
+                    <input type="color" class="proto-color-input" value="#d4a054" onchange="protoSetColor(this.value)">
+                    <span class="proto-ctrl-help">Customize the HUD accent color</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ABOUT PAGE -->
+          <div class="proto-page" id="proto-about">
+            <div class="proto-about-brand">
+              <div class="proto-about-logo"><img src="images/logo.png" alt=""></div>
+              <div>
+                <div class="proto-about-name">CopyCat</div>
+                <div class="proto-about-tag">v0.1.0 — Ten clipboards. One keyboard. Zero cloud.</div>
+              </div>
+            </div>
+            <div class="proto-howto">
+              <div class="proto-howto-title">How it works</div>
+              <div class="proto-howto-step">
+                <div class="proto-step-num">1</div>
+                <div class="proto-step-text">Assign an AI prompt to a number key (1–0) in <strong>Slots</strong>.</div>
+              </div>
+              <div class="proto-howto-step">
+                <div class="proto-step-num">2</div>
+                <div class="proto-step-text">Select text anywhere and press <span class="pk sm">⌘</span> <span class="pk sm">⌥</span> + the number — CopyCat transforms it with the prompt.</div>
+              </div>
+              <div class="proto-howto-step">
+                <div class="proto-step-num">3</div>
+                <div class="proto-step-text">Paste the transformed text anywhere with <span class="pk sm">⌘</span> <span class="pk sm">⌥</span> <span class="pk sm">⇧</span> + the same number.</div>
+              </div>
+            </div>
+            <div class="proto-card" style="margin-top:14px">
+              <div style="font-size:11px;color:var(--p-ink2);display:flex;align-items:center;gap:8px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;color:var(--p-good);flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>All AI processing happens locally on your device. Your text never leaves this machine — no cloud, no accounts, no telemetry.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -895,6 +1678,45 @@ function handleBetaSubmit(e) {
     // Fallback: open mailto
     window.location.href = 'mailto:beta@copycat.app?subject=Beta Signup&body=I want to join the CopyCat beta! Email: ' + encodeURIComponent(email);
   });
+}
+
+// ─── Interactive Prototype ───
+function protoNav(el) {
+  document.querySelectorAll('.proto-nav-item').forEach(n => n.classList.remove('active'));
+  el.classList.add('active');
+  const page = el.dataset.page;
+  document.querySelectorAll('.proto-page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('proto-' + page);
+  if (target) { target.classList.add('active'); target.style.animation = 'none'; target.offsetHeight; target.style.animation = ''; }
+}
+function protoSelectSlot(el) {
+  document.querySelectorAll('.proto-slot').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function protoSetPos(el) {
+  document.querySelectorAll('.proto-pos-cell').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const hud = document.getElementById('proto-hud-float');
+  hud.className = 'proto-hud-float pos-' + el.dataset.pos;
+  if (hud.dataset.appear === 'solid') hud.classList.add('solid');
+  if (hud.dataset.appear === 'minimal') hud.classList.add('minimal');
+}
+function protoSetAppear(el, mode) {
+  document.querySelectorAll('.proto-appear-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const hud = document.getElementById('proto-hud-float');
+  hud.dataset.appear = mode;
+  hud.classList.remove('solid', 'minimal');
+  if (mode === 'solid') hud.classList.add('solid');
+  if (mode === 'minimal') hud.classList.add('minimal');
+}
+function protoSetColor(color) {
+  const hud = document.getElementById('proto-hud-float');
+  hud.querySelectorAll('.proto-hud-num').forEach((n, i) => {
+    if (i < 2) { n.style.background = color + '28'; n.style.color = color; }
+  });
+  hud.querySelector('.proto-hud-prompt').style.color = color;
+  hud.querySelectorAll('.proto-hud-prompt').forEach(p => p.style.color = color);
 }
 
 // Smooth scroll for anchor links
