@@ -576,61 +576,170 @@ nav {
 @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
 
-/* ─── Showcase ─── */
-.showcase {
-  background: var(--bg-0);
-  position: relative;
-}
-.showcase::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(800px 600px at 30% 50%, rgba(212, 160, 84, 0.04) 0%, transparent 60%);
+/* ─── Shortcuts Demo ─── */
+.shortcuts-demo { background: var(--bg-0); position: relative; }
+.shortcuts-demo::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(800px 600px at 30% 50%, rgba(212,160,84,0.04) 0%, transparent 60%);
   pointer-events: none;
 }
-.showcase-header {
-  text-align: center; margin-bottom: 60px; position: relative; z-index: 1;
-}
-.showcase-header p {
-  color: var(--ink-2); font-size: 1.1rem;
-  max-width: 560px; margin: 12px auto 0;
-}
-.showcase-item {
+.demo-layout {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 60px; align-items: center;
-  margin-bottom: 80px;
+  gap: 60px; align-items: center; position: relative; z-index: 1;
 }
-.showcase-item:last-child { margin-bottom: 0; }
-.showcase-item.reverse { direction: rtl; }
-.showcase-item.reverse > * { direction: ltr; }
-.showcase-text { position: relative; z-index: 1; }
-.showcase-text .label {
+.demo-text .label {
   font-size: 12px; font-weight: 600; text-transform: uppercase;
   letter-spacing: 0.1em; color: var(--accent); margin-bottom: 12px;
 }
-.showcase-text h2 { margin-bottom: 16px; font-size: clamp(1.4rem, 3vw, 2rem); }
-.showcase-text p { color: var(--ink-2); font-size: 15px; margin-bottom: 16px; }
-.showcase-text ul {
-  list-style: none; display: flex; flex-direction: column; gap: 10px;
-}
-.showcase-text ul li {
+.demo-text h2 { margin-bottom: 16px; font-size: clamp(1.4rem, 3vw, 2rem); color: var(--ink-0); }
+.demo-text p { color: var(--ink-2); font-size: 15px; margin-bottom: 16px; }
+.demo-text ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.demo-text ul li {
   display: flex; align-items: flex-start; gap: 10px;
   font-size: 14px; color: var(--ink-1);
 }
-.showcase-text ul li::before {
-  content: '✓'; color: var(--accent); font-weight: 700;
-  flex-shrink: 0; margin-top: 1px;
+.demo-text ul li::before {
+  content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px;
 }
-.showcase-img {
-  position: relative; z-index: 1;
-  border-radius: 16px; overflow: hidden;
-  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--line-1);
+
+/* Shortcut prototype panel */
+.shortcut-proto {
+  background: var(--bg-1); border: 1px solid rgba(244,236,228,0.08);
+  border-radius: 16px; padding: 24px; position: relative;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,0.5);
 }
-.showcase-img img { width: 100%; display: block; }
+.sp-title { font-size: 16px; font-weight: 700; color: var(--ink-0); margin-bottom: 4px; }
+.sp-sub { font-size: 12px; color: var(--ink-2); margin-bottom: 20px; }
+.sp-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-2); border: 1px solid rgba(244,236,228,0.08);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+.sp-row.recording { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(212,160,84,0.15); }
+.sp-row-info { flex: 1; }
+.sp-row-name { font-size: 13px; font-weight: 600; color: var(--ink-0); }
+.sp-row-help { font-size: 10.5px; color: var(--ink-2); margin-top: 1px; }
+.sp-keys { display: flex; align-items: center; gap: 4px; }
+.sp-keys .plus { font-size: 10px; color: var(--ink-3); }
+.sp-keys .hint { font-size: 10px; color: var(--ink-3); font-style: italic; }
+.sp-btn {
+  padding: 6px 16px; border-radius: 8px; font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1px solid rgba(244,236,228,0.14); font-family: var(--font);
+  transition: all 0.15s; white-space: nowrap;
+}
+.sp-btn.idle { background: var(--bg-3); color: var(--ink-1); }
+.sp-btn.active { background: var(--accent); color: #1c1408; border-color: var(--accent); }
+.sp-footer { font-size: 10px; color: var(--ink-3); margin-top: 8px; }
+
+/* Recording overlay */
+.sp-recording-display {
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  position: absolute; inset: 0; background: rgba(21,17,15,0.96);
+  border-radius: 16px; z-index: 5;
+}
+.sp-recording-display.visible { display: flex; }
+.sp-rec-label { font-size: 13px; color: var(--ink-2); margin-bottom: 16px; }
+.sp-rec-keys {
+  display: flex; align-items: center; gap: 6px; min-height: 48px;
+  flex-wrap: wrap; justify-content: center;
+}
+.sp-rec-keys .sp-key {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(180deg, var(--bg-4), var(--bg-3));
+  border: 1px solid rgba(244,236,228,0.14); border-radius: 10px;
+  padding: 8px 16px; min-width: 44px; font-size: 18px; font-weight: 700;
+  color: var(--ink-0); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 3px 0 rgba(0,0,0,0.4);
+  animation: spKeyPop 0.15s ease-out;
+}
+@keyframes spKeyPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.sp-rec-keys .sp-key.accent {
+  background: linear-gradient(180deg, var(--accent), #b8873e);
+  color: #1c1408; border-color: var(--accent);
+}
+.sp-rec-plus { color: var(--ink-3); font-size: 14px; font-weight: 600; }
+.sp-rec-hint {
+  font-size: 11px; color: var(--ink-3); margin-top: 16px;
+}
+.sp-pulse {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  display: inline-block; margin-right: 8px;
+  animation: spPulse 1s infinite;
+}
+@keyframes spPulse { 0%,100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+.sp-rec-cancel {
+  margin-top: 20px; padding: 8px 20px; border-radius: 8px;
+  background: var(--bg-3); color: var(--ink-1); border: 1px solid rgba(244,236,228,0.14);
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font);
+}
+
+/* ─── AI Models Section ─── */
+.ai-models { background: var(--bg-1); }
+.ai-layout {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 60px; align-items: start; position: relative;
+}
+.ai-text .label {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--accent); margin-bottom: 12px;
+}
+.ai-text h2 { margin-bottom: 16px; font-size: clamp(1.4rem, 3vw, 2rem); color: var(--ink-0); }
+.ai-text p { color: var(--ink-2); font-size: 15px; margin-bottom: 16px; }
+.ai-text ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.ai-text ul li {
+  display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ink-1);
+}
+.ai-text ul li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+.ai-proto {
+  background: var(--bg-0); border: 1px solid rgba(244,236,228,0.08);
+  border-radius: 16px; padding: 20px;
+  box-shadow: 0 30px 80px -20px rgba(0,0,0,0.5);
+}
+.ai-status {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-2); border: 1px solid rgba(244,236,228,0.08);
+  border-radius: 12px; padding: 14px; margin-bottom: 16px;
+}
+.ai-status-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(94,201,152,0.15); display: flex; align-items: center; justify-content: center;
+}
+.ai-status-icon svg { width: 18px; height: 18px; color: var(--good); }
+.ai-status-info { flex: 1; }
+.ai-status-title { font-size: 12px; font-weight: 600; color: var(--ink-0); display: flex; align-items: center; gap: 8px; }
+.ai-status-help { font-size: 10px; color: var(--ink-2); margin-top: 1px; }
+.ai-pill {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  border-radius: 999px; font-size: 10px; font-weight: 600; background: var(--bg-3); color: var(--ink-2);
+}
+.ai-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--good); }
+.ai-model-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-2); border: 1px solid rgba(244,236,228,0.08);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+  transition: border-color 0.15s;
+}
+.ai-model-card:hover { border-color: rgba(244,236,228,0.14); }
+.ai-model-info { flex: 1; }
+.ai-model-name { font-size: 12px; font-weight: 600; color: var(--ink-0); display: flex; align-items: center; gap: 8px; }
+.ai-model-blurb { font-size: 10px; color: var(--ink-2); margin: 2px 0 5px; }
+.ai-model-stats { display: flex; gap: 10px; font-size: 9px; color: var(--ink-3); }
+.ai-model-stats span { display: flex; align-items: center; gap: 3px; }
+.ai-dots { display: flex; gap: 2px; }
+.ai-dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--bg-4); }
+.ai-dots i.on { background: var(--accent); }
+.ai-model-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 600;
+  cursor: pointer; border: 1px solid rgba(244,236,228,0.14); font-family: var(--font);
+  white-space: nowrap; transition: all 0.15s;
+}
+.ai-model-btn.use { background: var(--accent); color: #1c1408; border-color: var(--accent); }
+.ai-model-btn.dl { background: var(--bg-3); color: var(--ink-1); }
+.ai-model-btn.in-use { background: var(--bg-3); color: var(--ink-2); opacity: 0.7; cursor: default; }
 
 @media (max-width: 768px) {
-  .showcase-item, .showcase-item.reverse { grid-template-columns: 1fr; direction: ltr; }
-  .showcase-item.reverse > * { direction: ltr; }
+  .demo-layout, .ai-layout { grid-template-columns: 1fr; }
 }
 
 /* ─── How It Works ─── */
@@ -863,7 +972,7 @@ footer {
     </a>
     <div class="nav-links">
       <a href="#features">Features</a>
-      <a href="#showcase">App Tour</a>
+      <a href="#shortcuts-demo">Shortcuts</a>
       <a href="#how-it-works">How It Works</a>
       <a href="#download">Download</a>
       <a href="#beta" class="nav-cta">Join Beta</a>
@@ -1361,88 +1470,17 @@ footer {
   </div>
 </section>
 
-<!-- Showcase -->
-<section class="showcase" id="showcase">
+<!-- Shortcuts Demo -->
+<section class="shortcuts-demo" id="shortcuts-demo">
   <div class="container">
-    <div class="showcase-header fade-up">
-      <h2>Take the tour.</h2>
-      <p>Six settings pages give you full control over every aspect of CopyCat.</p>
-    </div>
-
-    <!-- 1. Slots -->
-    <div class="showcase-item fade-up">
-      <div class="showcase-text">
-        <div class="label">Slots</div>
-        <h2>Your 10 clipboard slots, at a glance</h2>
-        <p>
-          A 5×2 grid shows all 10 slots with their current contents, assigned prompt,
-          and status. Click any slot to view the full text, switch prompts, or clear it.
-        </p>
-        <ul>
-          <li>Visual slot grid with content preview</li>
-          <li>Assign AI prompts to individual slots</li>
-          <li>See which slots are filled instantly</li>
-          <li>Clear individual slots or all at once</li>
-        </ul>
-      </div>
-      <div class="showcase-img">
-        <img src="images/slots.png" alt="CopyCat Slots page showing 10 clipboard slots in a 5×2 grid">
-      </div>
-    </div>
-
-    <!-- 2. Display -->
-    <div class="showcase-item reverse fade-up">
-      <div class="showcase-text">
-        <div class="label">Display</div>
-        <h2>Design your perfect HUD</h2>
-        <p>
-          The Display page lets you customize every detail of the floating HUD overlay —
-          from its screen position to its visual style and accent color — with a live preview
-          that updates in real time.
-        </p>
-        <ul>
-          <li>Live HUD preview updates as you tweak</li>
-          <li>9-position grid — dock it anywhere on screen</li>
-          <li>Glass, solid, or minimal appearance styles</li>
-          <li>Accent color wheel for full personalization</li>
-        </ul>
-      </div>
-      <div class="showcase-img">
-        <img src="images/display.png" alt="CopyCat Display page with HUD preview, position grid, and accent color picker">
-      </div>
-    </div>
-
-    <!-- 3. Prompts -->
-    <div class="showcase-item fade-up">
-      <div class="showcase-text">
-        <div class="label">AI Prompts</div>
-        <h2>Transform text as you copy</h2>
-        <p>
-          Create custom AI prompts in a split-pane editor. Write a prompt once,
-          assign it to any slot, and every time you copy to that slot the local AI
-          transforms your text automatically.
-        </p>
-        <ul>
-          <li>Split-pane prompt list and editor</li>
-          <li>Summarize, translate, fix grammar — anything</li>
-          <li>Assign prompts to slots with one click</li>
-          <li>Auto-saves as you type</li>
-        </ul>
-      </div>
-      <div class="showcase-img">
-        <img src="images/prompts.png" alt="CopyCat Prompts page showing split-pane prompt editor with slot assignments">
-      </div>
-    </div>
-
-    <!-- 4. Shortcuts -->
-    <div class="showcase-item reverse fade-up">
-      <div class="showcase-text">
+    <div class="demo-layout fade-up">
+      <div class="demo-text">
         <div class="label">Shortcuts</div>
         <h2>Customize every key combo</h2>
         <p>
           Pick your own modifier keys for copy, paste, HUD toggle, and clear actions.
-          Shortcuts are displayed with beautiful keycap-style visuals so you always
-          know what to press.
+          Click "Change" on the prototype to try the key listener — press any modifier
+          combination and watch it update live.
         </p>
         <ul>
           <li>Keycap-style modifier key display</li>
@@ -1451,14 +1489,139 @@ footer {
           <li>Designed to avoid OS shortcut conflicts</li>
         </ul>
       </div>
-      <div class="showcase-img">
-        <img src="images/shortcuts.png" alt="CopyCat Shortcuts page showing keycap-style modifier key configuration">
+      <div class="shortcut-proto" id="shortcut-proto">
+        <div class="sp-title">Shortcuts</div>
+        <div class="sp-sub">Configure modifier keys for each action.</div>
+        <div class="sp-row" id="sp-copy">
+          <div class="sp-row-info">
+            <div class="sp-row-name">Copy to slot</div>
+            <div class="sp-row-help">Modifier keys — press with 1-0 to copy</div>
+          </div>
+          <div class="sp-keys" id="sp-copy-keys">
+            <span class="kbd">⌘</span><span class="plus">+</span><span class="kbd">⌥</span><span class="plus">+</span><span class="hint">1-0</span>
+          </div>
+          <button class="sp-btn idle" onclick="spRecord('copy')">Change</button>
+        </div>
+        <div class="sp-row" id="sp-paste">
+          <div class="sp-row-info">
+            <div class="sp-row-name">Paste from slot</div>
+            <div class="sp-row-help">Modifier keys — press with 1-0 to paste</div>
+          </div>
+          <div class="sp-keys" id="sp-paste-keys">
+            <span class="kbd">⌘</span><span class="plus">+</span><span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">⇧</span><span class="plus">+</span><span class="hint">1-0</span>
+          </div>
+          <button class="sp-btn idle" onclick="spRecord('paste')">Change</button>
+        </div>
+        <div class="sp-row" id="sp-hud">
+          <div class="sp-row-info">
+            <div class="sp-row-name">Toggle HUD</div>
+            <div class="sp-row-help">Show or hide the floating HUD</div>
+          </div>
+          <div class="sp-keys" id="sp-hud-keys">
+            <span class="kbd">⌃</span><span class="plus">+</span><span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">⌘</span><span class="plus">+</span><span class="kbd">␣</span>
+          </div>
+          <button class="sp-btn idle" onclick="spRecord('hud')">Change</button>
+        </div>
+        <div class="sp-row" id="sp-clear">
+          <div class="sp-row-info">
+            <div class="sp-row-name">Clear all slots</div>
+            <div class="sp-row-help">Empty every slot at once</div>
+          </div>
+          <div class="sp-keys" id="sp-clear-keys">
+            <span class="kbd">⌘</span><span class="plus">+</span><span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">⌫</span>
+          </div>
+          <button class="sp-btn idle" onclick="spRecord('clear')">Change</button>
+        </div>
+        <div class="sp-footer">Click "Change" and press your preferred keys to reassign a shortcut.</div>
+
+        <!-- Recording overlay -->
+        <div class="sp-recording-display" id="sp-rec-overlay">
+          <div class="sp-rec-label"><span class="sp-pulse"></span>Press your new shortcut keys…</div>
+          <div class="sp-rec-keys" id="sp-rec-keys"></div>
+          <div class="sp-rec-hint">Press <span class="kbd" style="font-size:11px;padding:2px 6px;">Esc</span> to cancel</div>
+          <button class="sp-rec-cancel" onclick="spCancel()">Cancel</button>
+        </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <!-- 5. AI Engine -->
-    <div class="showcase-item fade-up">
-      <div class="showcase-text">
+<!-- AI Models -->
+<section class="ai-models" id="ai-models">
+  <div class="container">
+    <div class="ai-layout fade-up">
+      <div class="ai-proto">
+        <div class="ai-status">
+          <div class="ai-status-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div class="ai-status-info">
+            <div class="ai-status-title">Local engine <span class="ai-pill"><span class="ai-pill-dot"></span> Running</span></div>
+            <div class="ai-status-help">Powered by Ollama — all processing on your device.</div>
+          </div>
+        </div>
+        <div class="ai-model-card">
+          <div class="ai-model-info">
+            <div class="ai-model-name">TinyLlama 1.1B <span class="ai-pill">tinyllama</span></div>
+            <div class="ai-model-blurb">Ultra-fast, lightweight — great for simple tasks</div>
+            <div class="ai-model-stats">
+              <span>640 MB</span>
+              <span>Speed <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+              <span>Quality <span class="ai-dots"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></span></span>
+            </div>
+          </div>
+          <button class="ai-model-btn dl">⬇ Download</button>
+        </div>
+        <div class="ai-model-card">
+          <div class="ai-model-info">
+            <div class="ai-model-name">Gemma 3 4B <span class="ai-pill"><span class="ai-pill-dot"></span> active</span></div>
+            <div class="ai-model-blurb">Google's latest — fast with strong reasoning</div>
+            <div class="ai-model-stats">
+              <span>2.9 GB</span>
+              <span>Speed <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span>
+              <span>Quality <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span>
+            </div>
+          </div>
+          <button class="ai-model-btn in-use">✓ In use</button>
+        </div>
+        <div class="ai-model-card">
+          <div class="ai-model-info">
+            <div class="ai-model-name">Llama 3.2 3B <span class="ai-pill">llama3.2</span></div>
+            <div class="ai-model-blurb">Meta's compact model — great balance of speed &amp; quality</div>
+            <div class="ai-model-stats">
+              <span>2.0 GB</span>
+              <span>Speed <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span>
+              <span>Quality <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span>
+            </div>
+          </div>
+          <button class="ai-model-btn use">Use this</button>
+        </div>
+        <div class="ai-model-card">
+          <div class="ai-model-info">
+            <div class="ai-model-name">Qwen 2.5 7B <span class="ai-pill">qwen2.5:7b</span></div>
+            <div class="ai-model-blurb">Highest quality — best for complex transformations</div>
+            <div class="ai-model-stats">
+              <span>4.7 GB</span>
+              <span>Speed <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></span>
+              <span>Quality <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
+            </div>
+          </div>
+          <button class="ai-model-btn dl">⬇ Download</button>
+        </div>
+        <div class="ai-model-card">
+          <div class="ai-model-info">
+            <div class="ai-model-name">Mistral 7B <span class="ai-pill">mistral:7b</span></div>
+            <div class="ai-model-blurb">Strong all-rounder — excellent instruction following</div>
+            <div class="ai-model-stats">
+              <span>4.4 GB</span>
+              <span>Speed <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></span></span>
+              <span>Quality <span class="ai-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></span>
+            </div>
+          </div>
+          <button class="ai-model-btn dl">⬇ Download</button>
+        </div>
+      </div>
+      <div class="ai-text">
         <div class="label">AI Engine</div>
         <h2>Local models, zero cloud</h2>
         <p>
@@ -1472,31 +1635,6 @@ footer {
           <li>Ollama connection status at a glance</li>
           <li>All processing stays on your machine</li>
         </ul>
-      </div>
-      <div class="showcase-img">
-        <img src="images/ai-engine.png" alt="CopyCat AI Engine page showing model catalog with Ollama status">
-      </div>
-    </div>
-
-    <!-- 6. About -->
-    <div class="showcase-item reverse fade-up">
-      <div class="showcase-text">
-        <div class="label">About</div>
-        <h2>Built-in getting started guide</h2>
-        <p>
-          The About page includes the CopyCat branding, version info, and a built-in
-          quick-start guide that shows you exactly how to use every feature with
-          inline keycap displays.
-        </p>
-        <ul>
-          <li>Step-by-step how-to guide with keycap visuals</li>
-          <li>Version and build information</li>
-          <li>Links to GitHub and documentation</li>
-          <li>Privacy-first philosophy front and center</li>
-        </ul>
-      </div>
-      <div class="showcase-img">
-        <img src="images/about.png" alt="CopyCat About page showing branding, version info, and getting started guide">
       </div>
     </div>
   </div>
@@ -1717,6 +1855,124 @@ function protoSetColor(color) {
   });
   hud.querySelector('.proto-hud-prompt').style.color = color;
   hud.querySelectorAll('.proto-hud-prompt').forEach(p => p.style.color = color);
+}
+
+// ─── Shortcut Key Listener Demo ───
+const keyMap = {
+  Meta: '⌘', Control: '⌃', Alt: '⌥', Shift: '⇧',
+  ' ': '␣', Backspace: '⌫', Delete: '⌦', Enter: '↩', Tab: '⇥',
+  ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→',
+  Escape: 'Esc'
+};
+const modOrder = ['Control', 'Alt', 'Meta', 'Shift'];
+let spActive = null;
+let spPressedMods = new Set();
+let spNonModKey = null;
+
+function spRecord(action) {
+  spActive = action;
+  spPressedMods.clear();
+  spNonModKey = null;
+  document.getElementById('sp-rec-overlay').classList.add('visible');
+  document.getElementById('sp-rec-keys').innerHTML = '';
+  document.getElementById('sp-' + action).classList.add('recording');
+  document.addEventListener('keydown', spKeyDown);
+  document.addEventListener('keyup', spKeyUp);
+}
+
+function spCancel() {
+  if (spActive) {
+    document.getElementById('sp-' + spActive).classList.remove('recording');
+  }
+  spActive = null;
+  document.getElementById('sp-rec-overlay').classList.remove('visible');
+  document.removeEventListener('keydown', spKeyDown);
+  document.removeEventListener('keyup', spKeyUp);
+}
+
+function spKeyDown(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (e.key === 'Escape') { spCancel(); return; }
+
+  const isMod = ['Meta', 'Control', 'Alt', 'Shift'].includes(e.key);
+  if (isMod) {
+    spPressedMods.add(e.key);
+  } else {
+    spNonModKey = e.key;
+  }
+  spRenderRecording();
+
+  // If we got a non-mod key and at least one modifier, finalize
+  if (!isMod && spPressedMods.size > 0) {
+    setTimeout(() => spFinalize(), 300);
+  }
+}
+
+function spKeyUp(e) {
+  e.preventDefault();
+  // If user releases all mods without pressing a non-mod key, and they had mods, finalize as mod-only
+  const isMod = ['Meta', 'Control', 'Alt', 'Shift'].includes(e.key);
+  if (isMod && spPressedMods.size > 0 && !spNonModKey) {
+    // Check if all mods released
+    setTimeout(() => {
+      if (spActive && !spNonModKey) spFinalize();
+    }, 400);
+  }
+}
+
+function spRenderRecording() {
+  const container = document.getElementById('sp-rec-keys');
+  let html = '';
+  const sortedMods = modOrder.filter(m => spPressedMods.has(m));
+  sortedMods.forEach((m, i) => {
+    if (i > 0) html += '<span class="sp-rec-plus">+</span>';
+    html += '<span class="sp-key">' + (keyMap[m] || m) + '</span>';
+  });
+  if (spNonModKey) {
+    if (sortedMods.length > 0) html += '<span class="sp-rec-plus">+</span>';
+    const display = keyMap[spNonModKey] || spNonModKey.toUpperCase();
+    html += '<span class="sp-key accent">' + display + '</span>';
+  }
+  container.innerHTML = html;
+}
+
+function spFinalize() {
+  if (!spActive) return;
+  const action = spActive;
+  const row = document.getElementById('sp-' + action);
+  const keysEl = document.getElementById('sp-' + action + '-keys');
+
+  // Build new keycap display
+  let html = '';
+  const sortedMods = modOrder.filter(m => spPressedMods.has(m));
+  sortedMods.forEach((m, i) => {
+    if (i > 0) html += '<span class="plus">+</span>';
+    html += '<span class="kbd">' + (keyMap[m] || m) + '</span>';
+  });
+
+  if (spNonModKey) {
+    if (sortedMods.length > 0) html += '<span class="plus">+</span>';
+    const display = keyMap[spNonModKey] || spNonModKey.toUpperCase();
+    html += '<span class="kbd">' + display + '</span>';
+  } else {
+    // Mod-only shortcuts for copy/paste get +1-0 hint
+    if (action === 'copy' || action === 'paste') {
+      html += '<span class="plus">+</span><span class="hint">1-0</span>';
+    }
+  }
+
+  keysEl.innerHTML = html;
+  row.classList.remove('recording');
+
+  // Brief highlight to confirm
+  row.style.borderColor = 'var(--good)';
+  setTimeout(() => { row.style.borderColor = ''; }, 800);
+
+  spActive = null;
+  document.getElementById('sp-rec-overlay').classList.remove('visible');
+  document.removeEventListener('keydown', spKeyDown);
+  document.removeEventListener('keyup', spKeyUp);
 }
 
 // Smooth scroll for anchor links
