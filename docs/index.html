@@ -1590,6 +1590,15 @@ footer {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--good)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Privacy-first — your data never leaves your machine.
       </div>
+
+      <div class="download-note" style="margin-top:16px; flex-direction:column; align-items:flex-start; background:var(--bg-2); border:1px solid var(--line-1); border-radius:12px; padding:16px 20px;">
+        <strong style="color:var(--ink-0); font-size:13px; margin-bottom:8px;">⚠️ macOS Gatekeeper Notice</strong>
+        <span style="font-size:12px; line-height:1.6;">
+          Since CopyCat isn't signed with an Apple Developer certificate yet, macOS may show a warning.
+          After mounting the DMG, right-click CopyCat.app → Open → Open, or run in Terminal:<br>
+          <code style="display:inline-block; margin-top:6px; padding:4px 10px; background:var(--bg-3); border-radius:6px; font-size:11px; color:var(--ink-1);">xattr -cr /Applications/CopyCat.app</code>
+        </span>
+      </div>
     </div>
   </div>
 </section>
