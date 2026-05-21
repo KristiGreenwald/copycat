@@ -45,6 +45,7 @@ pub struct OllamaPullProgress {
 
 pub struct AiEngine {
     client: reqwest::Client,
+    pull_client: reqwest::Client,
     model_name: String,
 }
 
@@ -52,6 +53,10 @@ impl AiEngine {
     pub fn new(model_name: &str) -> Self {
         Self {
             client: reqwest::Client::new(),
+            pull_client: reqwest::Client::builder()
+                .timeout(std::time::Duration::from_secs(3600))
+                .build()
+                .unwrap_or_else(|_| reqwest::Client::new()),
             model_name: model_name.to_string(),
         }
     }
@@ -95,11 +100,11 @@ impl AiEngine {
 
         let req = OllamaPullRequest {
             name: self.model_name.clone(),
-            stream: false,
+            stream: true,
         };
 
         let resp = self
-            .client
+            .pull_client
             .post(format!("{}/api/pull", OLLAMA_BASE_URL))
             .json(&req)
             .send()
@@ -107,6 +112,22 @@ impl AiEngine {
             .map_err(|e| format!("Failed to pull model: {}", e))?;
 
         if resp.status().is_success() {
+            // Stream the response to avoid timeout — each chunk resets the read timer
+            use futures_util::StreamExt;
+            let mut stream = resp.bytes_stream();
+            while let Some(chunk) = stream.next().await {
+                match chunk {
+                    Ok(bytes) => {
+                        // Check for error in streamed JSON lines
+                        if let Ok(text) = std::str::from_utf8(&bytes) {
+                            if text.contains("\"error\"") {
+                                return Err(format!("Pull error: {}", text));
+                            }
+                        }
+                    }
+                    Err(e) => return Err(format!("Stream error during pull: {}", e)),
+                }
+            }
             eprintln!("[CopyCat AI] Model pulled successfully");
             Ok(())
         } else {
