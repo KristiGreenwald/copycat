@@ -1,7 +1,11 @@
-# Tauri + SvelteKit + TypeScript
+# CopyCat
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+**Your clipboard, supercharged.** Ten clipboard slots with keyboard shortcuts, local AI
+transforms, voice dictation, and a glassmorphic HUD — 100% on-device.
 
-## Recommended IDE Setup
+- **Website & download:** https://kristigreenwald.github.io/copycat/
+- **Releases:** https://github.com/KristiGreenwald/copycat/releases
+- **Feedback / bug reports:** barboundlaw@gmail.com
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+This repository hosts the CopyCat website, downloadable releases, and the auto-update feed.
+The application source is developed in a private repository.
