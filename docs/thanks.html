@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thank you — CopyCat</title>
+<link rel="icon" href="mascot.png" />
+<style>
+  :root {
+    --bg-0: #14100d; --bg-2: #211b16; --bg-3: #2a231d;
+    --line-1: rgba(255,255,255,0.09);
+    --ink-0: #f0ede8; --ink-2: #a89f94;
+    --accent: #d4a054; --accent-ink: #241a10; --good: #69c17d;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg-0); color: var(--ink-0);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .card {
+    max-width: 520px; width: 100%; text-align: center;
+    background: var(--bg-2); border: 1px solid var(--line-1);
+    border-radius: 20px; padding: 44px 36px;
+  }
+  .card img { width: 84px; margin-bottom: 18px; }
+  h1 { font-size: 26px; margin-bottom: 8px; }
+  .sub { color: var(--ink-2); font-size: 15px; margin-bottom: 28px; line-height: 1.6; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 14px 24px; border-radius: 12px;
+    background: var(--accent); color: var(--accent-ink);
+    font-weight: 700; font-size: 15.5px; text-decoration: none; margin-bottom: 12px;
+  }
+  .btn.alt { background: var(--bg-3); color: var(--ink-0); border: 1px solid var(--line-1); font-weight: 600; }
+  .status { color: var(--good); font-size: 13.5px; margin: 14px 0 4px; min-height: 20px; }
+  .fineprint { color: var(--ink-2); font-size: 12px; margin-top: 22px; line-height: 1.6; }
+  .fineprint code { background: var(--bg-3); border-radius: 6px; padding: 2px 7px; font-size: 11px; }
+  a.mail { color: var(--accent); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="mascot.png" alt="CopyCat" />
+    <h1>Thank you! 🎉</h1>
+    <p class="sub" id="sub">Preparing your download…</p>
+    <div id="buttons"></div>
+    <p class="status" id="status"></p>
+    <p class="fineprint" id="fineprint"></p>
+  </div>
+
+<script>
+(async () => {
+  const p = new URLSearchParams(location.search).get("p") === "win" ? "win" : "mac";
+  const sub = document.getElementById("sub");
+  const buttons = document.getElementById("buttons");
+  const status = document.getElementById("status");
+  const fine = document.getElementById("fineprint");
+
+  const btn = (href, label, primary) =>
+    `<a class="btn ${primary ? "" : "alt"}" href="${href}">${label}</a>`;
+
+  try {
+    const rel = await fetch(
+      "https://api.github.com/repos/KristiGreenwald/copycat/releases/latest"
+    ).then((r) => r.json());
+    const assets = rel.assets || [];
+    const find = (re) => (assets.find((a) => re.test(a.name)) || {}).browser_download_url;
+
+    let primary, rows = [];
+    if (p === "mac") {
+      const silicon = find(/aarch64\.dmg$/i);
+      const intel = find(/x64\.dmg$/i);
+      primary = silicon || intel;
+      sub.textContent = "Your CopyCat for Mac download is starting. Apple Silicon and Intel builds are both yours.";
+      if (silicon) rows.push(btn(silicon, "⬇ Download for Apple Silicon (M1–M4)", true));
+      if (intel) rows.push(btn(intel, "⬇ Download for Intel Mac", !silicon));
+      fine.innerHTML =
+        "Drag CopyCat to Applications. The beta isn't notarized yet — right-click → Open on first launch, " +
+        "or run <code>xattr -cr /Applications/CopyCat.app</code>. " +
+        'Trouble? <a class="mail" href="mailto:barboundlaw@gmail.com?subject=CopyCat%20purchase%20help">Email us</a> — we reply fast.';
+    } else {
+      const exe = find(/setup\.exe$/i);
+      const msi = find(/\.msi$/i);
+      primary = exe || msi;
+      sub.textContent = "Your CopyCat for Windows download is starting.";
+      if (exe) rows.push(btn(exe, "⬇ Download Setup (.exe)", true));
+      if (msi) rows.push(btn(msi, "⬇ Download Installer (.msi)", !exe));
+      fine.innerHTML =
+        'Run the installer and follow the prompts. Trouble? ' +
+        '<a class="mail" href="mailto:barboundlaw@gmail.com?subject=CopyCat%20purchase%20help">Email us</a> — we reply fast.';
+    }
+
+    if (!primary) {
+      sub.textContent =
+        "Your payment went through, but this platform's build isn't published yet. " +
+        "Email us and we'll send it the moment it's live (you'll also get every update automatically).";
+      buttons.innerHTML = btn(
+        "mailto:barboundlaw@gmail.com?subject=CopyCat%20download%20request",
+        "✉️ Email us for your download",
+        true
+      );
+      return;
+    }
+
+    buttons.innerHTML = rows.join("");
+    setTimeout(() => {
+      const a = document.createElement("a");
+      a.href = primary;
+      a.click();
+      status.textContent = "✓ Download started — check your Downloads folder.";
+    }, 900);
+  } catch (e) {
+    sub.textContent = "Couldn't reach the download server automatically.";
+    buttons.innerHTML = btn(
+      "https://github.com/KristiGreenwald/copycat/releases/latest",
+      "Open the downloads page",
+      true
+    );
+  }
+})();
+</script>
+</body>
+</html>
