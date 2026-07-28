@@ -230,6 +230,22 @@
   .who .nm { font-size: 14.5px; font-weight: 650; }
   .who .rl { font-size: 13px; color: var(--ink-3); }
 
+  /* ---------- Pricing: "what you'd otherwise pay" comparison ---------- */
+  .compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 760px; margin: 0 auto; }
+  .compare-card {
+    background: rgba(255, 255, 255, 0.6); border: 1px solid #f2e3d4; border-radius: 14px;
+    padding: 18px 16px; text-align: center;
+  }
+  .compare-card .cat {
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 7px;
+  }
+  .compare-card .who { font-size: 19px; font-weight: 750; letter-spacing: -0.02em; }
+  .compare-card .cost { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+  .compare-card .cost b { font-weight: 700; color: var(--ink); }
+  .compare-total { text-align: center; font-size: 16px; color: var(--ink-2); margin-top: 18px; }
+  .compare-total s { font-weight: 700; color: var(--ink); text-decoration-thickness: 2px; }
+
   /* ---------- Pricing ---------- */
   .price {
     max-width: 640px; margin: 0 auto; background: #fff;
@@ -239,6 +255,17 @@
   .price .amt { font-size: 62px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
   .price .amt span { font-size: 17px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
   .price .sub { color: var(--ink-2); margin-top: 12px; }
+  .best-badge {
+    display: inline-block; margin-bottom: 20px; padding: 7px 16px; border-radius: 30px;
+    background: var(--accent); color: #fff;
+    font-size: 12px; font-weight: 750; letter-spacing: 0.09em; text-transform: uppercase;
+  }
+  .save-badge {
+    display: inline-block; margin-top: 18px; padding: 8px 17px; border-radius: 30px;
+    background: #e3f6ec; color: #0d7a3d;
+    font-size: 13px; font-weight: 750; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .price .foot-note { margin-top: 26px; font-size: 14px; color: var(--ink-3); }
   .buy-row { display: flex; gap: 13px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
   .price ul { list-style: none; text-align: left; margin: 30px auto 0; max-width: 420px; display: flex; flex-direction: column; gap: 11px; }
   .price li { display: flex; gap: 11px; font-size: 15.5px; color: var(--ink-2); }
@@ -265,7 +292,7 @@
 
   @media (max-width: 880px) {
     .nav-links { display: none; }
-    .row, .grid3, .steps, .quotes { grid-template-columns: 1fr; }
+    .row, .grid3, .steps, .quotes, .compare { grid-template-columns: 1fr; }
     .row.flip .row-copy { order: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -495,11 +522,33 @@
   <div class="wrap">
     <div class="sec-head rise">
       <h2>One price. Yours forever.</h2>
-      <p class="lede">No subscription, no account, no seat count.</p>
+      <p class="lede">Replace three separate tools — and three recurring bills.</p>
     </div>
-    <div class="price rise">
-      <div class="amt">$49.99 <span>lifetime</span></div>
-      <p class="sub">Pay once. Everything on this page, on both platforms, with updates included — forever.</p>
+
+    <div class="compare rise">
+      <div class="compare-card">
+        <div class="cat">Screenshots</div>
+        <div class="who">CleanShot X</div>
+        <div class="cost">up to <b>$120</b>/yr</div>
+      </div>
+      <div class="compare-card">
+        <div class="cat">Dictation</div>
+        <div class="who">Wispr Flow</div>
+        <div class="cost"><b>$155.88</b>/yr</div>
+      </div>
+      <div class="compare-card">
+        <div class="cat">AI clipboard</div>
+        <div class="who">Raycast AI</div>
+        <div class="cost"><b>$120–$240</b>/yr</div>
+      </div>
+    </div>
+    <p class="compare-total rise">Comparable tools can cost <s>$395.88–$515.88</s> every year</p>
+
+    <div class="price rise" style="margin-top:34px">
+      <span class="best-badge">Best value</span>
+      <div class="amt">$49.99 <span>one time</span></div>
+      <p class="sub">Lifetime access. Updates included.</p>
+      <div><span class="save-badge">Save $345+ in year one</span></div>
       <div class="buy-row">
         <a class="btn btn-primary" href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg>
@@ -511,11 +560,13 @@
         </a>
       </div>
       <ul>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Ten slots, custom shortcuts, and the floating HUD</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Local AI transforms and the background remover</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>10-slot clipboard + custom shortcuts</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Local AI transforms</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>On-device voice dictation</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Automatic updates, signed and notarized</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Screenshot capture + editing</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Lifetime updates included</li>
       </ul>
+      <p class="foot-note">No subscription. No account. No seat count.</p>
     </div>
   </div>
 </section>
