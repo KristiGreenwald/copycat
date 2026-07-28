@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CopyCat — A better clipboard</title>
+<meta name="description" content="Ten clipboard slots with keyboard shortcuts, local AI that rewrites what you copy, and voice dictation that types where your cursor is. 100% on your machine." />
+<link rel="icon" href="mascot.png" />
+<style>
+  /* ============================================================
+     Light, screenshot-led landing page — the Ellie / Luna school:
+     white canvas, soft tinted bands, one vivid accent, big bold
+     headlines, and a real product screenshot in every section.
+     ============================================================ */
+  :root {
+    --ink: #121212;
+    --ink-2: #5e5e5e;
+    --ink-3: #8c8c8c;
+    --line: #ececec;
+    --line-2: #e2e2e2;
+
+    --accent: #5e17eb;
+    --accent-2: #7c3aed;
+    --accent-soft: #f3edff;
+
+    --warm: #fff6ed;
+    --cream: #fbfaf9;
+    --mint: #eefaf3;
+    --good: #12a150;
+
+    --radius: 18px;
+    --shadow-shot: 0 30px 60px -24px rgba(18, 18, 18, 0.28), 0 2px 8px rgba(18, 18, 18, 0.05);
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: #fff;
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  .narrow { max-width: 720px; margin-left: auto; margin-right: auto; }
+
+  /* ---------- Type ---------- */
+  h1 {
+    font-size: clamp(38px, 6vw, 66px);
+    line-height: 1.05;
+    letter-spacing: -0.032em;
+    font-weight: 800;
+  }
+  h2 {
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.12;
+    letter-spacing: -0.028em;
+    font-weight: 800;
+  }
+  h3 { font-size: clamp(20px, 2.4vw, 27px); line-height: 1.2; letter-spacing: -0.02em; font-weight: 700; }
+  .lede { font-size: clamp(16px, 1.7vw, 19px); line-height: 1.65; color: var(--ink-2); }
+  .center { text-align: center; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px 30px; border-radius: 40px;
+    font-family: var(--font); font-size: 16px; font-weight: 600; line-height: 1;
+    border: 1.5px solid transparent; cursor: pointer; white-space: nowrap;
+    transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), background 0.18s;
+  }
+  .btn svg { width: 17px; height: 17px; }
+  .btn-primary {
+    background: var(--accent); color: #fff;
+    box-shadow: 0 10px 24px -10px rgba(94, 23, 235, 0.65);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 30px -12px rgba(94, 23, 235, 0.7); }
+  .btn-ghost { background: #fff; color: var(--ink); border-color: var(--line-2); }
+  .btn-ghost:hover { border-color: #cfcfcf; transform: translateY(-2px); }
+  .btn-sm { padding: 11px 22px; font-size: 15px; }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 40;
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-in { display: flex; align-items: center; gap: 30px; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+  .brand img { width: 30px; height: 30px; border-radius: 9px; }
+  .nav-links { display: flex; gap: 26px; margin-left: 10px; }
+  .nav-links a { font-size: 15.5px; color: var(--ink-2); font-weight: 500; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: clamp(56px, 8vw, 96px) 0 0; text-align: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 15px; border-radius: 40px; margin-bottom: 24px;
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 13.5px; font-weight: 650;
+  }
+  .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .hero h1 { max-width: 16ch; margin: 0 auto; }
+  .hero h1 .grad {
+    background: linear-gradient(92deg, var(--accent), #a855f7 55%, #ec4899);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero .lede { margin: 22px auto 0; max-width: 610px; }
+  .hero-ctas { display: flex; gap: 13px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+  .hero-note { margin-top: 15px; font-size: 14px; color: var(--ink-3); }
+
+  /* screenshot frame */
+  .shot {
+    border-radius: var(--radius); overflow: hidden;
+    box-shadow: var(--shadow-shot); background: #1a1512;
+    border: 1px solid rgba(18, 18, 18, 0.08);
+  }
+  .hero-shot { margin: clamp(40px, 6vw, 66px) auto 0; max-width: 1000px; }
+
+  /* ---------- Bands ---------- */
+  section { padding: clamp(64px, 8vw, 104px) 0; }
+  .band-cream { background: var(--cream); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .band-warm { background: var(--warm); }
+  .band-mint { background: var(--mint); }
+  .sec-head { max-width: 700px; margin: 0 auto clamp(36px, 5vw, 56px); text-align: center; }
+  .sec-head .lede { margin-top: 16px; }
+
+  /* ---------- Video ---------- */
+  .video-card {
+    position: relative; max-width: 940px; margin: 0 auto;
+    border-radius: 20px; overflow: hidden; background: #17120f;
+    box-shadow: var(--shadow-shot); aspect-ratio: 16 / 9;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: 1px solid rgba(18, 18, 18, 0.08);
+  }
+  .video-card video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .video-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
+  .video-card::after {
+    content: ""; position: absolute; inset: 0; z-index: 1;
+    background: radial-gradient(58% 58% at 50% 50%, rgba(10, 8, 7, 0.86), rgba(10, 8, 7, 0.55) 70%, rgba(10, 8, 7, 0.35));
+  }
+  .video-overlay {
+    position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 18px;
+    color: #fff; text-align: center; padding: 24px;
+  }
+  .play {
+    width: 76px; height: 76px; border-radius: 50%; background: #fff; color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4); transition: transform 0.2s var(--ease);
+  }
+  .video-card:hover .play { transform: scale(1.07); }
+  .play svg { width: 26px; height: 26px; margin-left: 4px; }
+  .video-overlay .cap { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+  .video-overlay .sub { font-size: 13.5px; opacity: 0.7; max-width: 38ch; }
+  .video-note { text-align: center; margin-top: 18px; font-size: 14px; color: var(--ink-3); }
+
+  /* ---------- Alternating feature rows ---------- */
+  .row {
+    display: grid; grid-template-columns: 0.86fr 1.14fr; gap: clamp(30px, 5vw, 68px);
+    align-items: center; margin-bottom: clamp(56px, 7vw, 96px);
+  }
+  .row:last-child { margin-bottom: 0; }
+  .row.flip .row-copy { order: 2; }
+  .tag {
+    display: inline-block; padding: 6px 13px; border-radius: 30px; margin-bottom: 16px;
+    background: var(--accent-soft); color: var(--accent); font-size: 13px; font-weight: 700;
+  }
+  .tag.mint { background: #dff5e8; color: var(--good); }
+  .tag.peach { background: #ffe9d6; color: #b4530f; }
+  .row-copy p { margin-top: 14px; color: var(--ink-2); font-size: 16.5px; line-height: 1.7; }
+  .checks { margin-top: 20px; display: flex; flex-direction: column; gap: 11px; }
+  .checks div { display: flex; gap: 11px; align-items: flex-start; font-size: 15.5px; color: var(--ink-2); }
+  .checks svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--good); }
+
+  /* ---------- Small feature grid ---------- */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .tile {
+    background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 28px 26px; transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .tile:hover { transform: translateY(-3px); box-shadow: 0 18px 32px -22px rgba(18, 18, 18, 0.35); }
+  .tile .ic {
+    width: 44px; height: 44px; border-radius: 13px; margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .tile .ic svg { width: 21px; height: 21px; }
+  .tile h3 { font-size: 18.5px; margin-bottom: 8px; }
+  .tile p { font-size: 15px; color: var(--ink-2); line-height: 1.6; }
+
+  /* ---------- Steps ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .step { text-align: center; }
+  .step .n {
+    width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 15px;
+    background: var(--accent); color: #fff; font-weight: 700; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h3 { font-size: 19px; margin-bottom: 7px; }
+  .step p { font-size: 15px; color: var(--ink-2); }
+  .keys { display: flex; gap: 6px; justify-content: center; margin-top: 15px; }
+  kbd {
+    min-width: 34px; padding: 8px 11px; border-radius: 9px; font-family: var(--font);
+    background: #fff; border: 1px solid var(--line-2); border-bottom-width: 3px;
+    font-size: 14px; font-weight: 700;
+  }
+  .keys .p { color: var(--ink-3); font-size: 13px; align-self: center; }
+
+  /* ---------- Quotes ---------- */
+  .quotes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; max-width: 900px; margin: 0 auto; }
+  .quote { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 26px 22px; }
+  .quote p { font-size: 16.5px; line-height: 1.55; }
+  .quote p b { font-weight: 700; }
+  .who { display: flex; align-items: center; gap: 11px; margin-top: 18px; }
+  .who .av {
+    width: 36px; height: 36px; border-radius: 50%; flex: none;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+  }
+  .who .nm { font-size: 14.5px; font-weight: 650; }
+  .who .rl { font-size: 13px; color: var(--ink-3); }
+
+  /* ---------- Pricing ---------- */
+  .price {
+    max-width: 640px; margin: 0 auto; background: #fff;
+    border: 1px solid var(--line-2); border-radius: 24px; padding: 44px 40px; text-align: center;
+    box-shadow: 0 26px 50px -30px rgba(18, 18, 18, 0.3);
+  }
+  .price .amt { font-size: 62px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+  .price .amt span { font-size: 17px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+  .price .sub { color: var(--ink-2); margin-top: 12px; }
+  .buy-row { display: flex; gap: 13px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
+  .price ul { list-style: none; text-align: left; margin: 30px auto 0; max-width: 420px; display: flex; flex-direction: column; gap: 11px; }
+  .price li { display: flex; gap: 11px; font-size: 15.5px; color: var(--ink-2); }
+  .price li svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--good); }
+
+  /* ---------- FAQ ---------- */
+  .faq { max-width: 760px; margin: 0 auto; }
+  details { border-bottom: 1px solid var(--line); padding: 20px 4px; }
+  summary { cursor: pointer; list-style: none; font-weight: 650; font-size: 17px; display: flex; gap: 14px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; margin-left: auto; color: var(--ink-3); font-size: 21px; font-weight: 400; line-height: 1; }
+  details[open] summary::after { content: "−"; }
+  details p { margin-top: 12px; font-size: 15.5px; color: var(--ink-2); line-height: 1.7; }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 40px 0; }
+  .foot { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; font-size: 14.5px; color: var(--ink-3); }
+  .foot a:hover { color: var(--ink); }
+  .foot .right { margin-left: auto; }
+
+  /* ---------- Reveal ---------- */
+  .rise { opacity: 0; transform: translateY(18px); transition: opacity 0.65s var(--ease), transform 0.65s var(--ease); }
+  .rise.in { opacity: 1; transform: none; }
+
+  @media (max-width: 880px) {
+    .nav-links { display: none; }
+    .row, .grid3, .steps, .quotes { grid-template-columns: 1fr; }
+    .row.flip .row-copy { order: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rise { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><img src="mascot.png" alt="" />CopyCat</a>
+    <nav class="nav-links">
+      <a href="#demo">Demo</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#pricing" class="btn btn-primary btn-sm">Get CopyCat</a>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top" style="padding-bottom:0">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span>100% on your machine</span>
+    <h1>A <span class="grad">better clipboard</span> for people who copy all day</h1>
+    <p class="lede">
+      Ten clipboard slots you reach with a keystroke, a local AI that rewrites what you copy,
+      and voice dictation that types wherever your cursor is. No cloud, no account, no subscription.
+    </p>
+    <div class="hero-ctas">
+      <a href="#pricing" class="btn btn-primary">Get CopyCat — $9.99</a>
+      <a href="#demo" class="btn btn-ghost">Watch the demo</a>
+    </div>
+    <p class="hero-note">One-time purchase · Mac &amp; Windows · Updates included</p>
+  </div>
+  <div class="wrap">
+    <div class="shot hero-shot rise">
+      <img src="images/app-slots.png" alt="CopyCat's Slots screen: ten numbered clipboard slots, each able to hold an AI prompt" />
+    </div>
+  </div>
+</section>
+
+<!-- ============ VIDEO ============ -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>See it in a minute 👇</h2>
+      <p class="lede">A quick walkthrough of copying into slots, letting the local AI rewrite it, and talking instead of typing.</p>
+    </div>
+    <div class="video-card rise" id="video-card">
+      <img class="video-poster" src="images/app-dictation.png" alt="" />
+      <div class="video-overlay" id="video-overlay">
+        <div class="play">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+        </div>
+        <div class="cap">Watch the 60-second tour</div>
+        <div class="sub">Copy, transform, dictate — the whole loop, start to finish.</div>
+      </div>
+    </div>
+    <p class="video-note">Prefer reading? Everything below shows the real app, screen by screen.</p>
+  </div>
+</section>
+
+<!-- ============ HOW ============ -->
+<section class="band-cream">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>Three steps. That's the whole thing ✨</h2>
+      <p class="lede">CopyCat sits in your menu bar. You never have to switch to it.</p>
+    </div>
+    <div class="steps rise">
+      <div class="step">
+        <div class="n">1</div>
+        <h3>Copy to a slot</h3>
+        <p>Select anything, then press your copy shortcut plus a number.</p>
+        <div class="keys"><kbd>⌘</kbd><span class="p">+</span><kbd>⌥</kbd><span class="p">+</span><kbd>1</kbd></div>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <h3>The AI rewrites it</h3>
+        <p>If that slot has a prompt, it runs automatically — on your own machine.</p>
+        <div class="keys"><kbd style="min-width:auto;background:var(--accent-soft);border-color:#ddd0ff;color:var(--accent)">✨ Local AI</kbd></div>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <h3>Paste it anywhere</h3>
+        <p>Same number, plus Shift. Works in every app you use.</p>
+        <div class="keys"><kbd>⌘</kbd><span class="p">+</span><kbd>⌥</kbd><span class="p">+</span><kbd>⇧</kbd><span class="p">+</span><kbd>1</kbd></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURE ROWS ============ -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>Simple, but powerful 😤</h2>
+      <p class="lede">Every screen below is the actual app — no mockups.</p>
+    </div>
+
+    <div class="row rise">
+      <div class="row-copy">
+        <span class="tag">Prompts</span>
+        <h3>Teach a slot what to do</h3>
+        <p>Write a prompt once, assign it to a number, and everything you copy into that slot comes out transformed — summarized, translated, rewritten, or drafted into an email.</p>
+        <div class="checks">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Bring your own prompts, edit them any time</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>One prompt per slot, up to ten at once</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Copy an image into a Background Remover slot to get it back transparent</div>
+        </div>
+      </div>
+      <div class="shot"><img src="images/app-prompts.png" alt="The Prompts screen, where each AI prompt is written and assigned to a slot" /></div>
+    </div>
+
+    <div class="row flip rise">
+      <div class="row-copy">
+        <span class="tag peach">Dictation</span>
+        <h3>Hold a key and just talk</h3>
+        <p>Hold the Globe key, say what you mean, let go — your words are typed straight into whatever app you're in. Recognition runs on your machine, so it works offline and never becomes training data.</p>
+        <div class="checks">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Hold-to-talk, or a hands-free session</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Optional AI polish strips the "um"s and fixes punctuation</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Dictate into a slot to run its prompt on what you said</div>
+        </div>
+      </div>
+      <div class="shot"><img src="images/app-dictation.png" alt="The Dictation screen showing hold-to-talk, hands-free and dictate-into-a-slot options" /></div>
+    </div>
+
+    <div class="row rise">
+      <div class="row-copy">
+        <span class="tag mint">Local AI</span>
+        <h3>Pick your model. Nothing leaves.</h3>
+        <p>CopyCat ships with its own inference engine. Choose a featherweight model for instant rewrites or a bigger one for better writing — download it once, then work on a plane if you like.</p>
+        <div class="checks">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Models from 400 MB to 4 GB, your choice</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>No API keys, no per-request cost, no rate limits</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Transforms finish in about a second</div>
+        </div>
+      </div>
+      <div class="shot"><img src="images/app-engine.png" alt="The AI Engine screen listing local models with size, speed and quality ratings" /></div>
+    </div>
+
+    <div class="row flip rise">
+      <div class="row-copy">
+        <span class="tag">Shortcuts</span>
+        <h3>Your keys, your combos</h3>
+        <p>Every shortcut is yours to change — copy, paste, the HUD, clear-all, even screen capture. CopyCat catches conflicts with other apps instead of silently failing.</p>
+        <div class="checks">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Pick any modifier set; numbers 1–0 target the slots</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Changes apply immediately, no restart</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Capture a screen region straight into a pinned window</div>
+        </div>
+      </div>
+      <div class="shot"><img src="images/app-shortcuts.png" alt="The Shortcuts screen with editable key combinations for every action" /></div>
+    </div>
+
+    <div class="row rise">
+      <div class="row-copy">
+        <span class="tag mint">The HUD</span>
+        <h3>See what you're carrying</h3>
+        <p>A floating panel shows every filled slot at a glance, then gets out of the way. Put it in any corner, pick its style and accent, or leave it up all day.</p>
+        <div class="checks">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Nine positions, three looks, your accent color</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Auto-hides after a few seconds — or never</div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Live preview while you tune it</div>
+        </div>
+      </div>
+      <div class="shot"><img src="images/app-display.png" alt="The Display screen with HUD position, appearance and accent color controls" /></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TILES ============ -->
+<section class="band-cream">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>And a few more things</h2>
+    </div>
+    <div class="grid3 rise">
+      <div class="tile">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></svg></div>
+        <h3>Background remover</h3>
+        <p>Copy an image, get it back with a clean transparent background — no upload, no subscription site.</p>
+      </div>
+      <div class="tile">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-6.2-8.6" /><polyline points="21 3 21 9 15 9" /></svg></div>
+        <h3>Slots that survive restarts</h3>
+        <p>Close your laptop, come back tomorrow, everything you copied is still exactly where you left it.</p>
+      </div>
+      <div class="tile">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg></div>
+        <h3>Nothing phones home</h3>
+        <p>No analytics, no telemetry, no account. There's no server on the other end of your ⌘C.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUOTES ============ -->
+<section>
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>What early users say</h2>
+      <p class="lede">CopyCat is in beta — these are notes from the first testers.</p>
+    </div>
+    <div class="quotes rise">
+      <div class="quote">
+        <p>"I stopped losing the thing I copied two copies ago. <b>That alone was worth it.</b>"</p>
+        <div class="who"><span class="av">DM</span><div><div class="nm">Dana M.</div><div class="rl">Contract attorney</div></div></div>
+      </div>
+      <div class="quote">
+        <p>"The dictation is the part I didn't expect to love. <b>It types faster than I do</b> and none of it leaves my laptop."</p>
+        <div class="who"><span class="av">JR</span><div><div class="nm">Jordan R.</div><div class="rl">Freelance developer</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="band-warm" id="pricing">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>One price. Yours forever.</h2>
+      <p class="lede">No subscription, no account, no seat count.</p>
+    </div>
+    <div class="price rise">
+      <div class="amt">$9.99 <span>once</span></div>
+      <p class="sub">Everything on this page, on both platforms, with updates included.</p>
+      <div class="buy-row">
+        <a class="btn btn-primary" href="https://buy.stripe.com/28EeVc3a5av6eeI0ohefC02">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg>
+          Buy for Mac
+        </a>
+        <a class="btn btn-ghost" href="https://buy.stripe.com/00w5kCh0V32E7Qkdb3efC03">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801" /></svg>
+          Buy for Windows
+        </a>
+      </div>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Ten slots, custom shortcuts, and the floating HUD</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Local AI transforms and the background remover</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>On-device voice dictation</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Automatic updates, signed and notarized</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <h2>Questions</h2>
+    </div>
+    <div class="faq rise">
+      <details>
+        <summary>Does the AI really run offline?</summary>
+        <p>Yes. CopyCat bundles its own inference engine and downloads a model file once, from inside the app. After that, transforms and dictation work with your Wi-Fi switched off. There's no API key and no per-request cost.</p>
+      </details>
+      <details>
+        <summary>How much disk space does it need?</summary>
+        <p>The app is small; the models are your choice. A fast 0.5B text model is about 400 MB, the balanced default around 1 GB, and the English speech model 488 MB. Download only what you actually use.</p>
+      </details>
+      <details>
+        <summary>Why does it need Accessibility permission?</summary>
+        <p>CopyCat presses ⌘C and ⌘V for you and listens for your shortcuts — macOS puts both behind Accessibility. It's the same permission every clipboard and text-expansion tool asks for, and it's used for nothing else.</p>
+      </details>
+      <details>
+        <summary>Is it on the Mac App Store?</summary>
+        <p>No — and it can't be. App Store apps run sandboxed, which blocks the keystroke simulation that copy-to-slot and paste-from-slot depend on. Buying direct is the only way to get the full version, the same reason Alfred, Raycast and CleanShot sell direct too.</p>
+      </details>
+      <details>
+        <summary>How many machines can I use it on?</summary>
+        <p>The computers you personally work on. There's no license server counting them.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="band-mint">
+  <div class="wrap center rise">
+    <h2>Give your clipboard a memory.</h2>
+    <p class="lede narrow" style="margin-top:16px">Ten slots, a local AI, and your voice — for less than lunch.</p>
+    <div class="hero-ctas">
+      <a href="#pricing" class="btn btn-primary">Get CopyCat — $9.99</a>
+      <a href="mailto:barboundlaw@gmail.com?subject=CopyCat%20question" class="btn btn-ghost">Ask a question</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="brand" href="#top" style="font-size:16px"><img src="mascot.png" alt="" style="width:24px;height:24px" />CopyCat</a>
+    <span>© 2026</span>
+    <a href="https://github.com/KristiGreenwald/copycat/releases">Releases</a>
+    <a href="mailto:barboundlaw@gmail.com?subject=CopyCat%20Beta%20Feedback">Report a bug</a>
+    <span class="right">🔒 Local-only. Your text never leaves this machine.</span>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  (() => {
+    const items = document.querySelectorAll(".rise");
+    if (!("IntersectionObserver" in window)) {
+      items.forEach((el) => el.classList.add("in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+        });
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+    );
+    items.forEach((el) => io.observe(el));
+  })();
+
+  // Demo video: swap the poster for a real <video> the moment demo.mp4 exists.
+  (() => {
+    const card = document.getElementById("video-card");
+    if (!card) return;
+    fetch("demo.mp4", { method: "HEAD" })
+      .then((r) => {
+        if (!r.ok) return;
+        card.innerHTML =
+          '<video controls playsinline preload="metadata" poster="images/app-slots.png">' +
+          '<source src="demo.mp4" type="video/mp4"></video>';
+      })
+      .catch(() => {});
+    card.addEventListener("click", () => {
+      const v = card.querySelector("video");
+      if (v) { v.paused ? v.play() : v.pause(); }
+    });
+  })();
+</script>
+</body>
+</html>
