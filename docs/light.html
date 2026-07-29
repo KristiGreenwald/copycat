@@ -23,9 +23,11 @@
     --accent-2: #7c3aed;
     --accent-soft: #f3edff;
 
-    --warm: #fff6ed;
-    --cream: #fbfaf9;
-    --mint: #eefaf3;
+    /* on-brand tinted bands, lightest to deepest */
+    --tint-1: #faf8ff;
+    --tint-2: #f4f0ff;
+    --tint-3: #ece5ff;
+    --tint-line: rgba(94, 23, 235, 0.09);
     --good: #12a150;
 
     --radius: 18px;
@@ -122,14 +124,14 @@
   /* Screenshots are transparent PNGs that already carry the window chrome,
      rounded corners and drop shadow — the wrapper must not add a frame. */
   .shot { background: none; border: 0; border-radius: 0; box-shadow: none; }
-  .shot img { width: 100%; }
+  .shot img { width: 100%; height: auto; aspect-ratio: 1600 / 1273; }
   .hero-shot { margin: clamp(40px, 6vw, 66px) auto 0; max-width: 1000px; }
 
   /* ---------- Bands ---------- */
   section { padding: clamp(64px, 8vw, 104px) 0; }
-  .band-cream { background: var(--cream); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .band-warm { background: var(--warm); }
-  .band-mint { background: var(--mint); }
+  .band-tint-1 { background: var(--tint-1); border-top: 1px solid var(--tint-line); border-bottom: 1px solid var(--tint-line); }
+  .band-tint-2 { background: var(--tint-2); }
+  .band-tint-3 { background: var(--tint-3); }
   .sec-head { max-width: 700px; margin: 0 auto clamp(36px, 5vw, 56px); text-align: center; }
   .sec-head .lede { margin-top: 16px; }
 
@@ -345,7 +347,8 @@
   .priv-cta { margin-top: 28px; }
 
   .priv-art { display: flex; align-items: center; justify-content: center; }
-  .priv-art img { width: 100%; max-width: 440px; border-radius: 26px; }
+  .priv-art picture { width: 100%; max-width: 440px; }
+  .priv-art img { width: 100%; max-width: 440px; border-radius: 26px; height: auto; aspect-ratio: 900 / 908; }
 
   /* ---------- FAQ ---------- */
   .faq { max-width: 760px; margin: 0 auto; }
@@ -424,7 +427,11 @@
   </div>
   <div class="wrap">
     <div class="shot hero-shot rise">
-      <img src="images/app-slots.png" alt="CopyCat's Slots screen: ten numbered clipboard slots, each able to hold an AI prompt" />
+      <picture>
+          <source srcset="images/app-slots.webp" type="image/webp" />
+          <img src="images/app-slots.png" alt="CopyCat's Slots screen: ten numbered clipboard slots, each able to hold an AI prompt"
+               width="1600" height="1273" loading="eager" fetchpriority="high" decoding="async" />
+        </picture>
     </div>
   </div>
 </section>
@@ -437,7 +444,11 @@
       <p class="lede">A quick walkthrough of copying into slots, letting the local AI rewrite it, and talking instead of typing.</p>
     </div>
     <div class="video-card rise" id="video-card">
-      <img class="video-poster" src="images/app-dictation.png" alt="" />
+      <picture>
+          <source srcset="images/app-dictation.webp" type="image/webp" />
+          <img class="video-poster" src="images/app-dictation.png" alt=""
+               width="1600" height="1273" loading="lazy" decoding="async" />
+        </picture>
       <div class="video-overlay" id="video-overlay">
         <div class="play">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
@@ -451,10 +462,10 @@
 </section>
 
 <!-- ============ HOW ============ -->
-<section class="band-cream">
+<section class="band-tint-1">
   <div class="wrap">
     <div class="sec-head rise">
-      <h2>Three steps. That's the whole thing ✨</h2>
+      <h2>Three steps. That's the whole thing</h2>
       <p class="lede">CopyCat sits in your menu bar. You never have to switch to it.</p>
     </div>
     <div class="steps rise">
@@ -484,7 +495,7 @@
 <section id="features">
   <div class="wrap">
     <div class="sec-head rise">
-      <h2>Simple, but powerful 😤</h2>
+      <h2>Simple, but powerful</h2>
       <p class="lede">Every screen below is the actual app — no mockups.</p>
     </div>
 
@@ -499,7 +510,11 @@
           <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Copy an image into a Background Remover slot to get it back transparent</div>
         </div>
       </div>
-      <div class="shot"><img src="images/app-prompts.png" alt="The Prompts screen, where each AI prompt is written and assigned to a slot" /></div>
+      <div class="shot"><picture>
+          <source srcset="images/app-prompts.webp" type="image/webp" />
+          <img src="images/app-prompts.png" alt="The Prompts screen, where each AI prompt is written and assigned to a slot"
+               width="1600" height="1273" loading="lazy" decoding="async" />
+        </picture></div>
     </div>
 
     <div class="row flip rise">
@@ -513,7 +528,11 @@
           <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Dictate into a slot to run its prompt on what you said</div>
         </div>
       </div>
-      <div class="shot"><img src="images/app-dictation.png" alt="The Dictation screen showing hold-to-talk, hands-free and dictate-into-a-slot options" /></div>
+      <div class="shot"><picture>
+          <source srcset="images/app-dictation.webp" type="image/webp" />
+          <img src="images/app-dictation.png" alt="The Dictation screen showing hold-to-talk, hands-free and dictate-into-a-slot options"
+               width="1600" height="1273" loading="lazy" decoding="async" />
+        </picture></div>
     </div>
 
     <div class="row rise">
@@ -527,7 +546,11 @@
           <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Transforms finish in about a second</div>
         </div>
       </div>
-      <div class="shot"><img src="images/app-engine.png" alt="The AI Engine screen listing local models with size, speed and quality ratings" /></div>
+      <div class="shot"><picture>
+          <source srcset="images/app-engine.webp" type="image/webp" />
+          <img src="images/app-engine.png" alt="The AI Engine screen listing local models with size, speed and quality ratings"
+               width="1600" height="1273" loading="lazy" decoding="async" />
+        </picture></div>
     </div>
 
     <div class="row flip rise">
@@ -541,7 +564,11 @@
           <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Capture a screen region straight into a pinned window</div>
         </div>
       </div>
-      <div class="shot"><img src="images/app-shortcuts.png" alt="The Shortcuts screen with editable key combinations for every action" /></div>
+      <div class="shot"><picture>
+          <source srcset="images/app-shortcuts.webp" type="image/webp" />
+          <img src="images/app-shortcuts.png" alt="The Shortcuts screen with editable key combinations for every action"
+               width="1600" height="1273" loading="lazy" decoding="async" />
+        </picture></div>
     </div>
 
     <div class="row rise">
@@ -555,7 +582,11 @@
           <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Live preview while you tune it</div>
         </div>
       </div>
-      <div class="shot"><img src="images/app-display.png" alt="The Display screen with HUD position, appearance and accent color controls" /></div>
+      <div class="shot"><picture>
+          <source srcset="images/app-display.webp" type="image/webp" />
+          <img src="images/app-display.png" alt="The Display screen with HUD position, appearance and accent color controls"
+               width="1600" height="1273" loading="lazy" decoding="async" />
+        </picture></div>
     </div>
   </div>
 </section>
@@ -581,7 +612,7 @@
 </section>
 
 <!-- ============ PRICING ============ -->
-<section class="band-warm" id="pricing">
+<section class="band-tint-2" id="pricing">
   <div class="wrap">
     <div class="sec-head rise">
       <h2>Buy it once. Save every year.</h2>
@@ -703,7 +734,7 @@
 </section>
 
 <!-- ============ PRIVACY ============ -->
-<section class="band-warm" id="privacy" style="border-top:1px solid rgba(180,120,60,0.10)">
+<section class="band-tint-2" id="privacy" style="border-top:1px solid var(--tint-line)">
   <div class="wrap">
     <div class="priv-grid rise">
       <div class="priv-copy">
@@ -732,7 +763,11 @@
       </div>
 
       <div class="priv-art">
-        <img src="images/privacy-cat.png" alt="The CopyCat mascot with a zipped mouth, in front of a shield — nothing you copy gets shared" />
+        <picture>
+          <source srcset="images/privacy-cat.webp" type="image/webp" />
+          <img src="images/privacy-cat.png" alt="The CopyCat mascot with a zipped mouth, in front of a shield — nothing you copy gets shared"
+               width="900" height="908" loading="lazy" decoding="async" />
+        </picture>
       </div>
     </div>
 
@@ -787,7 +822,7 @@
 </section>
 
 <!-- ============ FINAL CTA ============ -->
-<section class="band-mint">
+<section class="band-tint-3">
   <div class="wrap center rise">
     <h2>Give your clipboard a memory.</h2>
     <p class="lede narrow" style="margin-top:16px">Ten slots, a local AI, and your voice — pay once, keep it for life.</p>
@@ -835,7 +870,7 @@
       .then((r) => {
         if (!r.ok) return;
         card.innerHTML =
-          '<video controls playsinline preload="metadata" poster="images/app-slots.png">' +
+          '<video controls playsinline preload="metadata" poster="images/app-slots.webp">' +
           '<source src="demo.mp4" type="video/mp4"></video>';
       })
       .catch(() => {});
