@@ -247,7 +247,7 @@
 
   /* ---------- Pricing: the lifetime deal card ---------- */
   .deal {
-    display: grid; grid-template-columns: 0.82fr 1.18fr; gap: clamp(24px, 3.5vw, 44px);
+    display: grid; grid-template-columns: 0.78fr 1.22fr; gap: clamp(24px, 3.5vw, 44px);
     background: #fff; border: 1px solid var(--line); border-radius: 26px;
     padding: clamp(26px, 3.6vw, 42px); box-shadow: 0 30px 60px -34px rgba(18, 18, 18, 0.34);
   }
@@ -261,32 +261,30 @@
   .deal-cta { width: 100%; margin-top: 20px; }
   .deal-cta svg { width: 18px; height: 18px; }
   .deal-plat { font-size: 14.5px; font-weight: 650; color: var(--accent); margin-top: 12px; text-align: center; }
-  .deal-alt { font-size: 13.5px; color: var(--ink-3); margin-top: 6px; text-align: center; }
-  .deal-alt a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
-  .deal-alt a:hover { color: var(--accent); }
   .deal-list { list-style: none; margin-top: 22px; display: flex; flex-direction: column; gap: 11px; }
   .deal-list li { display: flex; gap: 11px; font-size: 15.5px; color: var(--ink-2); }
   .deal-list svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--good); }
 
   /* savings panel */
-  .sv-head { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+  .sv-head { margin-bottom: 6px; }
   .sv-head h3 {
     font-size: clamp(15px, 1.7vw, 18px); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase;
   }
   .paid-badge {
-    margin-left: auto; flex: none; width: 116px; height: 116px; border-radius: 50%;
+    position: absolute; top: 0; left: 0; z-index: 3;
+    width: 118px; height: 118px; border-radius: 50%;
     background: var(--accent); color: #fff; display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center; line-height: 1.2;
     font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
     box-shadow: 0 14px 30px -12px rgba(94, 23, 235, 0.6);
   }
   .paid-badge b { display: block; font-size: 20px; letter-spacing: -0.02em; margin-top: 3px; }
-  .sv-body { display: grid; grid-template-columns: 1fr 218px; gap: 22px; align-items: end; }
-  .chart { position: relative; padding-top: 46px; }
+  .sv-body { display: grid; grid-template-columns: 1fr 210px; gap: 24px; align-items: stretch; }
+  .chart { position: relative; padding-top: 30px; }
   .chart-inner { position: relative; }
   .chart-inner svg { width: 100%; height: auto; display: block; overflow: visible; }
   .chart .pt {
-    position: absolute; transform: translate(-58%, -150%); text-align: center; white-space: nowrap; line-height: 1.25;
+    position: absolute; transform: translate(-72%, -168%); text-align: center; white-space: nowrap; line-height: 1.25;
   }
   .chart .pt .yr { display: block; font-size: 12.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
   .chart .pt .sv { display: block; font-size: 14px; font-weight: 750; color: var(--good); }
@@ -294,7 +292,9 @@
     position: absolute; transform: translate(-50%, 8px); white-space: nowrap;
     font-size: 11.5px; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent);
   }
-  .cost-box { border: 1px solid var(--accent-line, #e4d8ff); border-radius: 16px; overflow: hidden; }
+  .cost-box { border: 1px solid var(--accent-line, #e4d8ff); border-radius: 16px; overflow: hidden;
+    display: flex; flex-direction: column; }
+  .cost-total { margin-top: auto; }
   .cost-title {
     font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--ink-2); text-align: center; padding: 12px 10px 10px;
@@ -312,7 +312,7 @@
   .cost-total .tl { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
   .cost-total .tv { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; color: var(--accent); line-height: 1.05; }
   .cost-total .ty { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
-  .chart-note { text-align: center; font-size: 14px; color: var(--accent); margin-top: 16px; }
+  .chart-note { text-align: center; font-size: 14px; color: var(--accent); margin-top: 18px; }
   .pricing-foot {
     display: flex; align-items: center; justify-content: center; gap: 9px;
     margin-top: 22px; font-size: 15px; font-weight: 650; color: var(--ink-2);
@@ -343,7 +343,6 @@
   }
   .zero-list .tick svg { width: 12px; height: 12px; }
   .priv-cta { margin-top: 28px; }
-  .priv-cta .deal-alt { text-align: left; }
 
   .priv-art { display: flex; align-items: center; justify-content: center; }
   .priv-art img { width: 100%; max-width: 440px; border-radius: 26px; }
@@ -372,8 +371,7 @@
     .row, .grid3, .steps, .quotes { grid-template-columns: 1fr; }
     .deal, .sv-body, .priv-grid { grid-template-columns: 1fr; }
     .deal-left { border-right: 0; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 28px; }
-    .sv-head { flex-direction: column; align-items: flex-start; gap: 12px; }
-    .paid-badge { margin-left: 0; }
+    .paid-badge { width: 96px; height: 96px; font-size: 10px; }
     .sv-body { align-items: stretch; }
     .cost-box { max-width: 420px; }
     .chart .pt .yr { font-size: 11px; }
@@ -383,7 +381,6 @@
     .zero-num b { font-size: 40px; }
     .zero-num span { margin-top: 0; text-align: left; }
     .priv-art { order: -1; }
-    .priv-cta .deal-alt { text-align: center; }
     .row.flip .row-copy { order: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -405,7 +402,7 @@
       <a href="#faq">FAQ</a>
     </nav>
     <div class="nav-cta">
-      <a href="#pricing" class="btn btn-primary btn-sm">Get CopyCat</a>
+      <a href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04" class="btn btn-primary btn-sm">Get CopyCat</a>
     </div>
   </div>
 </header>
@@ -420,10 +417,10 @@
       and voice dictation that types wherever your cursor is. No cloud, no account, no subscription.
     </p>
     <div class="hero-ctas">
-      <a href="#pricing" class="btn btn-primary">Get CopyCat — $49.99</a>
+      <a href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04" class="btn btn-primary">Get CopyCat — $49.99</a>
       <a href="#demo" class="btn btn-ghost">Watch the demo</a>
     </div>
-    <p class="hero-note">Pay once, own it for life · Mac &amp; Windows · Updates included</p>
+    <p class="hero-note">Pay once, own it for life · macOS 12 or later · Updates included</p>
   </div>
   <div class="wrap">
     <div class="shot hero-shot rise">
@@ -563,32 +560,6 @@
   </div>
 </section>
 
-<!-- ============ TILES ============ -->
-<section class="band-cream">
-  <div class="wrap">
-    <div class="sec-head rise">
-      <h2>And a few more things</h2>
-    </div>
-    <div class="grid3 rise">
-      <div class="tile">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="m21 15-5-5L5 21" /></svg></div>
-        <h3>Background remover</h3>
-        <p>Copy an image, get it back with a clean transparent background — no upload, no subscription site.</p>
-      </div>
-      <div class="tile">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-6.2-8.6" /><polyline points="21 3 21 9 15 9" /></svg></div>
-        <h3>Slots that survive restarts</h3>
-        <p>Close your laptop, come back tomorrow, everything you copied is still exactly where you left it.</p>
-      </div>
-      <div class="tile">
-        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg></div>
-        <h3>Nothing phones home</h3>
-        <p>No analytics, no telemetry, no account. There's no server on the other end of your ⌘C.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ============ QUOTES ============ -->
 <section>
   <div class="wrap">
@@ -627,8 +598,7 @@
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.8L19.7 9l-4.6 3.6 1.6 5.9L12 15.2 7.3 18.5l1.6-5.9L4.3 9l5.8-1.2z"/></svg>
           Get CopyCat for Life
         </a>
-        <p class="deal-plat">Mac + Windows included</p>
-        <p class="deal-alt">Buying for Windows? <a href="https://buy.stripe.com/bJeaEW7ql46I1rWfjbefC05">Get the Windows version</a></p>
+        <p class="deal-plat">For macOS · Apple Silicon &amp; Intel</p>
         <ul class="deal-list">
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>10-slot clipboard</li>
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>AI transforms</li>
@@ -642,14 +612,14 @@
       <div class="deal-right">
         <div class="sv-head">
           <h3>Your savings keep growing</h3>
-          <div class="paid-badge">You still<br />paid only<b>$49.99</b></div>
         </div>
 
         <div class="sv-body">
           <div class="chart">
+            <div class="paid-badge">You still<br />paid only<b>$49.99</b></div>
             <div class="chart-inner">
-              <svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img"
-                   aria-label="Savings grow from $345 in year one to $1,135 by year three and $1,925 by year five, while CopyCat stays a single $49.99 payment.">
+              <svg viewBox="0 0 520 460" xmlns="http://www.w3.org/2000/svg" role="img"
+                   aria-label="Savings grow from $395 in year one to $1,185 by year three and $1,975 by year five, while CopyCat stays a single $49.99 payment.">
                 <defs>
                   <linearGradient id="svfill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="#7c3aed" stop-opacity=".26" />
@@ -659,26 +629,26 @@
                     <path d="M0,0 L10,5 L0,10 z" fill="#5e17eb" />
                   </marker>
                 </defs>
-                <path d="M18,296 C44,290 60,272 76,246 C136,206 190,196 248,158 C312,118 372,100 428,62 L466,40 L466,296 Z" fill="url(#svfill)" />
-                <line x1="18" y1="296" x2="500" y2="296" stroke="#e3d8f7" stroke-width="2" />
-                <line x1="76" y1="246" x2="76" y2="296" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
-                <line x1="248" y1="158" x2="248" y2="296" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
-                <line x1="428" y1="62" x2="428" y2="296" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
-                <path d="M18,296 C44,290 60,272 76,246 C136,206 190,196 248,158 C312,118 372,100 428,62 L464,42"
+                <path d="M18,424 C44,416 60,392 76,362 C136,316 190,296 248,232 C312,168 372,144 428,86 L466,58 L466,424 Z" fill="url(#svfill)" />
+                <line x1="18" y1="424" x2="500" y2="424" stroke="#e3d8f7" stroke-width="2" />
+                <line x1="76" y1="362" x2="76" y2="424" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
+                <line x1="248" y1="232" x2="248" y2="424" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
+                <line x1="428" y1="86" x2="428" y2="424" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
+                <path d="M18,424 C44,416 60,392 76,362 C136,316 190,296 248,232 C312,168 372,144 428,86 L464,60"
                       fill="none" stroke="#5e17eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#svarrow)" />
-                <circle cx="76" cy="296" r="4.5" fill="#5e17eb" />
-                <circle cx="248" cy="296" r="4.5" fill="#5e17eb" />
-                <circle cx="428" cy="296" r="4.5" fill="#5e17eb" />
-                <circle cx="76" cy="246" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
-                <circle cx="248" cy="158" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
-                <circle cx="428" cy="62" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
+                <circle cx="76" cy="424" r="4.5" fill="#5e17eb" />
+                <circle cx="248" cy="424" r="4.5" fill="#5e17eb" />
+                <circle cx="428" cy="424" r="4.5" fill="#5e17eb" />
+                <circle cx="76" cy="362" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
+                <circle cx="248" cy="232" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
+                <circle cx="428" cy="86" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
               </svg>
-              <div class="pt" style="left:14.6%; top:74.5%"><span class="yr">Year 1</span><span class="sv">Save $345+</span></div>
-              <div class="pt" style="left:47.7%; top:47.9%"><span class="yr">Year 3</span><span class="sv">Save $1,135+</span></div>
-              <div class="pt" style="left:82.3%; top:18.8%"><span class="yr">Year 5</span><span class="sv">Save $1,925+</span></div>
-              <div class="xlab" style="left:14.6%; top:89.7%">Today</div>
-              <div class="xlab" style="left:47.7%; top:89.7%">Year 3</div>
-              <div class="xlab" style="left:82.3%; top:89.7%">Year 5</div>
+              <div class="pt" style="left:14.6%; top:78.7%"><span class="yr">Year 1</span><span class="sv">Save $395</span></div>
+              <div class="pt" style="left:47.7%; top:50.4%"><span class="yr">Year 3</span><span class="sv">Save $1,185</span></div>
+              <div class="pt" style="left:82.3%; top:18.7%"><span class="yr">Year 5</span><span class="sv">Save $1,975</span></div>
+              <div class="xlab" style="left:14.6%; top:92.2%">Today</div>
+              <div class="xlab" style="left:47.7%; top:92.2%">Year 3</div>
+              <div class="xlab" style="left:82.3%; top:92.2%">Year 5</div>
             </div>
           </div>
 
@@ -758,8 +728,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.8L19.7 9l-4.6 3.6 1.6 5.9L12 15.2 7.3 18.5l1.6-5.9L4.3 9l5.8-1.2z"/></svg>
             Get CopyCat for Life — $49.99
           </a>
-          <p class="deal-alt">Buying for Windows? <a href="https://buy.stripe.com/bJeaEW7ql46I1rWfjbefC05">Get the Windows version</a></p>
-        </div>
+          </div>
       </div>
 
       <div class="priv-art">
@@ -823,7 +792,7 @@
     <h2>Give your clipboard a memory.</h2>
     <p class="lede narrow" style="margin-top:16px">Ten slots, a local AI, and your voice — pay once, keep it for life.</p>
     <div class="hero-ctas">
-      <a href="#pricing" class="btn btn-primary">Get CopyCat — $49.99</a>
+      <a href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04" class="btn btn-primary">Get CopyCat — $49.99</a>
       <a href="mailto:barboundlaw@gmail.com?subject=CopyCat%20question" class="btn btn-ghost">Ask a question</a>
     </div>
   </div>
