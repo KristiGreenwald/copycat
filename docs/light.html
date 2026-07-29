@@ -347,16 +347,8 @@
   .priv-cta { margin-top: 28px; }
   .priv-cta .deal-alt { text-align: left; }
 
-  .priv-art {
-    position: relative; border-radius: 26px; overflow: hidden; min-height: 400px;
-    background: linear-gradient(165deg, #ede8fd 0%, #e6dffc 55%, #ded4fa 100%);
-    display: flex; align-items: center; justify-content: center; padding: 40px;
-  }
-  .priv-art .shield {
-    position: absolute; width: 82%; max-width: 340px; top: 50%; left: 50%;
-    transform: translate(-50%, -50%); color: rgba(255, 255, 255, 0.52);
-  }
-  .priv-art .cat { position: relative; width: 66%; max-width: 268px; }
+  .priv-art { display: flex; align-items: center; justify-content: center; }
+  .priv-art img { width: 100%; max-width: 440px; border-radius: 26px; }
 
   /* ---------- FAQ ---------- */
   .faq { max-width: 760px; margin: 0 auto; }
@@ -392,7 +384,7 @@
     .zero-num { width: 100%; flex-direction: row; gap: 12px; padding: 16px; }
     .zero-num b { font-size: 40px; }
     .zero-num span { margin-top: 0; text-align: left; }
-    .priv-art { min-height: 300px; order: -1; }
+    .priv-art { order: -1; }
     .priv-cta .deal-alt { text-align: center; }
     .row.flip .row-copy { order: 0; }
   }
@@ -773,10 +765,7 @@
       </div>
 
       <div class="priv-art">
-        <svg class="shield" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M100 6 190 40v76c0 56-44 84-90 98-46-14-90-42-90-98V40z" fill="currentColor"/>
-        </svg>
-        <img class="cat" src="mascot.png" alt="The CopyCat mascot, keeping quiet about your data" />
+        <img src="images/privacy-cat.png" alt="The CopyCat mascot with a zipped mouth, in front of a shield — nothing you copy gets shared" />
       </div>
     </div>
 
