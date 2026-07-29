@@ -230,46 +230,133 @@
   .who .nm { font-size: 14.5px; font-weight: 650; }
   .who .rl { font-size: 13px; color: var(--ink-3); }
 
-  /* ---------- Pricing: "what you'd otherwise pay" comparison ---------- */
-  .compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 760px; margin: 0 auto; }
-  .compare-card {
-    background: rgba(255, 255, 255, 0.6); border: 1px solid #f2e3d4; border-radius: 14px;
-    padding: 18px 16px; text-align: center;
+  /* ---------- Shared: accent subhead + the "A → B → C" strip ---------- */
+  .lede-accent { color: var(--accent); font-weight: 550; }
+  .flow-strip {
+    display: flex; align-items: center; justify-content: center; gap: clamp(14px, 3vw, 40px);
+    flex-wrap: wrap; background: #fff; border-radius: 22px; padding: 20px 26px;
+    box-shadow: 0 18px 40px -30px rgba(18, 18, 18, 0.35); margin-top: 28px;
   }
-  .compare-card .cat {
-    font-size: 11.5px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase;
-    color: var(--ink-3); margin-bottom: 7px;
+  .flow-item { display: flex; align-items: center; gap: 13px; }
+  .flow-item .fi-ic {
+    width: 46px; height: 46px; border-radius: 14px; flex: none;
+    background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
   }
-  .compare-card .who { font-size: 19px; font-weight: 750; letter-spacing: -0.02em; }
-  .compare-card .cost { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
-  .compare-card .cost b { font-weight: 700; color: var(--ink); }
-  .compare-total { text-align: center; font-size: 16px; color: var(--ink-2); margin-top: 18px; }
-  .compare-total s { font-weight: 700; color: var(--ink); text-decoration-thickness: 2px; }
+  .flow-item .fi-ic svg { width: 22px; height: 22px; }
+  .flow-item .fi-t { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+  .flow-arrow { width: 26px; height: 18px; color: var(--accent); flex: none; }
 
-  /* ---------- Pricing ---------- */
-  .price {
-    max-width: 640px; margin: 0 auto; background: #fff;
-    border: 1px solid var(--line-2); border-radius: 24px; padding: 44px 40px; text-align: center;
-    box-shadow: 0 26px 50px -30px rgba(18, 18, 18, 0.3);
+  /* ---------- Pricing: the lifetime deal card ---------- */
+  .deal {
+    display: grid; grid-template-columns: 0.82fr 1.18fr; gap: clamp(24px, 3.5vw, 44px);
+    background: #fff; border: 1px solid var(--line); border-radius: 26px;
+    padding: clamp(26px, 3.6vw, 42px); box-shadow: 0 30px 60px -34px rgba(18, 18, 18, 0.34);
   }
-  .price .amt { font-size: 62px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
-  .price .amt span { font-size: 17px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
-  .price .sub { color: var(--ink-2); margin-top: 12px; }
-  .best-badge {
-    display: inline-block; margin-bottom: 20px; padding: 7px 16px; border-radius: 30px;
-    background: var(--accent); color: #fff;
+  .deal-left { border-right: 1px solid var(--line); padding-right: clamp(0px, 2.5vw, 34px); }
+  .deal-pill {
+    display: inline-block; padding: 7px 16px; border-radius: 30px; background: var(--accent); color: #fff;
     font-size: 12px; font-weight: 750; letter-spacing: 0.09em; text-transform: uppercase;
   }
-  .save-badge {
-    display: inline-block; margin-top: 18px; padding: 8px 17px; border-radius: 30px;
-    background: #e3f6ec; color: #0d7a3d;
-    font-size: 13px; font-weight: 750; letter-spacing: 0.05em; text-transform: uppercase;
+  .deal-amt { font-size: clamp(52px, 6.4vw, 76px); font-weight: 800; letter-spacing: -0.045em; line-height: 1; margin-top: 16px; }
+  .deal-sub { font-size: 15.5px; color: var(--ink-2); margin-top: 10px; }
+  .deal-cta { width: 100%; margin-top: 20px; }
+  .deal-cta svg { width: 18px; height: 18px; }
+  .deal-plat { font-size: 14.5px; font-weight: 650; color: var(--accent); margin-top: 12px; text-align: center; }
+  .deal-alt { font-size: 13.5px; color: var(--ink-3); margin-top: 6px; text-align: center; }
+  .deal-alt a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+  .deal-alt a:hover { color: var(--accent); }
+  .deal-list { list-style: none; margin-top: 22px; display: flex; flex-direction: column; gap: 11px; }
+  .deal-list li { display: flex; gap: 11px; font-size: 15.5px; color: var(--ink-2); }
+  .deal-list svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--good); }
+
+  /* savings panel */
+  .sv-head { display: flex; align-items: center; gap: 16px; margin-bottom: 10px; }
+  .sv-head h3 {
+    font-size: clamp(15px, 1.7vw, 18px); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase;
   }
-  .price .foot-note { margin-top: 26px; font-size: 14px; color: var(--ink-3); }
-  .buy-row { display: flex; gap: 13px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
-  .price ul { list-style: none; text-align: left; margin: 30px auto 0; max-width: 420px; display: flex; flex-direction: column; gap: 11px; }
-  .price li { display: flex; gap: 11px; font-size: 15.5px; color: var(--ink-2); }
-  .price li svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--good); }
+  .paid-badge {
+    margin-left: auto; flex: none; width: 116px; height: 116px; border-radius: 50%;
+    background: var(--accent); color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; line-height: 1.2;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    box-shadow: 0 14px 30px -12px rgba(94, 23, 235, 0.6);
+  }
+  .paid-badge b { display: block; font-size: 20px; letter-spacing: -0.02em; margin-top: 3px; }
+  .sv-body { display: grid; grid-template-columns: 1fr 218px; gap: 22px; align-items: end; }
+  .chart { position: relative; padding-top: 46px; }
+  .chart-inner { position: relative; }
+  .chart-inner svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart .pt {
+    position: absolute; transform: translate(-58%, -150%); text-align: center; white-space: nowrap; line-height: 1.25;
+  }
+  .chart .pt .yr { display: block; font-size: 12.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+  .chart .pt .sv { display: block; font-size: 14px; font-weight: 750; color: var(--good); }
+  .chart .xlab {
+    position: absolute; transform: translate(-50%, 8px); white-space: nowrap;
+    font-size: 11.5px; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; color: var(--accent);
+  }
+  .cost-box { border: 1px solid var(--accent-line, #e4d8ff); border-radius: 16px; overflow: hidden; }
+  .cost-title {
+    font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-2); text-align: center; padding: 12px 10px 10px;
+  }
+  .cost-row { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-top: 1px solid #f1ecfa; font-size: 13.5px; }
+  .cost-row .ci {
+    width: 26px; height: 26px; border-radius: 8px; flex: none; background: var(--accent-soft); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cost-row .ci svg { width: 14px; height: 14px; }
+  .cost-row .cn { color: var(--ink-2); white-space: nowrap; }
+  .cost-row .cv { margin-left: auto; font-weight: 750; white-space: nowrap; }
+  .cost-row .cv i { font-style: normal; font-weight: 500; font-size: 12px; color: var(--ink-3); }
+  .cost-total { background: #f6f2ff; padding: 14px 10px 16px; text-align: center; border-top: 1px solid #e4d8ff; }
+  .cost-total .tl { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+  .cost-total .tv { font-size: 34px; font-weight: 800; letter-spacing: -0.03em; color: var(--accent); line-height: 1.05; }
+  .cost-total .ty { font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .chart-note { text-align: center; font-size: 14px; color: var(--accent); margin-top: 16px; }
+  .pricing-foot {
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    margin-top: 22px; font-size: 15px; font-weight: 650; color: var(--ink-2);
+  }
+  .pricing-foot svg { width: 19px; height: 19px; color: var(--accent); }
+
+  /* ---------- Privacy ---------- */
+  .priv-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(28px, 4.5vw, 62px); align-items: center; }
+  .priv-copy h2 { margin-bottom: 16px; }
+  .priv-lede { font-size: clamp(17px, 2vw, 21px); font-weight: 650; color: var(--accent); letter-spacing: -0.015em; }
+  .priv-body { margin-top: 16px; font-size: 16.5px; line-height: 1.7; color: var(--ink-2); max-width: 46ch; }
+  .zero-card {
+    display: flex; margin-top: 26px; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 20px 44px -30px rgba(18, 18, 18, 0.4); max-width: 520px;
+  }
+  .zero-num {
+    flex: none; width: 152px; background: var(--accent); color: #fff; padding: 20px 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+  .zero-num b { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+  .zero-num span { font-size: 13px; font-weight: 750; letter-spacing: 0.09em; text-transform: uppercase; margin-top: 6px; line-height: 1.3; }
+  .zero-list { flex: 1; list-style: none; background: #fff; padding: 6px 20px; display: flex; flex-direction: column; justify-content: center; }
+  .zero-list li { display: flex; align-items: center; gap: 12px; padding: 13px 0; font-size: 16px; font-weight: 550; }
+  .zero-list li + li { border-top: 1px solid var(--line); }
+  .zero-list .tick {
+    width: 22px; height: 22px; border-radius: 50%; flex: none; background: var(--good); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .zero-list .tick svg { width: 12px; height: 12px; }
+  .priv-cta { margin-top: 28px; }
+  .priv-cta .deal-alt { text-align: left; }
+
+  .priv-art {
+    position: relative; border-radius: 26px; overflow: hidden; min-height: 400px;
+    background: linear-gradient(165deg, #ede8fd 0%, #e6dffc 55%, #ded4fa 100%);
+    display: flex; align-items: center; justify-content: center; padding: 40px;
+  }
+  .priv-art .shield {
+    position: absolute; width: 82%; max-width: 340px; top: 50%; left: 50%;
+    transform: translate(-50%, -50%); color: rgba(255, 255, 255, 0.52);
+  }
+  .priv-art .cat { position: relative; width: 66%; max-width: 268px; }
 
   /* ---------- FAQ ---------- */
   .faq { max-width: 760px; margin: 0 auto; }
@@ -292,7 +379,21 @@
 
   @media (max-width: 880px) {
     .nav-links { display: none; }
-    .row, .grid3, .steps, .quotes, .compare { grid-template-columns: 1fr; }
+    .row, .grid3, .steps, .quotes { grid-template-columns: 1fr; }
+    .deal, .sv-body, .priv-grid { grid-template-columns: 1fr; }
+    .deal-left { border-right: 0; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 28px; }
+    .sv-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .paid-badge { margin-left: 0; }
+    .sv-body { align-items: stretch; }
+    .cost-box { max-width: 420px; }
+    .chart .pt .yr { font-size: 11px; }
+    .chart .pt .sv { font-size: 12.5px; }
+    .zero-card { flex-direction: column; }
+    .zero-num { width: 100%; flex-direction: row; gap: 12px; padding: 16px; }
+    .zero-num b { font-size: 40px; }
+    .zero-num span { margin-top: 0; text-align: left; }
+    .priv-art { min-height: 300px; order: -1; }
+    .priv-cta .deal-alt { text-align: center; }
     .row.flip .row-copy { order: 0; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -310,6 +411,7 @@
       <a href="#demo">Demo</a>
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
+      <a href="#privacy">Privacy</a>
       <a href="#faq">FAQ</a>
     </nav>
     <div class="nav-cta">
@@ -521,52 +623,178 @@
 <section class="band-warm" id="pricing">
   <div class="wrap">
     <div class="sec-head rise">
-      <h2>One price. Yours forever.</h2>
-      <p class="lede">Replace three separate tools — and three recurring bills.</p>
+      <h2>Buy it once. Save every year.</h2>
+      <p class="lede lede-accent">One CopyCat license replaces recurring screenshot, dictation, and AI clipboard subscriptions.</p>
     </div>
 
-    <div class="compare rise">
-      <div class="compare-card">
-        <div class="cat">Screenshots</div>
-        <div class="who">CleanShot X</div>
-        <div class="cost">up to <b>$120</b>/yr</div>
+    <div class="deal rise">
+      <!-- the offer -->
+      <div class="deal-left">
+        <span class="deal-pill">Lifetime deal</span>
+        <div class="deal-amt">$49.99</div>
+        <p class="deal-sub">one payment · yours forever</p>
+        <a class="btn btn-primary deal-cta" href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.8L19.7 9l-4.6 3.6 1.6 5.9L12 15.2 7.3 18.5l1.6-5.9L4.3 9l5.8-1.2z"/></svg>
+          Get CopyCat for Life
+        </a>
+        <p class="deal-plat">Mac + Windows included</p>
+        <p class="deal-alt">Buying for Windows? <a href="https://buy.stripe.com/bJeaEW7ql46I1rWfjbefC05">Get the Windows version</a></p>
+        <ul class="deal-list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>10-slot clipboard</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>AI transforms</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Voice dictation</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Screenshot capture + editing</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>All future updates</li>
+        </ul>
       </div>
-      <div class="compare-card">
-        <div class="cat">Dictation</div>
-        <div class="who">Wispr Flow</div>
-        <div class="cost"><b>$155.88</b>/yr</div>
-      </div>
-      <div class="compare-card">
-        <div class="cat">AI clipboard</div>
-        <div class="who">Raycast AI</div>
-        <div class="cost"><b>$120–$240</b>/yr</div>
+
+      <!-- the savings story -->
+      <div class="deal-right">
+        <div class="sv-head">
+          <h3>Your savings keep growing</h3>
+          <div class="paid-badge">You still<br />paid only<b>$49.99</b></div>
+        </div>
+
+        <div class="sv-body">
+          <div class="chart">
+            <div class="chart-inner">
+              <svg viewBox="0 0 520 330" xmlns="http://www.w3.org/2000/svg" role="img"
+                   aria-label="Savings grow from $345 in year one to $1,135 by year three and $1,925 by year five, while CopyCat stays a single $49.99 payment.">
+                <defs>
+                  <linearGradient id="svfill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#7c3aed" stop-opacity=".26" />
+                    <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+                  </linearGradient>
+                  <marker id="svarrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#5e17eb" />
+                  </marker>
+                </defs>
+                <path d="M18,296 C44,290 60,272 76,246 C136,206 190,196 248,158 C312,118 372,100 428,62 L466,40 L466,296 Z" fill="url(#svfill)" />
+                <line x1="18" y1="296" x2="500" y2="296" stroke="#e3d8f7" stroke-width="2" />
+                <line x1="76" y1="246" x2="76" y2="296" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
+                <line x1="248" y1="158" x2="248" y2="296" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
+                <line x1="428" y1="62" x2="428" y2="296" stroke="#bda9ea" stroke-width="2" stroke-dasharray="3 5" />
+                <path d="M18,296 C44,290 60,272 76,246 C136,206 190,196 248,158 C312,118 372,100 428,62 L464,42"
+                      fill="none" stroke="#5e17eb" stroke-width="3.5" stroke-linecap="round" marker-end="url(#svarrow)" />
+                <circle cx="76" cy="296" r="4.5" fill="#5e17eb" />
+                <circle cx="248" cy="296" r="4.5" fill="#5e17eb" />
+                <circle cx="428" cy="296" r="4.5" fill="#5e17eb" />
+                <circle cx="76" cy="246" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
+                <circle cx="248" cy="158" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
+                <circle cx="428" cy="62" r="7.5" fill="#fff" stroke="#5e17eb" stroke-width="3.5" />
+              </svg>
+              <div class="pt" style="left:14.6%; top:74.5%"><span class="yr">Year 1</span><span class="sv">Save $345+</span></div>
+              <div class="pt" style="left:47.7%; top:47.9%"><span class="yr">Year 3</span><span class="sv">Save $1,135+</span></div>
+              <div class="pt" style="left:82.3%; top:18.8%"><span class="yr">Year 5</span><span class="sv">Save $1,925+</span></div>
+              <div class="xlab" style="left:14.6%; top:89.7%">Today</div>
+              <div class="xlab" style="left:47.7%; top:89.7%">Year 3</div>
+              <div class="xlab" style="left:82.3%; top:89.7%">Year 5</div>
+            </div>
+          </div>
+
+          <div class="cost-box">
+            <div class="cost-title">Yearly cost of 3 tools</div>
+            <div class="cost-row">
+              <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></span>
+              <span class="cn">Screenshots</span><span class="cv">$120<i>/year</i></span>
+            </div>
+            <div class="cost-row">
+              <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg></span>
+              <span class="cn">Dictation</span><span class="cv">$155<i>/year</i></span>
+            </div>
+            <div class="cost-row">
+              <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></span>
+              <span class="cn">AI clipboard</span><span class="cv">$120<i>/year</i></span>
+            </div>
+            <div class="cost-total">
+              <div class="tl">Total</div>
+              <div class="tv">$395</div>
+              <div class="ty">every year</div>
+            </div>
+          </div>
+        </div>
+
+        <p class="chart-note">The longer you use it, the more absurdly valuable it becomes.</p>
       </div>
     </div>
-    <p class="compare-total rise">Comparable tools can cost <s>$395.88–$515.88</s> every year</p>
 
-    <div class="price rise" style="margin-top:34px">
-      <span class="best-badge">Best value</span>
-      <div class="amt">$49.99 <span>one time</span></div>
-      <p class="sub">Lifetime access. Updates included.</p>
-      <div><span class="save-badge">Save $345+ in year one</span></div>
-      <div class="buy-row">
-        <a class="btn btn-primary" href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg>
-          Buy for Mac
-        </a>
-        <a class="btn btn-ghost" href="https://buy.stripe.com/bJeaEW7ql46I1rWfjbefC05">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801" /></svg>
-          Buy for Windows
-        </a>
+    <div class="flow-strip rise">
+      <div class="flow-item">
+        <span class="fi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="14" height="10" rx="2"/><path d="M8 20h14M18 10v10"/></svg></span>
+        <span class="fi-t">3 separate<br />subscriptions</span>
       </div>
-      <ul>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>10-slot clipboard + custom shortcuts</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Local AI transforms</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>On-device voice dictation</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Screenshot capture + editing</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12" /></svg>Lifetime updates included</li>
-      </ul>
-      <p class="foot-note">No subscription. No account. No seat count.</p>
+      <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="19" y2="12"/><polyline points="13 6 20 12 13 18"/></svg>
+      <div class="flow-item">
+        <span class="fi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg></span>
+        <span class="fi-t">1 app</span>
+      </div>
+      <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="19" y2="12"/><polyline points="13 6 20 12 13 18"/></svg>
+      <div class="flow-item">
+        <span class="fi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="8.5 12.5 11 15 16 9.5"/></svg></span>
+        <span class="fi-t">1 payment</span>
+      </div>
+    </div>
+
+    <p class="pricing-foot rise">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      No subscription. No account. No surprise renewal.
+    </p>
+  </div>
+</section>
+
+<!-- ============ PRIVACY ============ -->
+<section class="band-warm" id="privacy" style="border-top:1px solid rgba(180,120,60,0.10)">
+  <div class="wrap">
+    <div class="priv-grid rise">
+      <div class="priv-copy">
+        <h2>Not a single byte leaves your computer.</h2>
+        <p class="priv-lede">Keep more of your money — and all of your data.</p>
+        <p class="priv-body">
+          Your clipboard, dictation, screenshots, and AI transforms stay on your device.
+          CopyCat never uploads them, stores them, or sells them.
+        </p>
+
+        <div class="zero-card">
+          <div class="zero-num"><b>0</b><span>Bytes<br />uploaded</span></div>
+          <ul class="zero-list">
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12" /></svg></span>Processed locally</li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12" /></svg></span>No cloud storage</li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12" /></svg></span>No personal data sales</li>
+          </ul>
+        </div>
+
+        <div class="priv-cta">
+          <a class="btn btn-primary" href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.8L19.7 9l-4.6 3.6 1.6 5.9L12 15.2 7.3 18.5l1.6-5.9L4.3 9l5.8-1.2z"/></svg>
+            Get CopyCat for Life — $49.99
+          </a>
+          <p class="deal-alt">Buying for Windows? <a href="https://buy.stripe.com/bJeaEW7ql46I1rWfjbefC05">Get the Windows version</a></p>
+        </div>
+      </div>
+
+      <div class="priv-art">
+        <svg class="shield" viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M100 6 190 40v76c0 56-44 84-90 98-46-14-90-42-90-98V40z" fill="currentColor"/>
+        </svg>
+        <img class="cat" src="mascot.png" alt="The CopyCat mascot, keeping quiet about your data" />
+      </div>
+    </div>
+
+    <div class="flow-strip rise">
+      <div class="flow-item">
+        <span class="fi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span>
+        <span class="fi-t">Your computer</span>
+      </div>
+      <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="19" y2="12"/><polyline points="13 6 20 12 13 18"/></svg>
+      <div class="flow-item">
+        <span class="fi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><rect x="10" y="11" width="5" height="4" rx="1"/><path d="M11 11V9.8a1.5 1.5 0 0 1 3 0V11"/></svg></span>
+        <span class="fi-t">Your data stays here</span>
+      </div>
+      <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="19" y2="12"/><polyline points="13 6 20 12 13 18"/></svg>
+      <div class="flow-item">
+        <span class="fi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 11.5 11.3 14 15 9.8"/></svg></span>
+        <span class="fi-t">Always private</span>
+      </div>
     </div>
   </div>
 </section>
