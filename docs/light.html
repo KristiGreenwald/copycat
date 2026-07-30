@@ -114,7 +114,7 @@
   .hero-lead {
     --h-ink: #16141d;
     --h-ink-2: #5a5566;
-    --h-ink-3: #928c9e;
+    --h-ink-3: #706a80;
     --h-line: #e9e5f2;
     --h-sel: #efe8ff;
     --h-display: "Bricolage Grotesque", "Inter", -apple-system, sans-serif;
@@ -224,19 +224,19 @@
     animation: h-peek 0.9s 0.55s var(--ease) both;
   }
 
-  .hero-lead .orbit { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: visible; }
+  .hero-lead .orbit { position: absolute; inset: 0; z-index: 20; pointer-events: none; overflow: visible; }
   .hero-lead .orbit ellipse {
     fill: none; stroke: rgba(124, 58, 237, 0.30);
     stroke-width: 2; stroke-dasharray: 2 10; stroke-linecap: round;
   }
   .hero-lead .chip {
-    position: absolute; top: 0; left: 0;
+    position: absolute; top: 0; left: 0; z-index: 22;
     display: inline-flex; align-items: center; gap: 7px;
     padding: 9px 15px; border-radius: 30px; background: var(--accent); color: #fff;
     font-size: 11.5px; font-weight: 750; letter-spacing: 0.11em; text-transform: uppercase;
     white-space: nowrap; will-change: transform;
     box-shadow: 0 14px 26px -12px rgba(72, 16, 182, 0.6);
-    animation: h-pop 0.5s var(--ease) both;
+    animation: h-chip-in 0.5s var(--ease) both;
   }
   .hero-lead .chip svg { width: 14px; height: 14px; flex: none; }
 
@@ -292,7 +292,7 @@
   .hero-lead .hud-row .pn {
     font-size: 8.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-2);
   }
-  .hero-lead .hud-row .bd { font-size: 11px; color: var(--h-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hero-lead .hud-row .bd { display: block; font-size: 11px; color: var(--h-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hero-lead .hud-more {
     height: 15px; margin-top: 6px; border-radius: 11px 11px 0 0;
     background: linear-gradient(#fff, rgba(255, 255, 255, 0.15));
@@ -316,6 +316,8 @@
   @keyframes h-window { from { opacity: 0; transform: rotate(-1.4deg) translateX(70px); } to { opacity: 1; transform: rotate(-1.4deg); } }
   @keyframes h-peek { from { opacity: 0; transform: rotate(-2deg) translateY(110px); } to { opacity: 1; transform: rotate(-2deg); } }
   @keyframes h-pop { from { opacity: 0; scale: 0.85; } to { opacity: 1; scale: 1; } }
+  /* end frame defers to --dim so the JS depth fade still applies once filled */
+  @keyframes h-chip-in { from { opacity: 0; scale: 0.85; } to { opacity: var(--dim, 1); scale: 1; } }
   @keyframes h-bob { from { translate: 0 0; } to { translate: 0 -12px; } }
   @keyframes h-wv { 0%, 100% { height: 20%; } 50% { height: 100%; } }
 
@@ -552,6 +554,12 @@
   .rise { opacity: 0; transform: translateY(18px); transition: opacity 0.65s var(--ease), transform 0.65s var(--ease); }
   .rise.in { opacity: 1; transform: none; }
 
+  @media (max-width: 1200px) {
+    /* the visual column gets tight here: drop the pill onto the window's top
+       edge instead of the cat's face, and lift the toast clear of the HUD */
+    .hero-lead .frag.dict { top: 132px; right: -22px; }
+    .hero-lead .frag.toast { right: 20px; top: 330px; bottom: auto; }
+  }
   @media (max-width: 1020px) {
     .hero-lead .wrap { grid-template-columns: 1fr; min-height: 0; }
     .hero-lead .visual { height: 520px; margin-top: 6px; }
@@ -604,15 +612,17 @@
   </div>
 </header>
 
+<main>
+
 <!-- ============ HERO ============ -->
 <section class="hero-lead" id="top">
   <div class="wrap">
     <!-- left: type -->
     <div>
       <p class="kicker">For macOS · One-time purchase</p>
-      <h1>
+      <h1 aria-label="Your private desktop power tool">
         Your <span class="private">private</span> desktop
-        <span class="selection"><i></i>power tool<i></i></span>
+        <span class="selection"><i aria-hidden="true"></i>power tool<i aria-hidden="true"></i></span>
       </h1>
       <p class="lede">
         A <b>10-slot clipboard</b>, <b>voice dictation</b>, <b>screenshot editing</b>,
@@ -622,12 +632,12 @@
       <div class="cta-row">
         <a class="buy" href="https://buy.stripe.com/3cI14m6mhav67Qk2wpefC04">Get CopyCat — $49.99</a>
         <a class="watch" href="#demo">
-          <span class="play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg></span>
+          <span class="play"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg></span>
           Watch the 60-sec demo
         </a>
       </div>
       <p class="trust">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 11.5 11.3 14 15 9.8" /></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 11.5 11.3 14 15 9.8" /></svg>
         <span><b>0 bytes uploaded</b> — no cloud, no account, no subscription</span>
       </p>
     </div>
@@ -636,19 +646,19 @@
     <div class="visual">
       <svg class="orbit" id="orbit" aria-hidden="true"></svg>
       <span class="chip" data-phase="176" style="animation-delay:.75s">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="2" width="8" height="4" rx="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /></svg>
         Copy
       </span>
       <span class="chip" data-phase="132" style="animation-delay:.85s">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v14a2 2 0 0 0 2 2h14" /><path d="M18 22V8a2 2 0 0 0-2-2H2" /></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v14a2 2 0 0 0 2 2h14" /><path d="M18 22V8a2 2 0 0 0-2-2H2" /></svg>
         Screenshot
       </span>
       <span class="chip" data-phase="318" style="animation-delay:.95s">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v4" /></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v4" /></svg>
         Dictate
       </span>
       <span class="chip" data-phase="8" style="animation-delay:1.05s">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.7 5.2H19l-4.3 3.1 1.6 5.2-4.3-3.2-4.3 3.2 1.6-5.2L5 8.2h5.3z" /></svg>
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.7 5.2H19l-4.3 3.1 1.6 5.2-4.3-3.2-4.3 3.2 1.6-5.2L5 8.2h5.3z" /></svg>
         Transform
       </span>
 
@@ -662,7 +672,7 @@
         </picture></span>
 
       <div class="frag dict">
-        <span class="mic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v4" /></svg></span>
+        <span class="mic"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10a7 7 0 0 0 14 0M12 17v4" /></svg></span>
         <span class="wave" id="wave"></span>
         <span><span class="t">Listening…</span><br /><span class="s">release Fn to insert</span></span>
       </div>
@@ -675,21 +685,21 @@
         </div>
         <div class="hud-row">
           <span class="c">1</span>
-          <span class="tx"><span class="pn">Summarize in 5 bullet points</span><div class="bd">• Q3 revenue $2.4M, up 24% year over…</div></span>
+          <span class="tx"><span class="pn">Summarize in 5 bullet points</span><span class="bd">• Q3 revenue $2.4M, up 24% year over…</span></span>
         </div>
         <div class="hud-row">
           <span class="c">2</span>
-          <span class="tx"><span class="pn">Email draft</span><div class="bd">Hi Sam — following up on the Q3 launc…</div></span>
+          <span class="tx"><span class="pn">Email draft</span><span class="bd">Hi Sam — following up on the Q3 launc…</span></span>
         </div>
         <div class="hud-row">
           <span class="c">3</span>
-          <span class="tx"><span class="pn">Translate to Spanish</span><div class="bd">Estimado equipo, quería agradecerles la…</div></span>
+          <span class="tx"><span class="pn">Translate to Spanish</span><span class="bd">Estimado equipo, quería agradecerles la…</span></span>
         </div>
         <div class="hud-more"></div>
       </div>
 
       <div class="frag toast">
-        <span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><polyline points="20 6 9 17 4 12" /></svg></span>
+        <span class="tick"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4"><polyline points="20 6 9 17 4 12" /></svg></span>
         <span>Transformed locally<br /><span class="sub2">Llama 3.2 · 1.2s · on-device</span></span>
       </div>
     </div>
@@ -1093,6 +1103,8 @@
   </div>
 </section>
 
+</main>
+
 <footer>
   <div class="wrap foot">
     <a class="brand" href="#top" style="font-size:16px"><img src="mascot.png" alt="" style="width:24px;height:24px" />CopyCat</a>
@@ -1128,27 +1140,33 @@
     const chips = [...stage.querySelectorAll(".chip")];
     const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    let cx, cy, a, b;
+    const catEl = stage.querySelector(".cat"), winEl = stage.querySelector(".window");
+    let cx, cy, a, b, catL, catR, winTop;
     const measure = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
+      catL = catEl.offsetLeft; catR = catL + catEl.offsetWidth; winTop = winEl.offsetTop;
       cx = w * 0.47; cy = h * 0.44;
       a = Math.min(w * 0.44, 322); b = h * 0.36;
       track.setAttribute("viewBox", `0 0 ${w} ${h}`);
       track.innerHTML = `<ellipse cx="${cx}" cy="${cy}" rx="${a}" ry="${b}"/>`;
     };
     measure();
-    window.addEventListener("resize", measure);
+    window.addEventListener("resize", () => { measure(); if (still) place(0); });
 
     const SPEED = (Math.PI * 2) / 54000;   // one lap per 54s
     const place = (t) => {
       for (const c of chips) {
         const th = (+c.dataset.phase * Math.PI) / 180 + t * SPEED;
         const depth = (Math.sin(th) + 1) / 2;
+        const x = cx + a * Math.cos(th), y = cy + b * Math.sin(th);
         c.style.transform =
-          `translate(${cx + a * Math.cos(th)}px, ${cy + b * Math.sin(th)}px) ` +
+          `translate(${x}px, ${y}px) ` +
           `translate(-50%, -50%) scale(${(0.82 + 0.2 * depth).toFixed(3)})`;
-        c.style.zIndex = depth > 0.5 ? 30 : 4;
-        c.style.opacity = (0.78 + 0.22 * depth).toFixed(2);
+        // duck behind the cat only where the cat is actually on screen, i.e.
+        // above the window's top edge; everywhere else stay above the app
+        const behindCat = x > catL - 24 && x < catR + 24 && y < winTop + 6;
+        c.style.zIndex = behindCat ? 4 : 22;
+        c.style.setProperty("--dim", (0.78 + 0.22 * depth).toFixed(2));
       }
     };
     place(0);
