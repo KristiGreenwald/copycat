@@ -453,13 +453,12 @@
   .deal-list svg { width: 17px; height: 17px; flex: none; margin-top: 3px; color: var(--good); }
 
   /* savings panel */
-  /* padding-right reserves the cost-box column (210px + 24px gap) so the
-     heading centres over the chart rather than the whole panel */
-  .sv-head { margin-bottom: 10px; text-align: center; padding-right: 234px; }
+  /* centred across the full panel — chart and cost box both */
+  .sv-head { margin-bottom: 12px; text-align: center; }
   .sv-head h3 {
-    font-size: clamp(19px, 2.5vw, 27px); font-weight: 800; letter-spacing: -0.01em;
-    text-transform: uppercase; line-height: 1.08;
-    text-wrap: balance;
+    font-size: clamp(16px, 2.4vw, 27px); font-weight: 800; letter-spacing: -0.01em;
+    text-transform: uppercase; line-height: 1.1;
+    white-space: nowrap;   /* one line; the clamp shrinks it on narrow panels */
   }
   .paid-badge {
     position: absolute; top: 0; left: 0; z-index: 3;
@@ -583,7 +582,6 @@
     .nav-links { display: none; }
     .row, .grid3, .steps, .quotes { grid-template-columns: 1fr; }
     .deal, .sv-body, .priv-grid { grid-template-columns: 1fr; }
-    .sv-head { padding-right: 0; }
     .deal-left { border-right: 0; border-bottom: 1px solid var(--line); padding-right: 0; padding-bottom: 28px; }
     .paid-badge { width: 96px; height: 96px; font-size: 10px; }
     .sv-body { align-items: stretch; }
